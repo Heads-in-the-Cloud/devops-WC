@@ -1,3 +1,9 @@
+variable "default_vpc_id" {
+    type = string
+    default = "vpc-0cc1a1b594e643c37"
+    description = "id of team's default vpc"
+}
+
 variable "user_task" {
     type = string
     default = "user-task"
