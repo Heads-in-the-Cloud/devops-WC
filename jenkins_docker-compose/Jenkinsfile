@@ -1,0 +1,17 @@
+pipeline {
+    environment {
+        USER_PORT=5000
+        FLIGHT_PORT=5001
+        BOOKING_PORT=5002
+    }
+
+    agent any
+    
+    stages {
+        stage('build'){
+            sh 'docker-compose up -d'
+        }
+
+    }
+
+}
