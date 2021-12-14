@@ -1,0 +1,64 @@
+version: 1
+task_definition:
+  task_role_arn: arn:aws:iam::182310506613:role/ecsTaskExecutionRole
+  task_execution_role: arn:aws:iam::182310506613:role/ecsTaskExecutionRole
+  # task_size:
+  #   cpu_limit: 512
+    # mem_limit: 512000000
+  services:
+    users:
+      cpu_shares: 64
+      mem_limit: 134217728
+      secrets:
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_host
+        name: DB_HOST
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/secret_key
+        name: SECRET_KEY
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user
+        name: DB_USER
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user_password
+        name: DB_USER_PASSWORD
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db
+        name: DB
+  services:
+    flights:
+      cpu_shares: 128
+      mem_limit: 134217728
+      secrets:
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_host
+        name: DB_HOST
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/secret_key
+        name: SECRET_KEY
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user
+        name: DB_USER
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user_password
+        name: DB_USER_PASSWORD
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db
+        name: DB
+
+  services:
+    bookings:
+      cpu_shares: 64
+      mem_limit: 134217728
+      secrets:
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_host
+        name: DB_HOST
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/secret_key
+        name: SECRET_KEY
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user
+        name: DB_USER
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db_user_password
+        name: DB_USER_PASSWORD
+      - value_from: arn:aws:ssm:us-west-1:182310506613:parameter/utopia/dev/db
+        name: DB
+
+# run_params:
+#   network_configuration:
+#     awsvpc_configuration:
+#       # subnets: 
+#       #   - subnet-05a7fc58460a893b9
+#       #   - subnet-02ccd9af12fcac561
+#       # security_groups: 
+#       #   - secgroup_id1
+#       #   - secgroup_id2
+#       assign_public_ip: ENABLED

@@ -1,0 +1,22 @@
+version: '3.4'
+services:
+  users:
+    image: waltchang97/utopia-users-microservice
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+  flights:
+    image: waltchang97/utopia-flights-microservice
+    env_file:
+      - .env
+    ports:
+      - "5001:5001"
+  bookings:
+    image: waltchang97/utopia-bookings-microservice
+    env_file:
+      - .env
+    ports:
+      - "5002:5002"
+    
+

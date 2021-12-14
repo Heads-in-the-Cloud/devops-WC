@@ -1,0 +1,41 @@
+version: '3'
+services:
+
+  users-api:
+    image: waltchang97/utopia-users-microservice
+    env_file:
+      - .env
+    container_name: users-api
+    restart: always
+    networks:
+      - backend
+    expose:
+      - ${USERS_PORT}
+    ports:
+      - "${USERS_PORT}:${FLASK_PORT}"
+  bookings-api:
+    image: waltchang97/utopia-bookings-microservice
+    env_file:
+      - .env
+    container_name: bookings-api
+    restart: always
+    networks:
+      - backend
+    expose:
+      - ${BOOKINGS_PORT}
+    ports:
+      - "${BOOKINGS_PORT}:${FLASK_PORT}"
+  flights-api:
+    image: waltchang97/utopia-flights-microservice
+    env_file:
+      - .env
+    container_name: flights-api
+    restart: always
+    networks:
+      - backend
+    expose:
+      - ${FLIGHTS_PORT}
+    ports:
+      - "${FLIGHTS_PORT}:${FLASK_PORT}"
+networks:
+  backend:
