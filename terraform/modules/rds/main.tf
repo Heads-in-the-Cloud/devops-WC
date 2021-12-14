@@ -35,7 +35,6 @@ resource "aws_security_group" "db_sg" {
     from_port        = 3306
     to_port          = 3306
     protocol         = "tcp"
-    # cidr_blocks      = [ "${aws_instance.bastion_host.private_ip}/32" ]
     cidr_blocks      = ["0.0.0.0/0"]
   }
 

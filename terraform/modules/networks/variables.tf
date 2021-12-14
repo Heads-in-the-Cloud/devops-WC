@@ -12,6 +12,31 @@ variable "vpc_cidr_block" {
     default = ""
 } 
 
+variable "default_vpc_cidr" {
+    type = string
+    default = ""
+}
+
+variable "peer_vpc_id" {
+    type = string
+    default = ""
+}
+
+variable "peer_owner_id" {
+    type = string
+    default = ""
+}
+
+variable "pc_name" {
+    type = string
+    default = ""
+}
+
+variable "region" {
+    type = string
+    default = ""
+}
+
 variable "subnet1_cidr_block" {
     type = string
     default = ""
@@ -33,6 +58,11 @@ variable "subnet4_cidr_block" {
 }
 
 variable "rt_cidr_block" {
+    type = string
+    default = ""
+}
+
+variable "default_rt_id" {
     type = string
     default = ""
 }

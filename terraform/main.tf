@@ -15,7 +15,9 @@ data "aws_ecr_repository" "booking-container" {
     name = "wc-bookings-api"
 }
 
-
+data "aws_vpc" "default_vpc" {
+    id = "${var.default_vpc_id}"
+}
 
 locals {
   db_creds = jsondecode(
@@ -31,6 +33,13 @@ module "networks" {
   subnet3_cidr_block    = "10.10.3.0/24"
   subnet4_cidr_block    = "10.10.4.0/24"
   rt_cidr_block         = "0.0.0.0/0"
+  peer_owner_id         = "026390315914"
+  pc_name               = "wc-pc-01"
+  region                = "us-west-2"
+  default_rt_id         = "rtb-048596a1592577216"
+  peer_vpc_id           = data.aws_vpc.default_vpc.id
+  default_vpc_cidr      = data.aws_vpc.default_vpc.cidr_block
+
 }
 
 
