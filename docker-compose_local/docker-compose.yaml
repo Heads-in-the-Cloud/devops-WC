@@ -1,6 +1,17 @@
 version: '3'
 services:
-
+  db:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
   users-api:
     image: waltchang97/utopia-users-microservice
     env_file:
@@ -9,10 +20,8 @@ services:
     restart: always
     networks:
       - backend
-    expose:
-      - ${USERS_PORT}
     ports:
-      - "${USERS_PORT}:${FLASK_PORT}"
+      - 5000:5000
   bookings-api:
     image: waltchang97/utopia-bookings-microservice
     env_file:
@@ -21,10 +30,8 @@ services:
     restart: always
     networks:
       - backend
-    expose:
-      - ${BOOKINGS_PORT}
     ports:
-      - "${BOOKINGS_PORT}:${FLASK_PORT}"
+      - 5002:5002
   flights-api:
     image: waltchang97/utopia-flights-microservice
     env_file:
@@ -33,9 +40,7 @@ services:
     restart: always
     networks:
       - backend
-    expose:
-      - ${FLIGHTS_PORT}
     ports:
-      - "${FLIGHTS_PORT}:${FLASK_PORT}"
+      - 5001:5001
 networks:
   backend:
