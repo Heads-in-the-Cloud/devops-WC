@@ -5,15 +5,15 @@ pipeline {
     //     BOOKING_PORTS="5002"
     // }
 
-    agent any
+    // agent any
     
-    stages {
-        stage('build'){
-            steps {
-                sh 'docker-compose -f jenkins_docker-compose/docker-compose.yaml up -d'
-            }
-        }
+    // stages {
+    //     stage('build'){
+    //         steps {
+    //             sh 'docker-compose -f jenkins_docker-compose/docker-compose.yaml up -d'
+    //         }
+    //     }
 
-    }
+    // }
 
 }
