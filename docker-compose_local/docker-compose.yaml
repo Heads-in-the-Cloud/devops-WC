@@ -5,7 +5,7 @@ services:
     container_name: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_USER_PASSWORD}
     volumes:
       - ./mysql/data:/var/lib/mysql
     networks:
