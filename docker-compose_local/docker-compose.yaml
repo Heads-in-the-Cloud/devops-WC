@@ -18,6 +18,18 @@ services:
        - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: users-api
     restart: always
     networks:
@@ -30,6 +42,18 @@ services:
        - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: bookings-api
     restart: always
     networks:
@@ -42,6 +66,18 @@ services:
        - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: flights-api
     restart: always
     networks:
@@ -50,3 +86,15 @@ services:
       - "${FLIGHTS_PORT}:${FLIGHTS_PORT}"
 networks:
   backend:
+
+secrets:
+    DB_HOST:
+      file: ./db_host
+    SECRET_KEY:
+      file: ./secret_key
+    DB_USER:
+      file: ./db_user
+    DB_USER_PASSWORD:
+      file: ./db_user_password
+    DB:
+      file: ./db
