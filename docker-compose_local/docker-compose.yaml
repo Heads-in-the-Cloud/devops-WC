@@ -14,6 +14,8 @@ services:
       - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
   users-api:
     image: waltchang97/utopia-users-microservice
+    depends_on:
+       - db
     env_file:
       - .env
     container_name: users-api
@@ -21,9 +23,11 @@ services:
     networks:
       - backend
     ports:
-      - "5000:5000"
+      - "${USERS_PORT}:${USERS_PORT}"
   bookings-api:
     image: waltchang97/utopia-bookings-microservice
+    depends_on:
+       - db
     env_file:
       - .env
     container_name: bookings-api
@@ -31,9 +35,11 @@ services:
     networks:
       - backend
     ports:
-      - "5002:5002"
+      - "${BOOKINGS_PORT}:${BOOKINGS_PORT}"
   flights-api:
     image: waltchang97/utopia-flights-microservice
+    depends_on:
+       - db
     env_file:
       - .env
     container_name: flights-api
@@ -41,6 +47,6 @@ services:
     networks:
       - backend
     ports:
-      - "5001:5001"
+      - "${FLIGHTS_PORT}:${FLIGHTS_PORT}"
 networks:
   backend:
