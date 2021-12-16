@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   db:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: mysql
     restart: always
     environment:
@@ -13,7 +13,7 @@ services:
     ports:
       - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
   users-api:
-    image: waltchang97/utopia-users-microservice
+    image: "${USER_IMAGE}"
     depends_on:
        - db
     env_file:
@@ -25,7 +25,7 @@ services:
     ports:
       - "${USERS_PORT}:${USERS_PORT}"
   bookings-api:
-    image: waltchang97/utopia-bookings-microservice
+    image: "${BOOKING_IMAGE}"
     depends_on:
        - db
     env_file:
@@ -37,7 +37,7 @@ services:
     ports:
       - "${BOOKINGS_PORT}:${BOOKINGS_PORT}"
   flights-api:
-    image: waltchang97/utopia-flights-microservice
+    image: "${FLIGHT_IMAGE}"
     depends_on:
        - db
     env_file:
