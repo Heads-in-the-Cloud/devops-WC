@@ -89,12 +89,12 @@ networks:
 
 secrets:
     DB_HOST:
-      file: ./db_host
+      file: ./docker-compose_local/db_host
     SECRET_KEY:
-      file: ./secret_key
+      file: ./docker-compose_local/secret_key
     DB_USER:
-      file: ./db_user
+      file: ./docker-compose_local/db_user
     DB_USER_PASSWORD:
-      file: ./db_user_password
+      file: ./docker-compose_local/db_user_password
     DB:
-      file: ./db
+      file: ./docker-compose_local/db
