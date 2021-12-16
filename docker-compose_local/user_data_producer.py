@@ -61,14 +61,14 @@ AGENT_PASS = os.getenv('AGENT_PASSWORD')
 TRAVELER = os.getenv('TRAVELER_USERNAME')
 TRAVELER_PASS = os.getenv('TRAVELER_PASSWORD')
 
-try:
-    print(REQ_GET_USERS)
-    requests.get(REQ_GET_USERS)
+# try:
+#     print(REQ_GET_USERS)
+#     requests.get(REQ_GET_USERS)
     
-except:
-    print('could not connect to host')
-    traceback.print_exc()
-    exit()
+# except:
+#     print('could not connect to host')
+#     traceback.print_exc()
+#     exit()
 
 
 
