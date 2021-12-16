@@ -151,14 +151,14 @@ def clean_users():
 
 if __name__ == '__main__':
 
-    try:
-        print(REQ_GET_USERS)
-        requests.get(REQ_GET_USERS)
+    # try:
+    #     print(REQ_GET_USERS)
+    #     requests.get(REQ_GET_USERS)
         
-    except:
-        print('could not connect to host')
-        traceback.print_exc()
-        exit()
+    # except:
+    #     print('could not connect to host')
+    #     traceback.print_exc()
+    #     exit()
 
     if parser.yes:
         post_user(int(os.getenv("DEFAULT_LOAD_SIZE")))
