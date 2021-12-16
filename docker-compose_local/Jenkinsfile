@@ -1,8 +1,8 @@
 pipeline {
     environment {
-        USER_PORTS=5000
-        FLIGHT_PORTS=5001
-        BOOKING_PORTS=5002
+        USER_PORTS="5000"
+        FLIGHT_PORTS="5001"
+        BOOKING_PORTS="5002"
     }
 
     agent any
