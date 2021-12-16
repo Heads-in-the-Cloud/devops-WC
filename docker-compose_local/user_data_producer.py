@@ -61,14 +61,7 @@ AGENT_PASS = os.getenv('AGENT_PASSWORD')
 TRAVELER = os.getenv('TRAVELER_USERNAME')
 TRAVELER_PASS = os.getenv('TRAVELER_PASSWORD')
 
-# try:
-#     print(REQ_GET_USERS)
-#     requests.get(REQ_GET_USERS)
-    
-# except:
-#     print('could not connect to host')
-#     traceback.print_exc()
-#     exit()
+
 
 
 
@@ -157,6 +150,15 @@ def clean_users():
 
 
 if __name__ == '__main__':
+
+    try:
+        print(REQ_GET_USERS)
+        requests.get(REQ_GET_USERS)
+        
+    except:
+        print('could not connect to host')
+        traceback.print_exc()
+        exit()
 
     if parser.yes:
         post_user(int(os.getenv("DEFAULT_LOAD_SIZE")))
