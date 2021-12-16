@@ -21,7 +21,7 @@ services:
     networks:
       - backend
     ports:
-      - 5000 : 5000
+      - 5000 : 50004
   bookings-api:
     image: waltchang97/utopia-bookings-microservice
     env_file:
