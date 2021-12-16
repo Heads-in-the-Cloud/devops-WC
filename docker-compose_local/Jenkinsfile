@@ -10,7 +10,11 @@ pipeline {
     stages {
         stage('build'){
             steps {
-                sh 'docker-compose -f docker-compose_local/docker-compose.yaml --verbose up -d'
+                script {
+
+                    sh 'docker-compose -f docker-compose_local/docker-compose.yaml --verbose up -d'
+
+                }
             }
         }
 
