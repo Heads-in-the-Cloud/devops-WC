@@ -1,17 +1,17 @@
 version: '3.4'
 services:
-  # db:
-  #   image: mysql:latest
-  #   container_name: mysql
-  #   restart: always
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: ${DB_USER_PASSWORD}
-  #   volumes:
-  #     - ./mysql/data:/var/lib/mysql
-  #   networks:
-  #     - backend
-  #   ports:
-  #     - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
+  db:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_USER_PASSWORD}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
   users-api:
     image: waltchang97/utopia-users-microservice
     env_file:
