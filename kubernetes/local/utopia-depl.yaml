@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  labels:
+    app: users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+      - name: users
+        image: waltchang97/utopia-users-microservice
+        ports:
+        - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: docker-secrets
+        - configMapRef:
+            name: utopia-config
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-deployment
+  labels:
+    app: flights
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flights
+  template:
+    metadata:
+      labels:
+        app: flights
+    spec:
+      containers:
+      - name: flights
+        image: waltchang97/utopia-flights-microservice
+        ports:
+        - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: docker-secrets
+        - configMapRef:
+            name: utopia-config
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookings-deployment
+  labels:
+    app: bookings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookings
+  template:
+    metadata:
+      labels:
+        app: bookings
+    spec:
+      containers:
+      - name: bookings
+        image: waltchang97/utopia-bookings-microservice
+        ports:
+        - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: docker-secrets
+        - configMapRef:
+            name: utopia-config
+
+        

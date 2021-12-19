@@ -161,9 +161,9 @@ metadata:
   namespace: nginx-ingress
 type: Opaque
 data:
-  DB_HOST: dXRvcGlhLWRiLmNxZ3UyZWJlN3k0ZS51cy13ZXN0LTEucmRzLmFtYXpvbmF3cy5jb20=
-  DB_USER: YWRtaW4=
-  DB_USER_PASSWORD: dmFyc2l0eW9yY2hlc3RyYQ==
+  DB_HOST: ZGF0YWJhc2Utd2MuY2ZsZDFreWVja2xjLnVzLXdlc3QtMi5yZHMuYW1hem9uYXdzLmNvbQ==
+  DB_USER: YWRtaW4xMjM=
+  DB_USER_PASSWORD: cGFzc3dvcmQxMjM=
   DB: dXRvcGlh
   DIALECT: bXlzcWw=
   SECRET_KEY: c2VjcmV0MTkyYjkyZWQ0ZDEyZTIzNmM3OGFmYzM5M2VjMTVmNzFiYmY1ZGM5ODdkNTQ3Mjc4MjNiY2JmaWx0YzJt
