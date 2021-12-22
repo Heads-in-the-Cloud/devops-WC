@@ -2,11 +2,12 @@ pipeline {
 
     agent any
 
-    stages {
-
         dir("folder") {
             sh "terraform"
         }
+
+
+    stages {
 
         stage('Terraform init') {
             
