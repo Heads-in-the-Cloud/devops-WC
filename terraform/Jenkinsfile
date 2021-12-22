@@ -2,29 +2,32 @@ pipeline {
 
     agent any
 
-        dir("folder") {
-            sh "terraform"
-        }
+
 
 
     stages {
 
         stage('Terraform init') {
-            
-            steps {
+             dir("folder") {
+                sh "terraform"
 
-            sh 'terraform init'
+                steps {
 
+                    sh 'terraform init'
+
+                }
             }
         }
 
         stage('Terraform action') {
+             dir("folder") {
+               sh "terraform"
+                    steps {
 
-            steps {
+                        sh "terraform ${action} -auto-approve"
 
-                sh "terraform ${action} -auto-approve"
-
-            }
+                    }
+             }
 
         }
 
