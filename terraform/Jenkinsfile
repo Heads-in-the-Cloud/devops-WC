@@ -11,11 +11,10 @@ pipeline {
 
 
                 steps {
-                dir("folder") {
-                    sh "terraform"
-                }
-                    sh 'terraform init'
+                dir("terraform") {
 
+                    sh 'terraform init'
+                }
                 
             }
         }
@@ -23,12 +22,11 @@ pipeline {
         stage('Terraform action') {
 
                     steps {
-                    dir("folder") {
-                    sh "terraform"
-                    }
+                    dir("terraform") {
+
                         sh "terraform ${action} -auto-approve"
                     }
-             
+            } 
 
         }
 
