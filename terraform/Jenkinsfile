@@ -8,26 +8,27 @@ pipeline {
     stages {
 
         stage('Terraform init') {
-             dir("folder") {
-                sh "terraform"
+
 
                 steps {
-
+                dir("folder") {
+                    sh "terraform"
+                }
                     sh 'terraform init'
 
-                }
+                
             }
         }
 
         stage('Terraform action') {
-             dir("folder") {
-               sh "terraform"
+
                     steps {
-
-                        sh "terraform ${action} -auto-approve"
-
+                    dir("folder") {
+                    sh "terraform"
                     }
-             }
+                        sh "terraform ${action} -auto-approve"
+                    }
+             
 
         }
 
