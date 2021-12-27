@@ -5,6 +5,7 @@ resource "aws_instance" "bastion_host" {
   key_name                  = var.key_name
   vpc_security_group_ids    = [ aws_security_group.ssh_sg.id ]
   subnet_id                 = var.public_subnet_id
+  iam_instance_profile      = aws_iam_instance_profile.bastion_host_profile.name
   user_data                 = templatefile("${path.root}/mysql_starter_script.sh", {
     RDS_MYSQL_ENDPOINT      = aws_db_instance.rds.address
     RDS_MYSQL_USER          = var.db_username
@@ -38,3 +39,37 @@ resource "aws_security_group" "ssh_sg" {
     Name = "ssh_sg"
   }
 }
+
+resource "aws_iam_instance_profile" "bastion_host_profile" {
+  name = "bastion_host_profile_WC"
+  role = aws_iam_role.s3_iam_role.name
+}
+
+
+resource "aws_iam_role" "s3_iam_role" {
+  name               = "S3BucketReadOnly"
+  assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
+  
+}
+
+data "aws_iam_policy_document" "instance-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+
+data "aws_iam_policy" "s3_read_only" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
+  role       = aws_iam_role.s3_iam_role.name
+  policy_arn = data.aws_iam_policy.s3_read_only.arn
+}
+
