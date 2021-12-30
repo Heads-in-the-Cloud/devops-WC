@@ -1,0 +1,34 @@
+- name: Start Microservice Instances
+  hosts: localhost
+  connection: local
+  
+  vars:
+    region: us-west-1
+    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+  tasks:
+  - name: Start EC2 Instance
+    ec2:
+      instance_tags:
+          Name: users_microservice
+      state: stopped
+      region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+    register: users
+  - name: Add users instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: users
+    loop: "{{ users.instances }}"
+- name: Configure instance(s)
+  hosts: users
+  become: yes
+  tasks:
+    - name: "Starting docker service"
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+    - name: "Run docker container"
+      command: "docker container waltchang97/utopia-users-microservice start"

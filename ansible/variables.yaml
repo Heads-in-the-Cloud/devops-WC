@@ -1,0 +1,18 @@
+---
+keypair: MyKeySS
+instance_type: t2.micro
+security_group: sg-0092133e1122b1080
+image: ami-03af6a70ccd8cb578
+region: us-west-1
+aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+ansible_ssh_private_key_file: ~/.ssh/MyKeySS.pem
+vpc_subnet_id: subnet-02b01f0a2e379e711
+DB_HOST: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.DB_HOST', region=region,
+aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
+SECRET_KEY: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.SECRET_KEY', region=region,
+aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
+DB_USER: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.DB_USER', region=region,
+aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
+DB_USER_PASSWORD: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.DB_USER_PASSWORD', region=region,
+aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
