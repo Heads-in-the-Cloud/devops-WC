@@ -8,6 +8,13 @@ aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
 aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
 ansible_ssh_private_key_file: ~/.ssh/MyKeySS.pem
 vpc_subnet_id: subnet-02b01f0a2e379e711
+vpc_subnet_id_2: subnet-043cd1ef50bfb705a             
+vpc: vpc-0af933bdab28091ad
+elb_sg_id: sg-07e38e4525d675472 
+http: 80
+users_port: 5000
+flights_port: 5001
+bookings_port: 5002
 DB_HOST: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.DB_HOST', region=region,
 aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
 SECRET_KEY: "{{ lookup('amazon.aws.aws_secret', 'utopia-secrets.SECRET_KEY', region=region,

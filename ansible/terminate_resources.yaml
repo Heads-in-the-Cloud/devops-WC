@@ -1,0 +1,60 @@
+- name: Terminate Microservice Instances
+  hosts: localhost
+  connection: local
+  
+  vars:
+    region: us-west-1
+    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+
+  tasks:
+  - name: Terminate Users Instance EC2.
+    ec2_instance:
+      region: "{{ region }}"
+      filters:
+        "tag:Name": "users_microservice"
+      state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+
+  - name: Terminate Flights Instance EC2.
+    ec2_instance:
+      region: "{{ region }}"
+      filters:
+        "tag:Name": "flights_microservice"
+      state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+
+  - name: Terminate Bookings Instance EC2.
+    ec2_instance:
+      region: "{{ region }}"
+      filters:
+        "tag:Name": "bookings_microservice"
+      state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+
+  - name: Terminate Load Balancer
+    elb_application_lb:
+      region: "{{ region }}"
+      name: myelb
+      state: absent
+
+  - name: Delete users target group
+    elb_target_group:
+      region: "{{ region }}"
+      name: users-tg
+      state: absent
+
+  - name: Delete flights target group
+    elb_target_group:
+      region: "{{ region }}"
+      name: flights-tg
+      state: absent
+
+  - name: Delete bookings target group
+    elb_target_group:
+      region: "{{ region }}"
+      name: bookings-tg
+      state: absent

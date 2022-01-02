@@ -1,34 +1,186 @@
 - name: Start Microservice Instances
   hosts: localhost
   connection: local
-  
-  vars:
-    region: us-west-1
-    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
-    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+  vars_files:
+    - ./variables.yaml
+
   tasks:
-  - name: Start EC2 Instance
+
+  - name: Start Users Instance
     ec2:
+      region: "{{ region }}"
       instance_tags:
           Name: users_microservice
-      state: stopped
-      region: "{{ region }}"
-      aws_access_key: "{{aws_access_key}}"
-      aws_secret_key: "{{aws_secret_key}}"
+      state: running
     register: users
+
+  - name: Start Flights Instance
+    ec2:
+      region: "{{ region }}"
+      instance_tags:
+          Name: flights_microservice
+      state: running
+    register: flights
+
+  - name: Start Bookings Instance
+    ec2:
+      region: "{{ region }}"
+      instance_tags:
+          Name: bookings_microservice
+      state: running
+    register: bookings
+
+  - name: Wait for Users SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ users.instances }}"
+
+  - name: Wait for Flights SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ flights.instances }}"
+
+  - name: Wait for Bookings SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ bookings.instances }}"
+
+  - name: Get Users Instance Info
+    ec2_instance_info:
+      filters:
+        instance-state-name: running
+        "tag:Name": users_microservice
+      region: "{{ region }}"
+    register: users_with_ip
+
+  - name: Get Flights Instance Info
+    ec2_instance_info:
+      filters:
+        instance-state-name: running
+        "tag:Name": flights_microservice  
+      region: "{{ region }}"
+    register: flights_with_ip
+
+  - name: Get Bookings Instance Info
+    ec2_instance_info:
+      filters:
+        instance-state-name: running
+        "tag:Name": bookings_microservice  
+      region: "{{ region }}"
+    register: bookings_with_ip
+
+
   - name: Add users instance to host group
     add_host:
-      hostname: "{{ item.public_ip }}"
+      hostname: "{{ item.public_ip_address }}"
       groupname: users
-    loop: "{{ users.instances }}"
-- name: Configure instance(s)
+    loop: "{{ users_with_ip.instances }}"
+
+  - name: Add flights instance to host group
+    add_host:
+      hostname: "{{ item.public_ip_address }}"
+      groupname: flights
+    loop: "{{ flights_with_ip.instances }}"
+
+  - name: Add bookings instance to host group
+    add_host:
+      hostname: "{{ item.public_ip_address }}"
+      groupname: bookings
+    loop: "{{ bookings_with_ip.instances }}"
+
+- name: SSH into Users and start container
   hosts: users
   become: yes
+  vars_files:
+    - ./variables.yaml
   tasks:
     - name: "Starting docker service"
       service:
         name: "docker"
         state: started
         enabled: yes
-    - name: "Run docker container"
-      command: "docker container waltchang97/utopia-users-microservice start"
+
+    - name: Get info on container
+      docker_container_info:
+        name: users_microservice
+      register: users_container
+
+    - name: Run Docker Users Image
+      docker_container:
+        name: users_microservice
+        image: waltchang97/utopia-users-microservice
+        state: started
+        restart: yes
+        env:
+          SECRET_KEY: "{{ SECRET_KEY }}"
+          DB_HOST: "{{ DB_HOST }}"
+          DB_USER: "{{ DB_USER }}"
+          DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"
+      when: users_container.exists and users_container.container['State']['Running'] == false
+
+- name: SSH into Flights and start container
+  hosts: flights
+  become: yes
+  vars_files:
+    - ./variables.yaml
+  tasks:
+    - name: "Starting docker service"
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+
+    - name: Get info on container
+      docker_container_info:
+        name: flights_microservice
+      register: flights_container
+
+    - name: Run Docker Flights Image
+      docker_container:
+        name: flights_microservice
+        image: waltchang97/utopia-flights-microservice
+        state: started
+        restart: yes
+        env:
+          SECRET_KEY: "{{ SECRET_KEY }}"
+          DB_HOST: "{{ DB_HOST }}"
+          DB_USER: "{{ DB_USER }}"
+          DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"
+      when: flights_container.exists and flights_container.container['State']['Running'] == false
+
+
+- name: SSH into Bookings and start container
+  hosts: bookings
+  become: yes
+  vars_files:
+    - ./variables.yaml
+  tasks:
+    - name: "Starting docker service"
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+
+    - name: Get info on container
+      docker_container_info:
+        name: bookings_microservice
+      register: bookings_container
+
+    - name: Run Docker Bookings Image
+      docker_container:
+        name: bookings_microservice
+        image: waltchang97/utopia-bookings-microservice
+        state: started
+        restart: yes
+        env:
+          SECRET_KEY: "{{ SECRET_KEY }}"
+          DB_HOST: "{{ DB_HOST }}"
+          DB_USER: "{{ DB_USER }}"
+          DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"
+      when: bookings_container.exists and bookings_container.container['State']['Running'] == false

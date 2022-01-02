@@ -7,10 +7,28 @@
     aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
     aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
   tasks:
-  - name: Stop EC2 Instance
+  - name: Stop Users Instance
     ec2:
       instance_tags:
           Name: users_microservice
+      state: stopped
+      region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+
+  - name: Stop Flights Instance
+    ec2:
+      instance_tags:
+          Name: flights_microservice
+      state: stopped
+      region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
+
+  - name: Stop Bookings Instance
+    ec2:
+      instance_tags:
+          Name: bookings_microservice
       state: stopped
       region: "{{ region }}"
       aws_access_key: "{{aws_access_key}}"
