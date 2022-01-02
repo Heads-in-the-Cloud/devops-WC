@@ -1,12 +1,8 @@
 - name: Terminate Microservice Instances
   hosts: localhost
   connection: local
-  
-  vars:
-    region: us-west-1
-    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
-    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
-
+  vars_files:
+    - ../../variables.yaml
   tasks:
   - name: Terminate Users Instance EC2.
     ec2_instance:
@@ -40,21 +36,29 @@
       region: "{{ region }}"
       name: myelb
       state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
 
   - name: Delete users target group
     elb_target_group:
       region: "{{ region }}"
       name: users-tg
       state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
 
   - name: Delete flights target group
     elb_target_group:
       region: "{{ region }}"
       name: flights-tg
       state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
 
   - name: Delete bookings target group
     elb_target_group:
       region: "{{ region }}"
       name: bookings-tg
       state: absent
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"

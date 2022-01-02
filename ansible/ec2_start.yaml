@@ -2,13 +2,15 @@
   hosts: localhost
   connection: local
   vars_files:
-    - ./variables.yaml
+    - ../../variables.yaml
 
   tasks:
 
   - name: Start Users Instance
     ec2:
       region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       instance_tags:
           Name: users_microservice
       state: running
@@ -17,6 +19,8 @@
   - name: Start Flights Instance
     ec2:
       region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       instance_tags:
           Name: flights_microservice
       state: running
@@ -25,6 +29,8 @@
   - name: Start Bookings Instance
     ec2:
       region: "{{ region }}"
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       instance_tags:
           Name: bookings_microservice
       state: running
@@ -53,6 +59,8 @@
 
   - name: Get Users Instance Info
     ec2_instance_info:
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       filters:
         instance-state-name: running
         "tag:Name": users_microservice
@@ -61,6 +69,8 @@
 
   - name: Get Flights Instance Info
     ec2_instance_info:
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       filters:
         instance-state-name: running
         "tag:Name": flights_microservice  
@@ -69,6 +79,8 @@
 
   - name: Get Bookings Instance Info
     ec2_instance_info:
+      aws_access_key: "{{aws_access_key}}"
+      aws_secret_key: "{{aws_secret_key}}"
       filters:
         instance-state-name: running
         "tag:Name": bookings_microservice  
@@ -98,7 +110,7 @@
   hosts: users
   become: yes
   vars_files:
-    - ./variables.yaml
+    - ../../variables.yaml
   tasks:
     - name: "Starting docker service"
       service:
@@ -128,7 +140,7 @@
   hosts: flights
   become: yes
   vars_files:
-    - ./variables.yaml
+    - ../../variables.yaml
   tasks:
     - name: "Starting docker service"
       service:
@@ -159,7 +171,7 @@
   hosts: bookings
   become: yes
   vars_files:
-    - ./variables.yaml
+    - ../../variables.yaml
   tasks:
     - name: "Starting docker service"
       service:
