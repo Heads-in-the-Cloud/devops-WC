@@ -29,3 +29,10 @@ spec:
                 name: users-service
                 port:
                   number: 80 
+          - path: /home
+            pathType: Prefix
+            backend:
+              service: 
+                name: frontend-service
+                port:
+                  number: 80

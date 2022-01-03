@@ -82,4 +82,33 @@ spec:
         - configMapRef:
             name: utopia-config
 
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: waltchang97/utopia-frontend
+        ports:
+        - containerPort: 80
+        envFrom:
+        - secretRef:
+            name: docker-secrets
+        - configMapRef:
+            name: utopia-config
+
         

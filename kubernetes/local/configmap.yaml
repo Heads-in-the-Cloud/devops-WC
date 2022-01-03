@@ -17,5 +17,6 @@ data:
   USERS_PORT: "80"
   FLIGHTS_PORT: "80"
   BOOKINGS_PORT: "80"
+  FRONTEND_PORT: "80"
 
 
