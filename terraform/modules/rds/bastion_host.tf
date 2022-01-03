@@ -29,6 +29,17 @@ resource "aws_security_group" "ssh_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  # Add security group to allow traffic from our ALB load balancer. Use for EC2 servers launch with Ansible scripts
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [ "${var.alb_sg_id}" ]
+
+
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
