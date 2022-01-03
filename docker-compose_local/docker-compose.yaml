@@ -1,41 +1,100 @@
-version: '3'
+version: '3.4'
 services:
-
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_USER_PASSWORD}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "${MYSQL_PORT_FORWARD}:${MYSQL_DEFAULT}"
   users-api:
-    image: waltchang97/utopia-users-microservice
+    image: "${USER_IMAGE}"
+    depends_on:
+       - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: users-api
     restart: always
     networks:
       - backend
-    expose:
-      - ${USERS_PORT}
     ports:
-      - "${USERS_PORT}:${FLASK_PORT}"
+      - "${USERS_PORT}:${USERS_PORT}"
   bookings-api:
-    image: waltchang97/utopia-bookings-microservice
+    image: "${BOOKING_IMAGE}"
+    depends_on:
+       - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: bookings-api
     restart: always
     networks:
       - backend
-    expose:
-      - ${BOOKINGS_PORT}
     ports:
-      - "${BOOKINGS_PORT}:${FLASK_PORT}"
+      - "${BOOKINGS_PORT}:${BOOKINGS_PORT}"
   flights-api:
-    image: waltchang97/utopia-flights-microservice
+    image: "${FLIGHT_IMAGE}"
+    depends_on:
+       - db
     env_file:
       - .env
+    environment:
+      - DB_HOST=/run/secrets/DB_HOST
+      - SECRET_KEY=/run/secrets/SECRET_KEY
+      - DB_USER=/run/secrets/DB_USER
+      - DB_USER_PASSWORD=/run/secrets/DB_USER_PASSWORD
+      - DB=/run/secrets/DB
+    secrets:
+      - DB_HOST
+      - SECRET_KEY
+      - DB_USER
+      - DB_USER_PASSWORD
+      - DB
     container_name: flights-api
     restart: always
     networks:
       - backend
-    expose:
-      - ${FLIGHTS_PORT}
     ports:
-      - "${FLIGHTS_PORT}:${FLASK_PORT}"
+      - "${FLIGHTS_PORT}:${FLIGHTS_PORT}"
 networks:
   backend:
+
+secrets:
+    DB_HOST:
+      file: ./db_host
+    SECRET_KEY:
+      file: ./secret_key
+    DB_USER:
+      file: ./db_user
+    DB_USER_PASSWORD:
+      file: ./db_user_password
+    DB:
+      file: ./db
