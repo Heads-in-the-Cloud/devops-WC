@@ -53,6 +53,7 @@ module "rds" {
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
   vpc_id                = module.networks.db-vpc.id
+  alb_sg_id             = module.load_balancer.alb_sg_id
   db_username           = local.db_creds.db_username
   db_password           = local.db_creds.db_password
 }

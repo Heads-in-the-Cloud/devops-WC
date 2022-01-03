@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ../../variables.yaml
+  vars_prompt:
+    - name: state
+      prompt: Start or Stop Sonarqube Server? (start/stop)
+      private: no
+  
+  tasks:
+    - name: Start Sonarqube Instance
+      ec2:
+        region: "{{ region }}"
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        instance_tags:
+            Name: "Sonarqube Server"
+        state: running
+      register: sonarqube
+      when: state == 'start'
+
+    - name: Wait for SSH to come up
+      delegate_to: "{{ item.public_dns_name }}"
+      wait_for_connection:
+        delay: 60
+        timeout: 320
+      loop: "{{ sonarqube.instances }}"
+      when: state == 'start'
+
+    - name: Get instance info
+      ec2_instance_info:
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        filters:
+          instance-state-name: running
+          "tag:Name": "Sonarqube Server"  
+        region: "{{ region }}"
+      register: sonarqube_with_ip
+
+    - name: "Starting docker service"
+      delegate_to: "{{ item.public_dns_name }}"
+      become: yes
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+      loop: "{{ sonarqube_with_ip.instances }}"
+      when: state == 'start'
+    
+    - name: debug
+      debug: msg="{{ item.public_dns_name }}"
+      loop: "{{ sonarqube_with_ip.instances }}"
+
+    - name: Start docker container
+      delegate_to: "{{ item.public_dns_name }}"
+      become: yes
+      command: "docker container start 888696a5ba42"
+      loop: "{{ sonarqube_with_ip.instances }}"
+      when: state == 'start'
+
+###################### Stop the Server ###############################
+
+    - name: Stop Sonarqube Server
+      ec2:
+        instance_tags:
+            Name: "Sonarqube Server"
+        state: stopped
+        region: "{{ region }}"
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+      when: state == 'stop'
