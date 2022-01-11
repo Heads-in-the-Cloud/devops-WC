@@ -15,6 +15,10 @@ data "aws_ecr_repository" "booking-container" {
     name = "wc-bookings-api"
 }
 
+data "aws_ecr_repository" "frontend-container" {
+    name = "wc-frontend"
+}
+
 data "aws_vpc" "default_vpc" {
     id = "${var.default_vpc_id}"
 }
@@ -72,7 +76,9 @@ module "cluster" {
         {"name": "DB_HOST", "value": module.rds.db_instance.address},
         {"name": "USERS_PORT", "value": 5000},
         {"name": "FLIGHTS_PORT", "value": 5000},
-        {"name": "BOOKINGS_PORT", "value": 5000}
+        {"name": "BOOKINGS_PORT", "value": 5000},
+        {"name": "FRONTEND_PORT", "value": 5000},
+        {"name": "HOST_DOMAIN", "value": "http://${module.load_balancer.alb_dns}"}
     ]
     task_definitions = {
       "${var.user_task}" = {
@@ -103,7 +109,17 @@ module "cluster" {
         container_name = var.booking_container_name
         container_secrets = var.container_secrets
 
-      }     
+      },     
+      "${var.frontend_task}" = {
+        cpu = "1vCPU"
+        family = "frontend-task-WC"
+        memory = "2GB"
+        image = "${data.aws_ecr_repository.frontend-container.repository_url}:latest"
+        network_mode = "awsvpc"
+        container_name = var.frontend_container_name
+        container_secrets = var.container_secrets
+
+      }  
     }
     ecs_services = {
       "users-service" = {
@@ -127,6 +143,14 @@ module "cluster" {
         name = "booking-service-WC"
         target_group_arn = module.load_balancer.target_groups["booking-tg"].id
         task_name        = var.booking_task
+
+      }
+      "frontend-service" = {
+        container_name = var.frontend_container_name
+        desired_count = 2
+        name = "frontend-service-WC"
+        target_group_arn = module.load_balancer.target_groups["frontend-tg"].id
+        task_name        = var.frontend_task
 
       }
     }
@@ -165,6 +189,17 @@ module "load_balancer" {
         interval = "30"
         matcher = "200"
         name = "booking-tg-WC"
+        protocol = "HTTP"
+        target_type = "ip"
+        timeout = "3"
+        unhealthy_threshold = "2"
+        health = "/health"
+      }
+      "frontend-tg" = {
+        healthy_threshold = "3"
+        interval = "30"
+        matcher = "200"
+        name = "frontend-tg-WC"
         protocol = "HTTP"
         target_type = "ip"
         timeout = "3"
