@@ -25,6 +25,13 @@ variable "booking_task" {
 
 }
 
+variable "frontend_task" {
+    type = string
+    default = "frontend-task"
+    description = "name of frontend task definition"
+
+}
+
 variable "user_container_name" {
     type = string
     default = "user-container-WC"
@@ -46,6 +53,13 @@ variable "booking_container_name" {
 
 }
 
+variable "frontend_container_name" {
+    type = string
+    default = "frontend-container-WC"
+    description = "name of frontend container"
+
+}
+
 variable "container_secrets" {
     type = list
     default = [
@@ -64,3 +78,4 @@ variable "container_secrets" {
     ]
     description = "secrets from ssm to use in application"
 }
+

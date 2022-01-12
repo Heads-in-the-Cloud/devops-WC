@@ -18,6 +18,11 @@ variable "bookings_path" {
     default = "/booking/*"
 }
 
+variable "frontend_path" {
+    type = string
+    default = "/lms/*"
+}
+
 variable "public_subnet_ids" {
     type = list
     default = []
@@ -52,4 +57,9 @@ variable "flight-tg" {
 variable "booking-tg" {
     type = string
     default = "booking-tg"
+}
+
+variable "frontend-tg" {
+    type = string
+    default = "frontend-tg"
 }

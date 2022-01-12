@@ -61,7 +61,7 @@ resource "aws_lb_listener_rule" "flight_listener" {
 
 resource "aws_lb_listener_rule" "booking_listener" {
   listener_arn = aws_alb_listener.front_end.arn
-  priority     = 100
+  priority     = 102
 
   action {
     type             = "forward"
@@ -76,6 +76,22 @@ resource "aws_lb_listener_rule" "booking_listener" {
 
 }
 
+resource "aws_lb_listener_rule" "frontend_listener" {
+  listener_arn = aws_alb_listener.front_end.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.target_groups["${var.frontend-tg}"].id
+  }
+
+  condition {
+    path_pattern {
+      values = [ var.frontend_path ]
+    }
+  }
+
+}
 
 resource "aws_security_group" "alb_sg" {
   name        = "alb_sg_WC"
