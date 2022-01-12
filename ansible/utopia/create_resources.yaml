@@ -118,9 +118,6 @@
         wait: false
       loop: "{{ users.instances }}"
 
-    # - name: debug ec2 group
-    #   debug: msg="{{ item }}"
-    #   loop: "{{ ec2.instances }}"
 
     - name: Create a target group with flights instance
       elb_target_group:
