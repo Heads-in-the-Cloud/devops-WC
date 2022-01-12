@@ -59,6 +59,7 @@ module "rds" {
   vpc_id                = module.networks.db-vpc.id
   db_username           = local.db_creds.db_username
   db_password           = local.db_creds.db_password
+  alb_sg_id             = module.load_balancer.alb_sg_id
 }
 
 module "cluster" {
