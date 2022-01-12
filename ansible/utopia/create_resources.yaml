@@ -1,0 +1,301 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../../../variables_team.yaml
+    
+  tasks:
+
+    - name: Creating Users EC2 instance
+      ec2:
+        instance_type: t2.micro
+        key_name: "{{ keypair }}"
+        image: "{{ image }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        group_id: "{{ security_group }}"
+        assign_public_ip: yes
+        count: 1
+        wait: true
+        instance_tags:
+          Name: "{{ users_tag }}"
+      register: users
+
+    - name: Creating Flights EC2 instance
+      ec2:
+        instance_type: t2.micro
+        key_name: "{{ keypair }}"
+        image: "{{ image }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        group_id: "{{ security_group }}"
+        assign_public_ip: yes
+        count: 1
+        wait: true
+        instance_tags:
+          Name: "{{ flights_tag }}"
+      register: flights
+
+    - name: Creating Bookings EC2 instance
+      ec2:
+        instance_type: t2.micro
+        key_name: "{{ keypair }}"
+        image: "{{ image }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        group_id: "{{ security_group }}"
+        assign_public_ip: yes
+        count: 1
+        wait: true
+        instance_tags:
+          Name: "{{ bookings_tag }}"
+      register: bookings
+
+    - name: Add new instance to users group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: user_group
+      loop: "{{ users.instances }}"
+
+    - name: Wait for SSH to come up
+      delegate_to: "{{ item.public_dns_name }}"
+      wait_for_connection:
+        delay: 60
+        timeout: 320
+      loop: "{{ users.instances }}"
+
+    - name: Add new instance to flights group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: flight_group
+      loop: "{{ flights.instances }}"
+
+    - name: Wait for SSH to come up
+      delegate_to: "{{ item.public_dns_name }}"
+      wait_for_connection:
+        delay: 60
+        timeout: 320
+      loop: "{{ flights.instances }}"
+
+    - name: Add new instance to bookings group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: booking_group
+      loop: "{{ bookings.instances }}"
+
+    - name: Wait for SSH to come up
+      delegate_to: "{{ item.public_dns_name }}"
+      wait_for_connection:
+        delay: 60
+        timeout: 320
+      loop: "{{ bookings.instances }}"
+
+    - name: Create a target group with users instance
+      elb_target_group:
+        name: users-tg
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        protocol: http
+        region: "{{ region }}"
+        port: "{{http}}"
+        vpc_id: "{{ vpc }}"
+        health_check_protocol: http
+        health_check_path: /health
+        healthy_threshold_count: 3
+        successful_response_codes: "200"
+        targets:
+          - Id: "{{ item.id }}"
+            Port: "{{http}}"
+        state: present
+        wait_timeout: 200
+        wait: false
+      loop: "{{ users.instances }}"
+
+
+    - name: Create a target group with flights instance
+      elb_target_group:
+        name: flights-tg
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        protocol: http
+        region: "{{ region }}"
+        port: "{{http}}"
+        vpc_id: "{{ vpc }}"
+        health_check_protocol: http
+        health_check_path: /airline/read/airport
+        healthy_threshold_count: 3
+        successful_response_codes: "200"
+        targets:
+          - Id: "{{ item.id }}"
+            Port: "{{http}}"
+        state: present
+        wait_timeout: 200
+        wait: False
+      loop: "{{ flights.instances }}"
+
+    - name: Create a target group with bookings instance
+      elb_target_group:
+        name: bookings-tg
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        protocol: http
+        region: "{{ region }}"
+        port: "{{http}}"
+        vpc_id: "{{ vpc }}"
+        health_check_protocol: http
+        health_check_path: /health
+        healthy_threshold_count: 3
+        successful_response_codes: "200"
+        targets:
+          - Id: "{{ item.id }}"
+            Port: "{{http}}"
+        state: present
+        wait_timeout: 200
+        wait: False
+      loop: "{{ bookings.instances }}"
+
+    - name: Create the Load Balancer
+      elb_application_lb:
+        name: "{{ elb_tag }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ region }}"
+        security_groups:
+          - "{{ elb_sg_id }}"
+        subnets:
+          - "{{ vpc_subnet_id }}"
+          - "{{ vpc_subnet_id_2 }}"
+        listeners:
+          - Protocol: HTTP # Required. The protocol for connections from clients to the load balancer (HTTP} or HTTP}S) (case-sensitive).
+            Port: "{{http}}" # Required. The port on which the load balancer is listening.
+            DefaultActions:
+              - Type: forward # Required.
+                TargetGroupName: users-tg
+            Rules:
+              - Conditions:
+                  - Field: path-pattern
+                    Values:
+                      - '/airline/*'
+                Priority: '1'
+                Actions:
+                  - TargetGroupName: flights-tg
+                    Type: forward
+              - Conditions:
+                  - Field: path-pattern
+                    Values:
+                      - '/booking/*'
+                Priority: '2'
+                Actions:
+                  - TargetGroupName: bookings-tg
+                    Type: forward                
+        state: present
+
+- name: Configure instance(s)
+  hosts: user_group
+  become: yes
+  vars_files:
+    - ../../../variables_team.yaml
+  tasks:
+  - name: Install Docker Service
+    command: "yum install docker -y"
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+  - name: "Starting docker service"
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+  - name: Pull default Docker image
+    docker_image:
+      name: waltchang97/utopia-users-microservice
+      source: pull
+  - name: Run Docker Users Image
+    docker_container:
+      name: users_microservice
+      image: waltchang97/utopia-users-microservice
+      state: started
+      restart: yes
+      ports:
+      - "{{http}}:{{users_port}}"
+      env:
+        SECRET_KEY: "{{ SECRET_KEY }}"
+        DB_HOST: "{{ DB_HOST }}"
+        DB_USER: "{{ DB_USER }}"
+        DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"        
+
+
+- name: Configure instance(s)
+  hosts: flight_group
+  become: yes
+  vars_files:
+    - ../../../variables_team.yaml
+  tasks:
+  - name: Install Docker Service
+    command: "yum install docker -y"
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+  - name: "Starting docker service"
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+  - name: Pull default Docker image
+    docker_image:
+      name: waltchang97/utopia-flights-microservice
+      source: pull
+  - name: Run Docker Flights Image
+    docker_container:
+      name: flights_microservice
+      image: waltchang97/utopia-flights-microservice
+      state: started
+      restart: yes
+      ports:
+      - "{{http}}:{{flights_port}}"
+      env:
+        SECRET_KEY: "{{ SECRET_KEY }}"
+        DB_HOST: "{{ DB_HOST }}"
+        DB_USER: "{{ DB_USER }}"
+        DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"   
+
+- name: Configure instance(s)
+  hosts: booking_group
+  become: yes
+  vars_files:
+    - ../../../variables_team.yaml
+  tasks:
+  - name: Install Docker Service
+    command: "yum install docker -y"
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+  - name: "Starting docker service"
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+  - name: Pull default Docker image
+    docker_image:
+      name: waltchang97/utopia-bookings-microservice
+      source: pull
+  - name: Run Docker Bookings Image
+    docker_container:
+      name: bookings_microservice
+      image: waltchang97/utopia-bookings-microservice
+      state: started
+      restart: yes
+      ports:
+      - "{{http}}:{{bookings_port}}"
+      env:
+        SECRET_KEY: "{{ SECRET_KEY }}"
+        DB_HOST: "{{ DB_HOST }}"
+        DB_USER: "{{ DB_USER }}"
+        DB_USER_PASSWORD: "{{ DB_USER_PASSWORD }}"   
