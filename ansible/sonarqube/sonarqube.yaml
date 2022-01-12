@@ -2,7 +2,7 @@
 - hosts: localhost
   gather_facts: false
   vars_files:
-    - ../../variables.yaml
+    - ../../../variables_individual.yaml
   vars_prompt:
     - name: state
       prompt: Start or Stop Sonarqube Server? (start/stop)
