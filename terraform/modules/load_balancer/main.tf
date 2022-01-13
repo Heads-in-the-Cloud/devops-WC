@@ -114,3 +114,22 @@ resource "aws_security_group" "alb_sg" {
     Name = "alb_sg_WC"
   }
 }
+
+####################################################################
+####################################################################
+############################# ROUTE 53 #############################
+####################################################################
+####################################################################
+
+data "aws_route53_zone" "zone" {
+  name         = var.hosted_zone
+}
+
+
+resource "aws_route53_record" "route53" {
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "walter.${data.aws_route53_zone.zone.name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [ aws_alb.utopia-alb.dns_name ]
+}

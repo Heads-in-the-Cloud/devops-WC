@@ -161,6 +161,7 @@ module "load_balancer" {
     source               = "./modules/load_balancer"
     vpc_id               = module.networks.db-vpc.id
     app_port             = 5000
+    hosted_zone          = "hitwc.link"
     public_subnet_ids    = module.networks.public-subnet-ids
     target_groups = {
       "user-tg" = {

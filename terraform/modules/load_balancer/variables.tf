@@ -63,3 +63,8 @@ variable "frontend-tg" {
     type = string
     default = "frontend-tg"
 }
+
+variable "hosted_zone" {
+    type = string
+    default = ""
+}
