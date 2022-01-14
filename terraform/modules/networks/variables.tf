@@ -78,3 +78,13 @@ variable "az_2" {
     default = "us-west-2b"
 
 }
+
+variable "vpc_name" {
+    type = string
+    default = ""
+}
+
+variable "internet-gw-name" {
+    type = string
+    default = ""
+}
