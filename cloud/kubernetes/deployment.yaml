@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-deployment
+  namespace: default
+  labels:
+    app: flights-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flights-microservice
+  template:
+    metadata:
+      labels:
+        app: flights-microservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: flights-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
+        imagePullPolicy: Always
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: DB_HOST
+                name: db-info
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER
+                name: db-info
+          - name: DB_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER_PASSWORD
+                name: db-info
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: SECRET_KEY
+                name: jwt-secret
+        ports:
+          - containerPort: 5000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookings-deployment
+  namespace: default
+  labels:
+    app: bookings-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookings-microservice
+  template:
+    metadata:
+      labels:
+        app: bookings-microservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: bookings-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-bookings-api:latest
+        imagePullPolicy: Always
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: DB_HOST
+                name: db-info
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER
+                name: db-info
+          - name: DB_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER_PASSWORD
+                name: db-info
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: SECRET_KEY
+                name: jwt-secret
+        ports:
+          - containerPort: 5000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: default
+  labels:
+    app: users-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-microservice
+  template:
+    metadata:
+      labels:
+        app: users-microservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: users-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
+        imagePullPolicy: Always
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: DB_HOST
+                name: db-info
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER
+                name: db-info
+          - name: DB_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_USER_PASSWORD
+                name: db-info
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: SECRET_KEY
+                name: jwt-secret
+        ports:
+          - containerPort: 5000
