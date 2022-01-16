@@ -1,12 +1,12 @@
 #!/bin/sh
 
-export AWS_REGION='us-east-2'
-export CLUSTER_NAME='cluster-WC'
-export VPC_ID=vpc-02afc9b2728d3799a
+export AWS_REGION='us-west-2'
+export CLUSTER_NAME='test-cluster'
+export VPC_ID="vpc-0f3dce67ace642302"
 
 # Create Cluster
 eksctl create cluster --name=$CLUSTER_NAME --region=$AWS_REGION --fargate \
-  --vpc-private-subnets=subnet-04264e2dcaa4d26dc,subnet-0c7de1d631f6be6f5
+  --vpc-private-subnets=subnet-0c001b34bfe93a0eb,subnet-092f5c56c0f24ce34
 
 # Approve cluster to associate IAM OpenID Connect Provider
 eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME --approve
