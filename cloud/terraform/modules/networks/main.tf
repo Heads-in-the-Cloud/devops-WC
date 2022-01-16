@@ -25,7 +25,7 @@ resource "aws_subnet" "private-subnet2" {
 
   tags = {
     Name = "private-subnet-2-WC"
-    "kubernetes.io/cluster/ab" = "shared"
+    "kubernetes.io/cluster/cluster-WC" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 
@@ -39,7 +39,7 @@ resource "aws_subnet" "public-subnet1" {
 
   tags = {
     Name = "public-subnet-1-WC"
-    "kubernetes.io/cluster/ab" = "shared"
+    "kubernetes.io/cluster/cluster-WC" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 
@@ -53,7 +53,7 @@ resource "aws_subnet" "public-subnet2" {
 
   tags = {
     Name = "public-subnet-2-WC"
-    "kubernetes.io/cluster/ab" = "shared"
+    "kubernetes.io/cluster/cluster-WC" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 
