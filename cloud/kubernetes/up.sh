@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export AWS_REGION='us-west-2'
+export AWS_REGION='us-east-2'
 export CLUSTER_NAME='cluster-WC'
 export VPC_ID=vpc-02afc9b2728d3799a
 
@@ -33,7 +33,7 @@ eksctl create iamserviceaccount \
 curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
      | sed "s/# - --cluster-name=devCluster/- --cluster-name=$CLUSTER_NAME/g" \
      | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=$VPC_ID/g" \
-     | sed "s/# - --aws-region=us-west-1/- --aws-region=$AWS_REGION/g" \
+     | sed "s/# - --aws-region=us-west-2/- --aws-region=$AWS_REGION/g" \
      | kubectl apply -f -
 
 # Import Secrets

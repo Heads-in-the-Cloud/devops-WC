@@ -27,7 +27,7 @@ spec:
                 - arm64
       containers:
       - name: flights-microservice
-        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
+        image: 026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-flights-api:latest
         imagePullPolicy: Always
         env:
           - name: DB_HOST
@@ -84,7 +84,7 @@ spec:
                 - arm64
       containers:
       - name: bookings-microservice
-        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-bookings-api:latest
+        image: 026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-bookings-api:latest
         imagePullPolicy: Always
         env:
           - name: DB_HOST
@@ -141,7 +141,7 @@ spec:
                 - arm64
       containers:
       - name: users-microservice
-        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
+        image: 026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
         env:
           - name: DB_HOST
