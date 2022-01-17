@@ -12,7 +12,14 @@ pipeline {
                 }
             }
         }
+        stage('Terraform plan') {
 
+            steps {
+                dir("terraform") {
+                    sh 'terraform plan'
+                }
+            }
+        }
         stage('Terraform action') {
             steps {
                 dir("terraform") {

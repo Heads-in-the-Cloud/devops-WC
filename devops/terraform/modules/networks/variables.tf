@@ -1,36 +1,7 @@
-variable "subnets" {
-    type = map(object({
-        cidr_block = string
-        tag_name = string
-    }))
-    description = "Subnets for the VPC"
-    default = null
-}
-
 variable "vpc_cidr_block" {
     type = string
     default = ""
 } 
-
-variable "default_vpc_cidr" {
-    type = string
-    default = ""
-}
-
-variable "peer_vpc_id" {
-    type = string
-    default = ""
-}
-
-variable "peer_owner_id" {
-    type = string
-    default = ""
-}
-
-variable "pc_name" {
-    type = string
-    default = ""
-}
 
 variable "region" {
     type = string
@@ -84,7 +55,7 @@ variable "vpc_name" {
     default = ""
 }
 
-variable "internet-gw-name" {
+variable "internet_gw_name" {
     type = string
     default = ""
 }

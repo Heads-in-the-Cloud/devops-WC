@@ -38,6 +38,8 @@ module "networks" {
   subnet4_cidr_block    = "10.10.4.0/24"
   rt_cidr_block         = "0.0.0.0/0"
   peer_owner_id         = "026390315914"
+  vpc_name              = "WC-vpc"
+  internet-gw-name      = "bastion-host-ig-WC"
   pc_name               = "wc-pc-01"
   region                = "us-west-2"
   default_rt_id         = "rtb-048596a1592577216"
@@ -161,6 +163,7 @@ module "load_balancer" {
     source               = "./modules/load_balancer"
     vpc_id               = module.networks.db-vpc.id
     app_port             = 5000
+    hosted_zone          = "hitwc.link"
     public_subnet_ids    = module.networks.public-subnet-ids
     target_groups = {
       "user-tg" = {

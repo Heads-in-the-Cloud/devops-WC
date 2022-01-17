@@ -11,7 +11,6 @@ resource "aws_vpc_peering_connection" "pc" {
   peer_owner_id = var.peer_owner_id
   peer_vpc_id   = aws_vpc.db-vpc.id
   vpc_id        = var.peer_vpc_id
-  # peer_region   = var.region
   auto_accept   = true
   tags = {
     Name = "${var.pc_name}"
@@ -112,13 +111,6 @@ resource "aws_route" "route_default_vpc" {
 
   depends_on = [ aws_vpc.db-vpc ]
 }
-
-# resource "aws_route" "route_db_vpc" {
-#   route_table_id            = aws_route_table.rt.id
-#   destination_cidr_block    = var.default_vpc_cidr
-#   vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
-
-# }
 
 resource "aws_route_table_association" "rt-subnet1" {
   subnet_id      = aws_subnet.public-subnet1.id
