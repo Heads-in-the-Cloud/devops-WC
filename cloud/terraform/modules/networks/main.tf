@@ -20,6 +20,7 @@ resource "aws_subnet" "private-subnet1" {
 }
 
 
+
 resource "aws_subnet" "private-subnet2" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.subnet2_cidr_block
