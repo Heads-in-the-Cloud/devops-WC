@@ -4,7 +4,7 @@ export AWS_REGION='us-west-2'
 export CLUSTER_NAME='cluster-WC'
 export VPC_ID=$(aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId')
 
-SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId')
+SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId')
 export SUBNETS
 export subnet1=$(echo $SUBNETS | jq '.[0]')
 export subnet2=$(echo $SUBNETS | jq '.[1]')
