@@ -11,6 +11,7 @@ pipeline {
             }
             steps {
                 dir("cloud/kubernetes") {
+                    sh 'chmod +x up.sh'
                     sh './up.sh'
                 }
             }
