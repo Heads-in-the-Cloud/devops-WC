@@ -49,6 +49,6 @@ kubectl create secret generic jwt-secret \
   --from-file=secret_key=./secrets/secret_key.txt
 
 # Apply config files
-kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+kubectl apply -f service.yaml -f ingress.yaml -f namespace.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
