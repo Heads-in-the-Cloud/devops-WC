@@ -115,8 +115,8 @@ resource "aws_route_table" "private_rt" {
   }
 
   route {
-      destination_cidr_block = var.public_cidr_block
-      nat_gateway_id         = aws_nat_gateway.nat.id
+      cidr_block              = var.public_cidr_block
+      nat_gateway_id          = aws_nat_gateway.nat.id
   }
 
   tags = {

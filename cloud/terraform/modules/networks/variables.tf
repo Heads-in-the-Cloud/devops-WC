@@ -69,3 +69,8 @@ variable "peer_vpc_id" {
     type = string
     default = ""
 }
+
+variable "peer_owner_id" {
+    type = string
+    default = ""
+}
