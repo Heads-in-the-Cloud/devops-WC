@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages{
+        
+        stage('create cluster'){
+            when {
+                expression { 
+                   return params.action == 'up'
+                }
+            }
+            steps {
+                dir("cloud/kubernetes") {
+                    sh './up.sh'
+                }
+            }
+        }
+        stage('delete cluster'){
+                    when {
+                        expression { 
+                        return params.action == 'down'
+                        }
+                    }
+                    steps {
+                        dir("cloud/kubernetes") {
+                            sh './down.sh'
+                        }
+                    }
+                }
+    }
+
+
+
+}
