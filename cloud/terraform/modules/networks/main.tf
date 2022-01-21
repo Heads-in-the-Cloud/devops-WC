@@ -85,18 +85,17 @@ resource "aws_nat_gateway" "nat" {
   }
 }
 
-resource "aws_route" "private_nat_gateway" {
-  route_table_id         = aws_route_table.private_rt.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat.id
-}
+# resource "aws_route" "private_nat_gateway" {
+#   route_table_id         = aws_route_table.private_rt.id
+
+# }
 
 
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.vpc.id
 
   route {
-    cidr_block = var.rt_cidr_block
+    cidr_block = var.public_cidr_block
     gateway_id = aws_internet_gateway.internet-gw.id
   }
 
@@ -110,7 +109,15 @@ resource "aws_route_table" "public_rt" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.vpc.id
 
-  route = []
+  route {
+    cidr_block                = var.rt_cidr_block
+    vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
+  }
+
+  route {
+      destination_cidr_block = var.public_cidr_block
+      nat_gateway_id         = aws_nat_gateway.nat.id
+  }
 
   tags = {
     Name = "private-rt-WC"
@@ -149,6 +156,18 @@ resource "aws_db_subnet_group" "private-subnet-group" {
 
   tags = {
     Name = "default-group-WC"
+  }
+
+}
+
+
+resource "aws_vpc_peering_connection" "pc" {
+  peer_owner_id = var.peer_owner_id
+  peer_vpc_id   = aws_vpc.vpc.id
+  vpc_id        = var.peer_vpc_id
+  auto_accept   = true
+  tags = {
+    Name = "wc-pc-Jenkins"
   }
 
 }

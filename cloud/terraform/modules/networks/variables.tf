@@ -33,6 +33,11 @@ variable "rt_cidr_block" {
     default = ""
 }
 
+variable "public_cidr_block" {
+    type = string
+    default = ""
+}
+
 variable "default_rt_id" {
     type = string
     default = ""
@@ -56,6 +61,11 @@ variable "vpc_name" {
 }
 
 variable "internet_gw_name" {
+    type = string
+    default = ""
+}
+
+variable "peer_vpc_id" {
     type = string
     default = ""
 }

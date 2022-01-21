@@ -32,11 +32,14 @@ module "networks" {
   subnet2_cidr_block    = "10.10.2.0/24"
   subnet3_cidr_block    = "10.10.3.0/24"
   subnet4_cidr_block    = "10.10.4.0/24"
-  rt_cidr_block         = "0.0.0.0/0"
+  rt_cidr_block         = "172.31.0.0/16"
+  public_cidr_block     = "0.0.0.0/0"
   vpc_name              = "WC-vpc"
   internet_gw_name      = "bastion-host-ig-WC"
   region                = "us-west-2"
   default_rt_id         = "rtb-048596a1592577216"
+  peer_vpc_id           = "vpc-0cc1a1b594e643c37"
+  peer_owner_id         = "026390315914"
 
 }
 
