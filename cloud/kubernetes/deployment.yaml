@@ -30,36 +30,26 @@ spec:
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
         imagePullPolicy: Always
         env:
-          # - name: DB_HOST
-          #   valueFrom:
-          #     secretKeyRef:
-          #       key: db_host
-          #       name: db-info
-          # - name: DB_USER
-          #   valueFrom:
-          #     secretKeyRef:
-          #       key: db_user
-          #       name: db-info
-          # - name: DB_USER_PASSWORD
-          #   valueFrom:
-          #     secretKeyRef:
-          #       key: db_user_password
-          #       name: db-info
-          # - name: SECRET_KEY
-          #   valueFrom:
-          #     secretKeyRef:
-          #       key: secret_key
-          #       name: jwt-secret
           - name: DB_HOST
-            value: database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com
+            valueFrom:
+              secretKeyRef:
+                key: db_host
+                name: db-info
           - name: DB_USER
-            value: admin123
+            valueFrom:
+              secretKeyRef:
+                key: db_user
+                name: db-info
           - name: DB_USER_PASSWORD
-            value: password123
+            valueFrom:
+              secretKeyRef:
+                key: db_user_password
+                name: db-info
           - name: SECRET_KEY
-            value: secret192b92ed4d12e236c78afc393ec15f71bbf5dc987d54727823bcbfiltc2m
-          - name: FLIGHTS_PORT
-            value: "5000"
+            valueFrom:
+              secretKeyRef:
+                key: secret_key
+                name: jwt-secret
         ports:
           - containerPort: 5000
 
@@ -141,14 +131,6 @@ spec:
       labels:
         app: users-microservice
     spec:
-      serviceAccountName: secrets-manager-read-access
-      volumes:
-      - name: aws-secrets
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "aws-secrets"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -163,37 +145,26 @@ spec:
       - name: users-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
-      #   volumeMounts:
-      #   - name: secrets-store-inline
-      #     mountPath: "/mnt/secrets-store"
-      #     readOnly: true
-      # volumes:
-      # - name: secrets-store-inline
-      #   secret:
-      #     secretName: mysecret
-      #     items:
-      #     - key: DB_USER
-      #       path: db_username
-      # env:
-      #   - name: DB_HOST
-      #     valueFrom:
-      #       secretKeyRef:
-      #         key: db_host
-      #         name: db-info
-      #   - name: DB_USER
-      #     valueFrom:
-      #       secretKeyRef:
-      #         key: db_user
-      #         name: db-info
-      #   - name: DB_USER_PASSWORD
-      #     valueFrom:
-      #       secretKeyRef:
-      #         key: db_user_password
-      #         name: db-info
-      #   - name: SECRET_KEY
-      #     valueFrom:
-      #       secretKeyRef:
-      #         key: secret_key
-      #         name: jwt-secret
+      env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: db_host
+              name: db-info
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: db_user
+              name: db-info
+        - name: DB_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: db_user_password
+              name: db-info
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secret_key
+              name: jwt-secret
         ports:
           - containerPort: 5000

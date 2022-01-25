@@ -57,19 +57,17 @@ sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID
 
 DNS=$(timeout 90s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')
 
-aws route53 change-resource-record-sets \
-  --hosted-zone-id $HOSTED_ZONE
-  --change-batch '
+aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
   {
       "Comment": "Testing creating a record set"
       ,"Changes": [{
         "Action"              : "CREATE"
         ,"ResourceRecordSet"  : {
-          "Name"              : "'" utopia-wc "'.hitwc.link"
+          "Name"              : "'$RECORD_NAME'"
           ,"Type"             : "CNAME"
           ,"TTL"              : 120
           ,"ResourceRecords"  : [{
-              "Value"         : "'" $DNS "'"
+              "Value"         : "'$DNS'"
           }]
         }
       }]
