@@ -1,15 +1,12 @@
 #!/bin/sh
 
-# export AWS_REGION='us-west-2'
-# export CLUSTER_NAME='wc'
+
 export VPC_ID=$(aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '"') 
 PRIVATE_SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId')
 export PRIVATE_SUBNETS
 
 export private_subnet1=$(echo $PRIVATE_SUBNETS | jq '.[0]')
 export private_subnet2=$(echo $PRIVATE_SUBNETS | jq '.[1]')
-
-echo $DB_HOST
 
 
 # Create Cluster
@@ -58,12 +55,21 @@ kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
 
+DNS=$(timeout 90s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')
 
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/rbac-secretproviderclass.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/csidriver.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/secrets-store.csi.x-k8s.io_secretproviderclasses.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/secrets-store.csi.x-k8s.io_secretproviderclasspodstatuses.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/secrets-store-csi-driver.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/rbac-secretprovidersyncing.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/rbac-secretproviderrotation.yaml
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/main/deploy/secrets-store-csi-driver-windows.yaml
+aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
+  {
+      "Comment": "Testing creating a record set"
+      ,"Changes": [{
+        "Action"              : "CREATE"
+        ,"ResourceRecordSet"  : {
+          "Name"              : "'$RECORD_NAME'"
+          ,"Type"             : "CNAME"
+          ,"TTL"              : 120
+          ,"ResourceRecords"  : [{
+              "Value"         : "'$DNS'"
+          }]
+        }
+      }]
+    }
+  '
