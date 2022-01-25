@@ -145,26 +145,26 @@ spec:
       - name: users-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
-      env:
-        - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              key: db_host
-              name: db-info
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: db_user
-              name: db-info
-        - name: DB_USER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: db_user_password
-              name: db-info
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              key: secret_key
-              name: jwt-secret
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db_host
+                name: db-info
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: db_user
+                name: db-info
+          - name: DB_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db_user_password
+                name: db-info
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: secret_key
+                name: jwt-secret
         ports:
           - containerPort: 5000
