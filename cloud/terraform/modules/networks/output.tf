@@ -1,7 +1,7 @@
 
-output "vpc" {
-  value = aws_vpc.vpc
-}
+# output "vpc" {
+#   value = aws_vpc.vpc
+# }
 
 
 output "subnet_group_id" {
@@ -9,6 +9,6 @@ output "subnet_group_id" {
 }
 
 output "public-subnet-ids" {
-  value = [ aws_subnet.public-subnet1.id, aws_subnet.public-subnet2.id ]
+  value = [ aws_subnet.public_1.id, aws_subnet.public_2.id ]
 
 }

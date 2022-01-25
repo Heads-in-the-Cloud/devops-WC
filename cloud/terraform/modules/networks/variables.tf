@@ -3,6 +3,11 @@ variable "vpc_cidr_block" {
     default = ""
 } 
 
+variable "vpc_id" {
+    type = string
+    default = ""
+}
+
 variable "region" {
     type = string
     default = ""
@@ -24,6 +29,16 @@ variable "subnet3_cidr_block" {
 }
 
 variable "subnet4_cidr_block" {
+    type = string
+    default = ""
+}
+
+variable "subnet5_cidr_block" {
+    type = string
+    default = ""
+}
+
+variable "subnet6_cidr_block" {
     type = string
     default = ""
 }
