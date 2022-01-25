@@ -1,0 +1,199 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-deployment
+  namespace: default
+  labels:
+    app: flights-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flights-microservice
+  template:
+    metadata:
+      labels:
+        app: flights-microservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: flights-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
+        imagePullPolicy: Always
+        env:
+          # - name: DB_HOST
+          #   valueFrom:
+          #     secretKeyRef:
+          #       key: db_host
+          #       name: db-info
+          # - name: DB_USER
+          #   valueFrom:
+          #     secretKeyRef:
+          #       key: db_user
+          #       name: db-info
+          # - name: DB_USER_PASSWORD
+          #   valueFrom:
+          #     secretKeyRef:
+          #       key: db_user_password
+          #       name: db-info
+          # - name: SECRET_KEY
+          #   valueFrom:
+          #     secretKeyRef:
+          #       key: secret_key
+          #       name: jwt-secret
+          - name: DB_HOST
+            value: database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com
+          - name: DB_USER
+            value: admin123
+          - name: DB_USER_PASSWORD
+            value: password123
+          - name: SECRET_KEY
+            value: secret192b92ed4d12e236c78afc393ec15f71bbf5dc987d54727823bcbfiltc2m
+          - name: FLIGHTS_PORT
+            value: "5000"
+        ports:
+          - containerPort: 5000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookings-deployment
+  namespace: default
+  labels:
+    app: bookings-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookings-microservice
+  template:
+    metadata:
+      labels:
+        app: bookings-microservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: bookings-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-bookings-api:latest
+        imagePullPolicy: Always
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                key: db_host
+                name: db-info
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: db_user
+                name: db-info
+          - name: DB_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db_user_password
+                name: db-info
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: secret_key
+                name: jwt-secret
+          - name: BOOKINGS_PORT
+            value: "5000"
+        ports:
+          - containerPort: 5000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: default
+  labels:
+    app: users-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-microservice
+  template:
+    metadata:
+      labels:
+        app: users-microservice
+    spec:
+      serviceAccountName: secrets-manager-read-access
+      volumes:
+      - name: aws-secrets
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: users-microservice
+        image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
+        imagePullPolicy: Always
+      #   volumeMounts:
+      #   - name: secrets-store-inline
+      #     mountPath: "/mnt/secrets-store"
+      #     readOnly: true
+      # volumes:
+      # - name: secrets-store-inline
+      #   secret:
+      #     secretName: mysecret
+      #     items:
+      #     - key: DB_USER
+      #       path: db_username
+      # env:
+      #   - name: DB_HOST
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_host
+      #         name: db-info
+      #   - name: DB_USER
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_user
+      #         name: db-info
+      #   - name: DB_USER_PASSWORD
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_user_password
+      #         name: db-info
+      #   - name: SECRET_KEY
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: secret_key
+      #         name: jwt-secret
+        ports:
+          - containerPort: 5000
