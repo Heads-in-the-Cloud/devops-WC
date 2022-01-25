@@ -141,6 +141,14 @@ spec:
       labels:
         app: users-microservice
     spec:
+      serviceAccountName: secrets-manager-read-access
+      volumes:
+      - name: aws-secrets
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -155,26 +163,37 @@ spec:
       - name: users-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
-        env:
-          - name: DB_HOST
-            valueFrom:
-              secretKeyRef:
-                key: db_host
-                name: db-info
-          - name: DB_USER
-            valueFrom:
-              secretKeyRef:
-                key: db_user
-                name: db-info
-          - name: DB_USER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db_user_password
-                name: db-info
-          - name: SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                key: secret_key
-                name: jwt-secret
+      #   volumeMounts:
+      #   - name: secrets-store-inline
+      #     mountPath: "/mnt/secrets-store"
+      #     readOnly: true
+      # volumes:
+      # - name: secrets-store-inline
+      #   secret:
+      #     secretName: mysecret
+      #     items:
+      #     - key: DB_USER
+      #       path: db_username
+      # env:
+      #   - name: DB_HOST
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_host
+      #         name: db-info
+      #   - name: DB_USER
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_user
+      #         name: db-info
+      #   - name: DB_USER_PASSWORD
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: db_user_password
+      #         name: db-info
+      #   - name: SECRET_KEY
+      #     valueFrom:
+      #       secretKeyRef:
+      #         key: secret_key
+      #         name: jwt-secret
         ports:
           - containerPort: 5000
