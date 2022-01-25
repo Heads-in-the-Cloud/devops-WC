@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# export AWS_REGION='us-west-2'
-# export CLUSTER_NAME='wc'
+export AWS_REGION=$AWS_REGION
+export CLUSTER_NAME=$CLUSTER_NAME
 export VPC_ID=$(aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '"') 
 PRIVATE_SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId')
 export PRIVATE_SUBNETS
