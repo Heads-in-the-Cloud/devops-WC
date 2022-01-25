@@ -55,3 +55,23 @@ kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
 
+DNS=$(timeout 90s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id $HOSTED_ZONE
+  --change-batch '
+  {
+      "Comment": "Testing creating a record set"
+      ,"Changes": [{
+        "Action"              : "CREATE"
+        ,"ResourceRecordSet"  : {
+          "Name"              : "'" utopia-wc "'.hitwc.link"
+          ,"Type"             : "CNAME"
+          ,"TTL"              : 120
+          ,"ResourceRecords"  : [{
+              "Value"         : "'" $DNS "'"
+          }]
+        }
+      }]
+    }
+  '

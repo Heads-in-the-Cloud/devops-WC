@@ -12,7 +12,9 @@ pipeline {
                         env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
                         env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()
                         env.AWS_REGION = "${region}"
+                        env.HOSTED_ZONE = "${HOSTED_ZONE}"
                         env.CLUSTER_NAME = 'wc'
+
                     }
                 }
             }
