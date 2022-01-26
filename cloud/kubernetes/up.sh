@@ -55,13 +55,13 @@ kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
 
-kubectl get configmap/aws-auth -n kube-system -o yaml > configmap.yaml &&
+kubectl get configmap/aws-auth -n kube-system -o yaml | 
   sed '/data:/a \
   mapUsers: | \
     \- userarn: arn:aws:iam::026390315914:user/Jenkins \
       username: Jenkins \
       groups: \
-      system:masters' configmap.yaml && kubectl apply -f configmap.yaml
+      system:masters' > configmap.yaml && kubectl apply -f configmap.yaml
 
 cat configmap.yaml
 
