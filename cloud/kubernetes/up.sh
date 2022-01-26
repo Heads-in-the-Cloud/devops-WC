@@ -55,9 +55,18 @@ kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
 
+kubectl get configmap/aws-auth -n kube-system -o yaml > configmap.yaml &&
+  sed '/data:/a \
+  mapUsers: | \
+    \- userarn: arn:aws:iam::026390315914:user/Jenkins \
+      username: Jenkins \
+      groups: \
+      system:masters' configmap.yaml && kubectl apply -f configmap.yaml
+
+cat configmap.yaml
 
 DNS=$(timeout 300s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')
-
+echo $DNS
 aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
   {
       "Comment": "Testing creating a record set"
