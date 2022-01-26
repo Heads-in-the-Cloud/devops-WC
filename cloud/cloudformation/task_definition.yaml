@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  UsersTaskDef:
+    Type: AWS::ECS::TaskDefinition
+    Properties: 
+      ContainerDefinitions: 
+        - Name: "user-container-WC"
+          Image: "026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-users-api:latest"
+          Cpu: 10
+          Memory: 512
+          Environment: 
+            - Name: USERS_PORT
+              Value: 5000
+          PortMappings: 
+            - ContainerPort: 5000
+              HostPort: 5000
+              Protocol: tcp
+          Secrets: 
+            - Name: DB_USER
+              ValueFrom: "arn:aws:secretsmanager:us-west-2:026390315914:secret:prod/Walter/secrets-NSteFW:db_username::"
+            - Name: DB_USER_PASSWORD
+              ValueFrom: "arn:aws:secretsmanager:us-west-2:026390315914:secret:prod/Walter/secrets-NSteFW:db_password::"
+            - Name: SECRET_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-west-2:026390315914:secret:prod/Walter/secrets-NSteFW:secret_key::"
+      Cpu: "1vCPU"
+      # EphemeralStorage: 
+      #   EphemeralStorage
+      ExecutionRoleArn: "arn:aws:iam::026390315914:role/ecsTaskExecutionRole"
+      Family: "users-task-WC"
+      # InferenceAccelerators: 
+      #   - InferenceAccelerator
+      # IpcMode: String
+      Memory: "2GB"
+      NetworkMode: "awsvpc"
+      # PidMode: String
+      # PlacementConstraints: 
+      #   - TaskDefinitionPlacementConstraint
+      # ProxyConfiguration: 
+      #   ProxyConfiguration
+      RequiresCompatibilities: 
+        - "FARGATE"
+      # RuntimePlatform: 
+      #   RuntimePlatform
+      # Tags: 
+      #   - Tag
+      TaskRoleArn: "arn:aws:iam::026390315914:role/ecsTaskExecutionRole"
+      # Volumes: 
+      #   - Volume
