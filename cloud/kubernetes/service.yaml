@@ -52,3 +52,22 @@ spec:
     - protocol: TCP
       port: 5000
       name: http
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: default
+  labels:
+    app: frontend-microservice
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  selector:
+    app: frontend-microservice
+  ports:
+    - protocol: TCP
+      port: 5000
+      name: http

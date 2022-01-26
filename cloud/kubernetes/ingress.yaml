@@ -26,6 +26,13 @@ spec:
               name: bookings-service
               port:
                 number: 5000
+        - path: /lms/*
+          pathType: Prefix
+          backend:
+            service:
+              name: users-service
+              port:
+                number: 5000
         - path: /*
           pathType: Prefix
           backend:
