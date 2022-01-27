@@ -22,7 +22,7 @@ eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME --approve
 #rm iam-policy.json
 
 export STACK_NAME=eksctl-$CLUSTER_NAME-cluster
-export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r '.Account')
+export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
 
 # Setup ALB Ingress Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml
@@ -64,12 +64,12 @@ kubectl get configmap/aws-auth -n kube-system -o yaml |
       groups: \
       \- system:masters/' > configmap.yaml && kubectl apply -f configmap.yaml
 
+sleep 60
 
 
-DNS=$(until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done)
+sh DNS=$(until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done)
 echo $DNS
 echo 'DNS'
-sleep 60
 aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
   {
       "Comment": "Testing creating a record set"

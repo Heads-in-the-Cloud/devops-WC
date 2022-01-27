@@ -13,7 +13,8 @@ pipeline {
                     env.AWS_REGION = "${region}"
                     env.HOSTED_ZONE = "${HOSTED_ZONE}"
                     env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                    env.RECORD_NAME = "utopia-wc.hitwc.link"
+                    env.RECORD_NAME = "utopia-wc-eks.hitwc.link"
+                    env.AWS_ACCOUNT_ID= "${ORG_ACCOUNT_NUM}"
 
                     
                 }
