@@ -30,7 +30,7 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: users-service
+              name: frontend-service
               port:
                 number: 5000
         - path: /*
