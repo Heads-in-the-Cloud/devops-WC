@@ -42,13 +42,13 @@ pipeline {
                         }
                     }
                     steps {
-                        // withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
                             dir("cloud/kubernetes") {
                                 sh 'chmod +x down.sh'
                                 sh './down.sh'
                             }
-                        // }
+                        }
                     }
                 }
     }
