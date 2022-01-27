@@ -69,6 +69,7 @@ kubectl get configmap/aws-auth -n kube-system -o yaml |
 DNS=$(until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done)
 echo $DNS
 echo 'DNS'
+sleep 60
 aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
   {
       "Comment": "Testing creating a record set"
