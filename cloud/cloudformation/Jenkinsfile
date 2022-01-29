@@ -8,7 +8,7 @@ pipeline {
                             properties([
                                 parameters([
                                     choice(
-                                        choices: ['create', 'destroy'], 
+                                        choices: ['create', 'delete'], 
                                         name: 'action'
                                     )
                                 ])
