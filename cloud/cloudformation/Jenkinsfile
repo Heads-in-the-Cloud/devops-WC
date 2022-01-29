@@ -22,7 +22,7 @@ pipeline {
                 script{
                     env.HOSTED_ZONE = "${HOSTED_ZONE}"
                     env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
-                    env.CLUSTER_NAME = "${CLUSTEER_NAME_WC}"
+                    env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
                     env.STACK_NAME = "wc-utopia-cf"
                 }
             }
