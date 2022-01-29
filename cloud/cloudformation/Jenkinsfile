@@ -11,16 +11,20 @@ pipeline {
             }
         } 
         stage('up'){
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                dir("cloud/cloudformation") {
-                    sh 'chmod +x up.sh'
-                    sh './up.sh'
+            steps{
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    dir("cloud/cloudformation") {
+                        sh 'chmod +x up.sh'
+                        sh './up.sh'
+                    }
                 }
             }
         }
         stage('down'){
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
+            steps{
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
+                }
             }
         }
     }
