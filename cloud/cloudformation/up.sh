@@ -1,29 +1,31 @@
 #!/bin/bash
 
 source .env
-# subnet-093f5a680773f44f7
-# subnet-0f4b0a5a48701cf3e
 
-aws cloudformation create-stack --stack-name test-wc --template-body file://service.yaml  --parameters \
-ParameterKey=VpcId,ParameterValue="vpc-053e38cb9318f3fe1" \
-ParameterKey=Subnet1,ParameterValue="subnet-093f5a680773f44f7" \
-ParameterKey=Subnet2,ParameterValue="subnet-0f4b0a5a48701cf3e" \
-ParameterKey=IamRole,ParameterValue=${EXECUTION_ROLE_ARN} \
-ParameterKey=UsersImage,ParameterValue=${USERS_IMAGE} \
-ParameterKey=FlightsImage,ParameterValue=${FLIGHTS_IMAGE} \
-ParameterKey=BookingsImage,ParameterValue=${BOOKINGS_IMAGE} \
-ParameterKey=FrontendImage,ParameterValue=${FRONTEND_IMAGE} \
-ParameterKey=UsersFamily,ParameterValue=${USERS_FAMILY} \
-ParameterKey=FlightsFamily,ParameterValue=${FLIGHTS_FAMILY} \
-ParameterKey=BookingsFamily,ParameterValue=${BOOKINGS_FAMILY} \
-ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_FAMILY} \
-ParameterKey=UsersContainer,ParameterValue=${USERS_CONTAINER} \
-ParameterKey=FlightsContainer,ParameterValue=${FLIGHTS_CONTAINER} \
-ParameterKey=BookingsContainer,ParameterValue=${BOOKINGS_CONTAINER} \
-ParameterKey=FrontendContainer,ParameterValue=${FRONTEND_CONTAINER} \
-ParameterKey=DbUserArn,ParameterValue=${DB_USER_ARN} \
-ParameterKey=DbPasswordArn,ParameterValue=${DB_PASSWORD_ARN} \
-ParameterKey=SecretKeyArn,ParameterValue=${SECRET_KEY_ARN} \
-ParameterKey=ContainerPort,ParameterValue=5000
+export VPC_ID=$(aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '"') 
+PUBLIC_SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId')
+PRIVATE_SUBNETS=$(aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId')
 
+export PUBLIC_SUBNETS
 
+export public_subnet1=$(echo $PUBLIC_SUBNETS | jq '.[0]')
+export public_subnet2=$(echo $PUBLIC_SUBNETS | jq '.[1]')
+export private_subnet1=$(echo $PRIVATE_SUBNETS | jq '.[0]')
+export private_subnet2=$(echo $PRIVATE_SUBNETS | jq '.[1]')
+
+variables="$(cat .env | sed "s/=/,ParameterValue=/g" | sed "s/export /ParameterKey=/g")"
+
+PARAMS=""
+while IFS= read -r line
+do
+   PARAMS+=" ${line}"
+done < <(printf '%s\n' "$variables")
+PARAMS+=" ParameterKey=VpcId,ParameterValue=${VPC_ID} 
+         ParameterKey=PublicSubnet1,ParameterValue=${public_subnet1}
+         ParameterKey=PublicSubnet2,ParameterValue=${public_subnet2}
+         ParameterKey=PrivateSubnet1,ParameterValue=${private_subnet1}
+         ParameterKey=PrivateSubnet2,ParameterValue=${private_subnet2}
+         ParameterKey=AccountId,ParameterValue=${ACCOUNT_ID}
+         ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE_ID}"
+
+aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://cf.yaml --parameters $PARAMS

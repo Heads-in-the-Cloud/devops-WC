@@ -1,0 +1,27 @@
+pipeline {
+    agent any 
+    stages {
+        stage('setup environment'){
+            steps{
+                script{
+                    env.HOSTED_ZONE = "${HOSTED_ZONE}"
+                    env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
+                    env.STACK_NAME = "wc-utopia-cf"
+                }
+            }
+        } 
+        stage('up'){
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                dir("cloud/cloudformation") {
+                    sh 'chmod +x up.sh'
+                    sh './up.sh'
+                }
+            }
+        }
+        stage('down'){
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
+            }
+        }
+    }
+}
