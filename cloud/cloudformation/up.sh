@@ -26,6 +26,6 @@ PARAMS+=" ParameterKey=VpcId,ParameterValue=${VPC_ID}
          ParameterKey=PrivateSubnet1,ParameterValue=${private_subnet1}
          ParameterKey=PrivateSubnet2,ParameterValue=${private_subnet2}
          ParameterKey=AccountId,ParameterValue=${ACCOUNT_ID}
-         ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE_ID}"
+         ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE}"
 
 aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://cf.yaml --parameters $PARAMS
