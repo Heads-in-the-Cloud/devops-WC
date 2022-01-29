@@ -129,7 +129,8 @@ Resources:
     Type: 'AWS::ECS::Cluster'
     Properties:
       Tags:
-        - Name: !Ref ClusterName
+        - Key: Name
+          Value: !Ref ClusterName
   AlbSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
