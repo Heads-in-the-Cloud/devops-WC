@@ -1,14 +1,22 @@
 pipeline {
     agent any 
 
-    parameters {
-        choice(
-            name: 'action',
-            choices: ['create', 'delete'],
-        )
-    }
-
     stages {
+        stage('Setup parameters') {
+                    steps {
+                        script { 
+                            properties([
+                                parameters([
+                                    choice(
+                                        choices: ['create', 'destroy'], 
+                                        name: 'action'
+                                    )
+                                ])
+                            ])
+                        }
+                    }
+                }
+
         stage('setup environment'){
             steps{
                 script{
