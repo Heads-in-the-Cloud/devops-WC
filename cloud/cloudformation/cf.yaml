@@ -32,7 +32,8 @@ Parameters:
     Type: Number
     Default: 5000
     Description: port to use for task def/target group/service
-
+  ClusterName:
+    Description: ECS cluster name
 
   #Task definition parameters
   UsersRepo:
@@ -125,6 +126,9 @@ Parameters:
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
+    Properties:
+      Tags:
+        - Name: !Ref ClusterName
   AlbSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -469,6 +473,9 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
       TaskDefinition: !Ref UsersTaskDef
+      Tags:
+        - Key: Name
+          Value: UsersService
   FlightsService:
     Type: 'AWS::ECS::Service'
     Condition: CreateResources
@@ -490,6 +497,9 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FlightsTG
       TaskDefinition: !Ref FlightsTaskDef
+      Tags:
+        - Key: Name
+          Value: FlightsService
   BookingsService:
     Type: 'AWS::ECS::Service'
     Condition: CreateResources
@@ -511,6 +521,9 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref BookingsTG
       TaskDefinition: !Ref BookingsTaskDef
+      Tags:
+        - Key: Name
+          Value: BookingsService
   FrontendService:
     Type: 'AWS::ECS::Service'
     Condition: CreateResources
@@ -532,6 +545,9 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FrontendTG
       TaskDefinition: !Ref FrontendTaskDef
+      Tags:
+        - Key: Name
+          Value: FrontendService
   Route53:
     Type: AWS::Route53::RecordSet
     Properties: 

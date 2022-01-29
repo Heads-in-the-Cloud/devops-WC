@@ -22,11 +22,12 @@ pipeline {
                 script{
                     env.HOSTED_ZONE = "${HOSTED_ZONE}"
                     env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
+                    env.CLUSTER_NAME = "${CLUSTEER_NAME_WC}"
                     env.STACK_NAME = "wc-utopia-cf"
                 }
             }
         } 
-        stage('up'){
+        stage('create'){
             when {
                 expression { 
                    return params.action == 'create'
@@ -41,7 +42,7 @@ pipeline {
                 }
             }
         }
-        stage('down'){
+        stage('delete'){
             when {
                 expression { 
                    return params.action == 'delete'
