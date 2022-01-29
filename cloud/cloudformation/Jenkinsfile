@@ -1,5 +1,13 @@
 pipeline {
     agent any 
+
+    parameters {
+        choice(
+            name: 'action',
+            choices: ['create', 'delete'],
+        )
+    }
+
     stages {
         stage('setup environment'){
             steps{
@@ -11,6 +19,11 @@ pipeline {
             }
         } 
         stage('up'){
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
             steps{
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                     dir("cloud/cloudformation") {
@@ -21,6 +34,11 @@ pipeline {
             }
         }
         stage('down'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
             steps{
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                     sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
