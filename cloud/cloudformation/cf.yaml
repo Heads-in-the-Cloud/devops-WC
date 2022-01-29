@@ -33,6 +33,7 @@ Parameters:
     Default: 5000
     Description: port to use for task def/target group/service
   ClusterName:
+    Type: String
     Description: ECS cluster name
 
   #Task definition parameters
