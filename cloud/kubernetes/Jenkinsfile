@@ -32,8 +32,9 @@ pipeline {
                         VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                         PRIVATE_SUBNETS = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId'", returnStdout: true).trim()
                         // echo "$PRIVATE_SUBNETS"
-                        private_subnet1 = sh( script: "printf ${PRIVATE_SUBNETS} | jq '.[0]'", returnStdout: true).trim()
-                        private_subnet2 = sh( script: "printf ${PRIVATE_SUBNETS} | jq '.[1]'", returnStdout: true).trim()
+                        sh "echo $PRIVATE_SUBNETS | jq '.[0]'"
+                        private_subnet1 = sh( script: "echo $PRIVATE_SUBNETS | jq '.[0]'", returnStdout: true).trim()
+                        private_subnet2 = sh( script: "echo ${PRIVATE_SUBNETS} | jq '.[1]'", returnStdout: true).trim()
                     }
                 }
             }
