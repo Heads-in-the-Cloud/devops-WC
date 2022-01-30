@@ -20,7 +20,7 @@ pipeline {
                 }
             }
         }
-        stage('find VPC and subnet IDs'){
+        stage('export VPC and subnet IDs'){
             when {
                 expression {
                     return params.action == 'up'
@@ -87,7 +87,7 @@ pipeline {
                     }
             }
         }
-        stage('associate IAM OpenID Connect Provider'){
+        stage('apply kubectl yamls'){
             when {
                 expression {
                     return params.action =='up'
@@ -95,17 +95,20 @@ pipeline {
             }
             steps{
                 script{
-                    sh "kubectl create secret generic db-info \
-                    --from-literal=db_user=${DB_USER} \
-                    --from-literal=db_host=${DB_HOST} \
-                    --from-literal=db_user_password=${DB_USER_PASSWORD}"
+                    dir("cloud/kubernetes") {
 
-                    sh "kubectl create secret generic jwt-secret \
-                    --from-literal=secret_key=${SECRET_KEY}"
+                        sh "kubectl create secret generic db-info \
+                        --from-literal=db_user=${DB_USER} \
+                        --from-literal=db_host=${DB_HOST} \
+                        --from-literal=db_user_password=${DB_USER_PASSWORD}"
 
-                    sh "kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml"
+                        sh "kubectl create secret generic jwt-secret \
+                        --from-literal=secret_key=${SECRET_KEY}"
 
-                    sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
+                        sh "kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml"
+
+                        sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
+                    }
                 }
             }
         }
