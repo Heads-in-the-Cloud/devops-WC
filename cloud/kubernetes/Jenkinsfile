@@ -29,7 +29,7 @@ pipeline {
             steps{
                 script{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '"' ", returnStdout: true).trim() 
+                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("^\"|\"$", "")
                         PRIVATE_SUBNETS = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId'", returnStdout: true).trim()
 
                         private_subnet1= sh( script: "echo ${PRIVATE_SUBNETS} | jq '.[0]'", returnStdout: true).trim()
@@ -120,7 +120,7 @@ pipeline {
                     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
 
 
-                    sh "aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
+                    sh """aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
                     {
                         "Comment": "Testing creating a record set"
                         ,"Changes": [{
@@ -135,7 +135,7 @@ pipeline {
                             }
                         }]
                         }
-                    '"
+                    '"""
                  }
             }
         }
