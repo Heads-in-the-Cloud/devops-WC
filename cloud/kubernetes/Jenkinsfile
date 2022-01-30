@@ -29,7 +29,7 @@ pipeline {
             steps{
                 script{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '' ", returnStdout: true).trim() 
+                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId' | tr -d '"' ", returnStdout: true).trim() 
                         PRIVATE_SUBNETS = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=$VPC_ID --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId'", returnStdout: true).trim()
 
                         private_subnet1= sh( script: "echo ${PRIVATE_SUBNETS} | jq '.[0]'", returnStdout: true).trim()
@@ -98,8 +98,9 @@ pipeline {
                     sh "kubectl create secret generic db-info \
                     --from-literal=db_user=${DB_USER} \
                     --from-literal=db_host=${DB_HOST} \
-                    --from-literal=db_user_password=${DB_USER_PASSWORD}
-                    kubectl create secret generic jwt-secret \
+                    --from-literal=db_user_password=${DB_USER_PASSWORD}"
+
+                    sh "kubectl create secret generic jwt-secret \
                     --from-literal=secret_key=${SECRET_KEY}"
 
                     sh "kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml"
