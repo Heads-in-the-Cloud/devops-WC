@@ -10,7 +10,7 @@ resource "aws_subnet" "private_1" {
 
   tags = {
     Name = "wc_private_subnet_1"
-    "kubernetes.io/cluster/wc" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 }
@@ -22,7 +22,7 @@ resource "aws_subnet" "private_2" {
 
   tags = {
     Name = "wc_private_subnet_2"
-    "kubernetes.io/cluster/wc" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
 }
@@ -34,7 +34,7 @@ resource "aws_subnet" "private_2" {
 
 #   tags = {
 #     Name = "wc_private_subnet_3"
-#     "kubernetes.io/cluster/wc" = "shared"
+#     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
 #     "kubernetes.io/role/internal-elb" = 1
 #   }
 # }
@@ -47,7 +47,7 @@ resource "aws_subnet" "public_1" {
 
   tags = {
     Name = "wc_public_subnet_1"
-    "kubernetes.io/cluster/wc" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/elb" = 1
   }
 }
@@ -60,7 +60,7 @@ resource "aws_subnet" "public_2" {
 
   tags = {
     Name = "wc_public_subnet_2"
-    "kubernetes.io/cluster/wc" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/elb" = 1
   }
 }
@@ -73,7 +73,7 @@ resource "aws_subnet" "public_2" {
 
 #   tags = {
 #     Name = "wc_public_subnet_3"
-#     "kubernetes.io/cluster/wc" = "shared"
+#     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
 #     "kubernetes.io/role/elb" = 1
 #   }
 # }
