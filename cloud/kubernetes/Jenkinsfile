@@ -106,7 +106,7 @@ pipeline {
                         sh "kubectl create secret generic jwt-secret \
                         --from-literal=secret_key=${SECRET_KEY}"
 
-                        sh "kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml"
+                        sh "kubectl apply -f service.yaml -f ingress.yaml"
 
                         sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
                     }
