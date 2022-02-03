@@ -6,54 +6,174 @@ pipeline {
             steps{
                 script{
 
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
-                        env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
-                        env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
-                        env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()
-                        env.AWS_REGION = "${region}"
-                        env.HOSTED_ZONE = "${HOSTED_ZONE}"
-                        env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                        env.RECORD_NAME = "utopia-wc.hitwc.link"
+                    env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()
+                    env.AWS_REGION = "${region}"
+                    env.HOSTED_ZONE = "${HOSTED_ZONE}"
+                    env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
+                    env.RECORD_NAME = "utopia-wc-eks.hitwc.link"
+                    env.AWS_ACCOUNT_ID= "${ORG_ACCOUNT_NUM}"
 
-                    }
+                    
                 }
             }
-        } 
-        stage('create cluster'){
+        }
+        stage('export VPC and subnet IDs'){
             when {
-                expression { 
-                   return params.action == 'up'
+                expression {
+                    return params.action == 'up'
                 }
             }
-            steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-                    dir("cloud/kubernetes") {
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
+            steps{
+                script{
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                        private_subnet1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
+                        private_subnet2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
+                        // sh "echo $PRIVATE_SUBNETS | jq '.[0]'"
+                        // private_subnet1 = sh( script: "echo $PRIVATE_SUBNETS | jq '.[0]'", returnStdout: true).trim()
+                        // private_subnet2 = sh( script: "echo ${PRIVATE_SUBNETS} | jq '.[1]'", returnStdout: true).trim()
                     }
                 }
             }
         }
-        stage('delete cluster'){
-                    when {
-                        expression { 
-                        return params.action == 'down'
-                        }
-                    }
-                    steps {
-                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        stage('create cluster'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${region} --fargate \
+                    --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
+                }
+            }
+        }
+        stage('associate IAM OpenID Connect Provider'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME_WC --approve"
+                }
+            }
+        }
+        stage('set up ingress controller'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "eksctl create iamserviceaccount \
+                        --name=alb-ingress-controller \
+                        --namespace=kube-system \
+                        --cluster=${CLUSTER_NAME_WC} \
+                        --attach-policy-arn=arn:aws:iam::${ORG_ACCOUNT_NUM}:policy/ALBIngressControllerIAMPolicy \
+                        --override-existing-serviceaccounts \
+                        --approve"
 
-                            dir("cloud/kubernetes") {
-                                sh 'chmod +x down.sh'
-                                sh './down.sh'
-                            }
-                        }
+                    sh "curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
+                        | sed 's/# - --cluster-name=devCluster/- --cluster-name=${CLUSTER_NAME_WC}/g' \
+                        | sed 's/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=${VPC_ID}/g' \
+                        | sed 's/# - --aws-region=us-west-1/- --aws-region=${region}/g' \
+                        | kubectl apply -f -"                
+                    }
+            }
+        }
+        stage('apply kubectl yamls'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    dir("cloud/kubernetes") {
+
+                        sh "kubectl create secret generic db-info \
+                        --from-literal=db_user=${DB_USER} \
+                        --from-literal=db_host=${DB_HOST} \
+                        --from-literal=db_user_password=${DB_USER_PASSWORD}"
+
+                        sh "kubectl create secret generic jwt-secret \
+                        --from-literal=secret_key=${SECRET_KEY}"
+
+                        sh "kubectl apply -f service.yaml -f ingress.yaml"
+
+                        sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
                     }
                 }
+            }
+        }
+        stage('set up Route53'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
+
+
+                    sh """aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
+                    {
+                        "Comment": "Testing creating a record set"
+                        ,"Changes": [{
+                            "Action"              : "CREATE"
+                            ,"ResourceRecordSet"  : {
+                            "Name"              : "'$RECORD_NAME'"
+                            ,"Type"             : "CNAME"
+                            ,"TTL"              : 120
+                            ,"ResourceRecords"  : [{
+                                "Value"         : "'$DNS'"
+                            }]
+                            }
+                        }]
+                        }
+                    '"""
+                 }
+            }
+        }
+        // stage('create cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'up'
+        //         }
+        //     }
+        //     steps {
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+        //             dir("cloud/kubernetes") {
+        //                 sh 'chmod +x up.sh'
+        //                 sh './up.sh'
+        //             }
+        //         }
+        //     }
+        // }
+        stage('delete cluster'){
+            when {
+                expression { 
+                return params.action == 'down'
+                }
+            }
+            steps {
+                // withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+                    dir("cloud/kubernetes") {
+                        sh 'chmod +x down.sh'
+                        sh './down.sh'
+                    }
+                // }
+            }
+        }
     }
-
-
-
 }

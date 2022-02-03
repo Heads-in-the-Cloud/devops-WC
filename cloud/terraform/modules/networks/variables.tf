@@ -89,3 +89,8 @@ variable "peer_owner_id" {
     type = string
     default = ""
 }
+
+variable "cluster_name"{
+    type = string
+    default = ""
+}

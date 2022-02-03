@@ -22,7 +22,7 @@ eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME --approve
 #rm iam-policy.json
 
 export STACK_NAME=eksctl-$CLUSTER_NAME-cluster
-export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r '.Account')
+export AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
 
 # Setup ALB Ingress Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml
@@ -53,9 +53,22 @@ kubectl create secret generic jwt-secret \
 # Apply config files
 kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
-sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' deployment.yaml | kubectl apply -f -
+sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -
 
-DNS=$(timeout 90s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')
+
+kubectl get configmap/aws-auth -n kube-system -o yaml | 
+  sed '0,/data:/s//data: \
+  mapUsers: | \
+    \- userarn: arn:aws:iam::026390315914:user\/Jenkins \
+      username: Jenkins \
+      groups: \
+      \- system:masters/' > configmap.yaml && kubectl apply -f configmap.yaml
+
+sleep 200
+
+
+DNS=$(until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done)
+
 
 aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
   {

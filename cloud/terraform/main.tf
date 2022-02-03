@@ -56,6 +56,7 @@ module "networks" {
   default_rt_id         = "rtb-048596a1592577216"
   peer_vpc_id           = data.aws_vpc.jenkins_vpc.id
   peer_owner_id         = "026390315914"
+  cluster_name          = "UtopiaClusterWC"
 
 }
 
