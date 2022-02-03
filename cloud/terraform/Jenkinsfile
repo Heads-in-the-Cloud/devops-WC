@@ -16,7 +16,7 @@ pipeline {
 
             steps {
                 dir("cloud/terraform") {
-                    sh 'terraform plan -out plans/plan.tf > plans/plan.txt'                }
+                    sh 'terraform plan'                }
                 }
         }
         stage('Terraform action') {
