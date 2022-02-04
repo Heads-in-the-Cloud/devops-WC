@@ -1,0 +1,39 @@
+version: '3.4'
+services:
+  users:
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${USERS_REPO_WC}"
+    ports:
+      - ${USER_PORT}:${USER_PORT}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+  flights:
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${FLIGHTS_REPO_WC}"
+    ports:
+      - ${FLIGHT_PORT}:${FLIGHT_PORT}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+  bookings:
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${BOOKINGS_REPO_WC}"
+    ports:
+      - ${BOOKING_PORT}:${BOOKING_PORT}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+  
