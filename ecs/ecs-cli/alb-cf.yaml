@@ -1,0 +1,220 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+
+Parameters:
+  VpcId:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: Select a VPC that allows instances to access the Internet.
+  Subnet1:
+    Type: String
+    Description: Public subnets for the load balancer
+  Subnet2:
+    Type: String
+
+  #ALB Listener Parameters
+  FlightsPath:
+    Type: String
+  BookingsPath:
+    Type: String
+  FrontendPath:
+    Type: String
+  #Target Group Parameters
+  UsersHealthCheck:
+    Type: String
+    Description: health check path
+  FlightsHealthCheck:
+    Type: String
+  BookingsHealthCheck:
+    Type: String
+  FrontendHealthCheck:
+    Type: String
+  
+  #Route53 Parameters
+  HostedZoneId:
+    Type: String
+  RecordName:
+    Type: String
+
+
+Resources:
+  ECSALB:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Properties:
+      Name: WC-ecs-alb
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '30'
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+  AlbSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Alb Security Group
+      VpcId: !Ref VpcId
+  AlbSecurityGroupHTTPinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      CidrIp: 0.0.0.0/0
+  AlbSecurityGroupSSHinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: 0.0.0.0/0
+  AlbSecurityGroupALBports:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 31000
+      ToPort: 61000
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+  EcsSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: ECS Security Group
+      VpcId: !Ref VpcId
+  EcsSecurityGroupHTTPinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+  ALBListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTG
+      LoadBalancerArn: !Ref ECSALB
+      Port: '80'
+      Protocol: HTTP
+  FlightsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FlightsTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FlightsPath
+      ListenerArn: !Ref ALBListener
+      Priority: 1
+  BookingsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BookingsTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref BookingsPath
+      ListenerArn: !Ref ALBListener
+      Priority: 2
+  FrontendListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FrontendPath
+      ListenerArn: !Ref ALBListener
+      Priority: 3
+  UsersTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref UsersHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: UsersTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FlightsTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FlightsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FlightsTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  BookingsTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref BookingsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: BookingsTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FrontendTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FrontendHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FrontendTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  Route53:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      ResourceRecords:
+        - !GetAtt ECSALB.DNSName
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref RecordName
+      Type: 'CNAME'
+      TTL: '300'
