@@ -101,7 +101,7 @@ pipeline {
             }
             steps{
                 script{
-                    dir('ecs-cli'){
+                    dir('ecs/ecs-cli'){
 
                         sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
                         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
@@ -199,7 +199,7 @@ pipeline {
             }
             steps{
                 script{
-                    dir("ecs-cli"){
+                    dir("ecs/ecs-cli"){
                         sh 'chmod +x up.sh'
                         sh './up.sh'
                     }
@@ -213,7 +213,7 @@ pipeline {
                 }
             }
             steps{
-                dir("ecs-cli"){
+                dir("ecs/ecs-cli"){
                     sh 'chmod +x down.sh'
                     sh './down.sh'
 
