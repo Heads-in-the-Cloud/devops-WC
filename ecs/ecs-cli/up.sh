@@ -21,6 +21,7 @@ then
 
     ecs-cli compose --file docker-compose.yaml --project-name ${USERS_SERVICE} \
     --ecs-params ecs-params.yaml service up \
+    --force-deployment \
     --target-groups "targetGroupArn=${USERS_TG},containerName=${USERS_CONTAINER},containerPort=${PORT}" 
 fi
 
@@ -44,6 +45,7 @@ then
 
     ecs-cli compose --file docker-compose.yaml --project-name ${FLIGHTS_SERVICE} \
     --ecs-params ecs-params.yaml service up \
+    --force-deployment \
     --target-groups "targetGroupArn=${FLIGHTS_TG},containerName=${FLIGHTS_CONTAINER},containerPort=${PORT}" 
 fi
 
@@ -67,6 +69,7 @@ then
 
     ecs-cli compose --file docker-compose.yaml --project-name ${BOOKINGS_SERVICE} \
     --ecs-params ecs-params.yaml service up \
+    --force-deployment \
     --target-groups "targetGroupArn=${BOOKINGS_TG},containerName=${BOOKINGS_CONTAINER},containerPort=${PORT}"
 fi
 
