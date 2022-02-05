@@ -215,12 +215,19 @@ pipeline {
                 }
             }
             steps{
-                dir("ecs/ecs-cli"){
-                    sh 'chmod +x down.sh'
-                    sh './down.sh'
+                script {
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x down.sh'
+                            sh './down.sh'
 
-                    //wait for cloudformation stack to delete
-                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                            //wait for cloudformation stack to delete
+                            sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                        } 
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
                 }
             }
         }
