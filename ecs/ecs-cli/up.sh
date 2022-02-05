@@ -88,5 +88,6 @@ then
 
     ecs-cli compose --file docker-compose.yaml --project-name ${FRONTEND_SERVICE} \
     --ecs-params ecs-params.yaml service up \
+    --force-deployment \
     --target-groups "targetGroupArn=${FRONTEND_TG},containerName=${FRONTEND_CONTAINER},containerPort=${PORT}"
 fi
