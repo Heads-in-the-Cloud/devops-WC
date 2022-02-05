@@ -202,8 +202,13 @@ pipeline {
             steps{
                 script{
                     dir("ecs/ecs-cli"){
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh './up.sh'
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
                     }
                 }
             }
@@ -215,20 +220,14 @@ pipeline {
                 }
             }
             steps{
-                script {
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x down.sh'
-                            sh './down.sh'
+                dir("ecs/ecs-cli"){
+                    sh 'chmod +x down.sh'
+                    sh './down.sh'
 
-                            //wait for cloudformation stack to delete
-                            sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                        } 
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
+                    //wait for cloudformation stack to delete
+                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                 }
+                
             }
         }
     }
