@@ -87,6 +87,7 @@ pipeline {
                     env.FLIGHTS_CONTAINER = "flights"
                     env.BOOKINGS_CONTAINER = "bookings"
                     env.FRONTEND_CONTAINER = "frontend"
+
                     env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                     env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
@@ -229,6 +230,12 @@ pipeline {
                 }
                 
             }
+        }
+    }
+    post {
+        failure {
+            sh 'chmod +x down.sh'
+            sh './down.sh'
         }
     }
 }
