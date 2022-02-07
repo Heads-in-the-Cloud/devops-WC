@@ -234,9 +234,10 @@ pipeline {
     }
     post {
         failure {
-        dir("ecs/ecs-cli"){
-            sh 'chmod +x down.sh'
-            sh './down.sh'
+            dir("ecs/ecs-cli"){
+                sh 'chmod +x down.sh'
+                sh './down.sh'
+            }
         }
     }
 }
