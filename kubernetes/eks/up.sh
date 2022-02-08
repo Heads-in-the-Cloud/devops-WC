@@ -64,7 +64,7 @@ kubectl get configmap/aws-auth -n kube-system -o yaml |
       groups: \
       \- system:masters/' > configmap.yaml && kubectl apply -f configmap.yaml
 
-sleep 200
+# sleep 200
 
 
 # DNS=$(until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done)
