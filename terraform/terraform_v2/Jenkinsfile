@@ -1,0 +1,30 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Terraform init') {
+
+            steps {
+                dir("terraform/terraform_v2") {
+                    sh 'terraform init'
+                }
+            }
+        }
+        stage('Terraform plan') {
+
+            steps {
+                dir("terraform/terraform_v2") {
+                    sh 'terraform plan'                }
+                }
+        }
+        stage('Terraform action') {
+            steps {
+                dir("terraform/terraform_v2") {
+                    sh "terraform ${action} -auto-approve"
+                }
+            } 
+        }
+    }
+}

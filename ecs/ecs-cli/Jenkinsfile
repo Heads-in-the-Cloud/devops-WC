@@ -1,0 +1,226 @@
+pipeline {
+
+    agent any
+    stages{
+        stage('Setup parameters') {
+            steps {
+                    script {
+                    properties([
+                            parameters([
+                                [$class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the action to perform', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'action', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load actions']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['create','delete','update']"
+                                        ]
+                                    ]
+                                ],
+                                [$class: 'CascadeChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the container to update',
+                                    name: 'container', 
+                                    referencedParameters: 'action', 
+                                    script: 
+                                        [$class: 'GroovyScript', 
+                                        fallbackScript: [
+                                                classpath: [], 
+                                                sandbox: false, 
+                                                script: "return['Could not get Environment from Env Param']"
+                                                ], 
+                                        script: [
+                                                classpath: [], 
+                                                sandbox: false, 
+                                                script: '''
+                                                if (action.equals("create")){
+                                                    return[]
+                                                }
+                                                else if(action.equals("delete")){
+                                                    return[]
+                                                }
+                                                else if(action.equals("update")){
+                                                    return["users","flights","bookings","frontend"]
+                                                }
+                                                '''
+                                            ] 
+                                    ]
+                                ]
+                            ])
+                        ])
+                    }
+                }
+        }
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.PARAM_ACTION = params.action
+                    env.PARAM_CONTAINER = params.container
+
+                    env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()
+                    env.STACK_NAME = "WC-ecs-alb-stack"
+                    env.USERS_SERVICE = "WC-ecs-users"
+                    env.FLIGHTS_SERVICE = "WC-ecs-flights"
+                    env.BOOKINGS_SERVICE = "WC-ecs-bookings"
+                    env.FRONTEND_SERVICE = "WC-ecs-frontend"
+                    env.PORT = 5000
+                    env.USERS_REPO = "${USER_REPO_WC}"
+                    env.FLIGHTS_REPO = "${FLIGHT_REPO_WC}"
+                    env.BOOKINGS_REPO = "${BOOKING_REPO_WC}"
+                    env.FRONTEND_REPO = "${FRONTEND_REPO_WC}"
+                    env.USERS_CONTAINER = "users"
+                    env.FLIGHTS_CONTAINER = "flights"
+                    env.BOOKINGS_CONTAINER = "bookings"
+                    env.FRONTEND_CONTAINER = "frontend"
+                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
+                }
+            }
+        } 
+        stage('Create ALB') {
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+                script{
+                    dir('ecs/ecs-cli'){
+
+                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                        ParameterKey=Subnet1,ParameterValue=${PUBLIC_SUBNET1} \
+                        ParameterKey=Subnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
+                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
+                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
+                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
+                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+
+                        //wait for cloudformation to finish for outputs then get output ID's
+                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+                    }
+                }
+            }
+        }
+        stage('Get ALB Resource IDs'){
+            when { 
+                anyOf {
+                    expression { 
+                    return params.action == 'create'
+                    }
+                    expression { 
+                    return params.action == 'update'
+                    }
+                }
+            }
+            steps{
+                script{
+                    env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id EcsSecurityGroup \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+
+                    env.USERS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id UsersTG \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+
+                    env.FLIGHTS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id FlightsTG \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+
+                    env.BOOKINGS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id BookingsTG \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+
+                    env.FRONTEND_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id FrontendTG \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+                    
+                    env.HOST_DOMAIN= sh ( script: "aws cloudformation describe-stack-resource \
+                                        --stack-name $STACK_NAME \
+                                        --logical-resource-id ECSALB \
+                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+                }
+            }
+        }
+        stage('Create Cluster'){
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+
+                // sh "ecs-cli configure --cluster ECS-Cluster-WC \
+                // --region ${region} --default-launch-type FARGATE \
+                // --config-name ECS-Cluster-WC"
+
+                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+                    --capability-iam --cluster-config ECS-Cluster-WC \
+                    --subnets ${PUBLIC_SUBNET1},${PUBLIC_SUBNET2}"
+            }
+        }
+
+        stage('Docker Compose Up'){
+            when {
+                anyOf {
+                    expression { 
+                        return params.action == 'create'
+                    }
+                    expression { 
+                        return params.action == 'update'
+                    }
+                }
+            }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        sh 'chmod +x up.sh'
+                        sh './up.sh'
+                    }
+                }
+            }
+        }
+        stage('Docker Compose Down'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
+            steps{
+                dir("ecs/ecs-cli"){
+                    sh 'chmod +x down.sh'
+                    sh './down.sh'
+
+                    //wait for cloudformation stack to delete
+                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                }
+            }
+        }
+    }
+}
