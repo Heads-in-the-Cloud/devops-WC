@@ -36,55 +36,55 @@ pipeline {
                 }
             }
         }
-        stage('create cluster'){
-            when {
-                expression {
-                    return params.action =='up'
-                }
-            }
-            steps{
-                script{
-                    sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${region} --fargate \
-                    --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
-                }
-            }
-        }
-        stage('associate IAM OpenID Connect Provider'){
-            when {
-                expression {
-                    return params.action =='up'
-                }
-            }
-            steps{
-                script{
-                    sh "eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME_WC --approve"
-                }
-            }
-        }
-        stage('set up ingress controller'){
-            when {
-                expression {
-                    return params.action =='up'
-                }
-            }
-            steps{
-                script{
-                    sh "eksctl create iamserviceaccount \
-                        --name=alb-ingress-controller \
-                        --namespace=kube-system \
-                        --cluster=${CLUSTER_NAME_WC} \
-                        --attach-policy-arn=arn:aws:iam::${ORG_ACCOUNT_NUM}:policy/ALBIngressControllerIAMPolicy \
-                        --override-existing-serviceaccounts \
-                        --approve"
+        // stage('create cluster'){
+        //     when {
+        //         expression {
+        //             return params.action =='up'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${AWS_REGION} --fargate \
+        //             --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
+        //         }
+        //     }
+        // }
+        // stage('associate IAM OpenID Connect Provider'){
+        //     when {
+        //         expression {
+        //             return params.action =='up'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME_WC --approve"
+        //         }
+        //     }
+        // }
+        // stage('set up ingress controller'){
+        //     when {
+        //         expression {
+        //             return params.action =='up'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "eksctl create iamserviceaccount \
+        //                 --name=alb-ingress-controller \
+        //                 --namespace=kube-system \
+        //                 --cluster=${CLUSTER_NAME_WC} \
+        //                 --attach-policy-arn=arn:aws:iam::${ORG_ACCOUNT_NUM}:policy/ALBIngressControllerIAMPolicy \
+        //                 --override-existing-serviceaccounts \
+        //                 --approve"
 
-                    sh "curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
-                        | sed 's/# - --cluster-name=devCluster/- --cluster-name=${CLUSTER_NAME_WC}/g' \
-                        | sed 's/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=${VPC_ID}/g' \
-                        | sed 's/# - --aws-region=us-west-1/- --aws-region=${region}/g' \
-                        | kubectl apply -f -"                
-                    }
-            }
-        }
+        //             sh "curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
+        //                 | sed 's/# - --cluster-name=devCluster/- --cluster-name=${CLUSTER_NAME_WC}/g' \
+        //                 | sed 's/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=${VPC_ID}/g' \
+        //                 | sed 's/# - --aws-region=us-west-1/- --aws-region=${region}/g' \
+        //                 | kubectl apply -f -"                
+        //             }
+        //     }
+        // }
         stage('apply kubectl yamls'){
             when {
                 expression {
@@ -94,18 +94,19 @@ pipeline {
             steps{
                 script{
                     dir("kubernetes/eks") {
+                        sh "chmod +x up.sh"
+                        sh "./up.sh"
+                        // sh "kubectl create secret generic db-info \
+                        // --from-literal=db_user=${DB_USER} \
+                        // --from-literal=db_host=${DB_HOST} \
+                        // --from-literal=db_user_password=${DB_USER_PASSWORD}"
 
-                        sh "kubectl create secret generic db-info \
-                        --from-literal=db_user=${DB_USER} \
-                        --from-literal=db_host=${DB_HOST} \
-                        --from-literal=db_user_password=${DB_USER_PASSWORD}"
+                        // sh "kubectl create secret generic jwt-secret \
+                        // --from-literal=secret_key=${SECRET_KEY}"
 
-                        sh "kubectl create secret generic jwt-secret \
-                        --from-literal=secret_key=${SECRET_KEY}"
+                        // sh "kubectl apply -f service.yaml -f ingress.yaml"
 
-                        sh "kubectl apply -f service.yaml -f ingress.yaml"
-
-                        sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
+                        // sh "sed -e 's/$AWS_REGION/${AWS_REGION}/g' -e 's/$AWS_ACCOUNT_ID/${AWS_ACCOUNT_ID}/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
                     }
                 }
             }
