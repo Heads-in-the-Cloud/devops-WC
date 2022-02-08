@@ -118,6 +118,7 @@ pipeline {
             }
             steps{
                 script{
+                    sh "kubectl get pod"
                     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
 
 
