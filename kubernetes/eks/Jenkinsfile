@@ -139,10 +139,10 @@ pipeline {
 
                 script{
 
-                    sh "kubectl get pod"
-                    sh "echo hello"
+                    sh "echo $(date +'%T')"
                     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
 
+                    sh "echo $(date +'%T')"
 
                     sh """aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
                     {
