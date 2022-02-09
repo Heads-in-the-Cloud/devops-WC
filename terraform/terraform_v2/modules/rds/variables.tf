@@ -46,7 +46,7 @@ variable "db_password"{
 
 variable "ami_id" {
     type = string
-    default = "ami-00f7e5c52c0f43726"
+    default = ""
 }
 
 variable "instance_type" {
