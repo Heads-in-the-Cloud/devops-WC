@@ -20,113 +20,115 @@ pipeline {
                 }
             }
         }
-        stage('create cluster'){
+        // stage('create cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'up'
+        //         }
+        //     }
+        //     steps {
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+        //             dir("kubernetes/eks") {
+        //                 sh 'chmod +x up.sh'
+        //                 sh './up.sh'
+        //             }
+        //         }
+        //     }
+        // }
+        stage('export VPC and subnet IDs'){
             when {
-                expression { 
-                   return params.action == 'up'
+                expression {
+                    return params.action == 'up'
                 }
             }
-            steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-                    dir("kubernetes/eks") {
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
+            steps{
+                script{
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                        private_subnet1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
+                        private_subnet2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
                     }
                 }
             }
         }
-        // stage('export VPC and subnet IDs'){
-        //     when {
-        //         expression {
-        //             return params.action == 'up'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        //                 VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-        //                 private_subnet1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
-        //                 private_subnet2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('create cluster'){
-        //     when {
-        //         expression {
-        //             return params.action =='up'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${AWS_REGION} --fargate \
-        //             --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
-        //         }
-        //     }
-        // }
-        // stage('associate IAM OpenID Connect Provider'){
-        //     when {
-        //         expression {
-        //             return params.action =='up'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             sh "eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME_WC --approve"
-        //         }
-        //     }
-        // }
-        // stage('set up ingress controller'){
-        //     when {
-        //         expression {
-        //             return params.action =='up'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             sh "eksctl create iamserviceaccount \
-        //                 --name=alb-ingress-controller \
-        //                 --namespace=kube-system \
-        //                 --cluster=${CLUSTER_NAME_WC} \
-        //                 --attach-policy-arn=arn:aws:iam::${ORG_ACCOUNT_NUM}:policy/ALBIngressControllerIAMPolicy \
-        //                 --override-existing-serviceaccounts \
-        //                 --approve"
+        stage('create cluster'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${AWS_REGION} --fargate \
+                    --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
+                }
+            }
+        }
+        stage('associate IAM OpenID Connect Provider'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "eksctl utils associate-iam-oidc-provider --cluster=$CLUSTER_NAME_WC --approve"
+                }
+            }
+        }
+        stage('set up ingress controller'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    sh "kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
 
-        //             sh "curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
-        //                 | sed 's/# - --cluster-name=devCluster/- --cluster-name=${CLUSTER_NAME_WC}/g' \
-        //                 | sed 's/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=${VPC_ID}/g' \
-        //                 | sed 's/# - --aws-region=us-west-1/- --aws-region=${region}/g' \
-        //                 | kubectl apply -f -"                
-        //             }
-        //     }
-        // }
-        // stage('apply kubectl yamls'){
-        //     when {
-        //         expression {
-        //             return params.action =='up'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             dir("kubernetes/eks") {
-        //                 sh "chmod +x up.sh"
-        //                 sh "./up.sh"
-        //                 // sh "kubectl create secret generic db-info \
-        //                 // --from-literal=db_user=${DB_USER} \
-        //                 // --from-literal=db_host=${DB_HOST} \
-        //                 // --from-literal=db_user_password=${DB_USER_PASSWORD}"
+                    sh "eksctl create iamserviceaccount \
+                        --name=alb-ingress-controller \
+                        --namespace=kube-system \
+                        --cluster=${CLUSTER_NAME_WC} \
+                        --attach-policy-arn=arn:aws:iam::${ORG_ACCOUNT_NUM}:policy/ALBIngressControllerIAMPolicy \
+                        --override-existing-serviceaccounts \
+                        --approve"
 
-        //                 // sh "kubectl create secret generic jwt-secret \
-        //                 // --from-literal=secret_key=${SECRET_KEY}"
+                    sh "curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
+                        | sed 's/# - --cluster-name=devCluster/- --cluster-name=${CLUSTER_NAME_WC}/g' \
+                        | sed 's/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id=${VPC_ID}/g' \
+                        | sed 's/# - --aws-region=us-west-1/- --aws-region=${region}/g' \
+                        | kubectl apply -f -"                
+                    }
+            }
+        }
+        stage('apply kubectl yamls'){
+            when {
+                expression {
+                    return params.action =='up'
+                }
+            }
+            steps{
+                script{
+                    dir("kubernetes/eks") {
+                        sh "chmod +x up.sh"
+                        sh "./up.sh"
+                        // sh "kubectl create secret generic db-info \
+                        // --from-literal=db_user=${DB_USER} \
+                        // --from-literal=db_host=${DB_HOST} \
+                        // --from-literal=db_user_password=${DB_USER_PASSWORD}"
 
-        //                 // sh "kubectl apply -f service.yaml -f ingress.yaml"
+                        // sh "kubectl create secret generic jwt-secret \
+                        // --from-literal=secret_key=${SECRET_KEY}"
 
-        //                 // sh "sed -e 's/$AWS_REGION/${AWS_REGION}/g' -e 's/$AWS_ACCOUNT_ID/${AWS_ACCOUNT_ID}/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
-        //             }
-        //         }
-        //     }
-        // }
+                        // sh "kubectl apply -f service.yaml -f ingress.yaml"
+
+                        // sh "sed -e 's/$AWS_REGION/${AWS_REGION}/g' -e 's/$AWS_ACCOUNT_ID/${AWS_ACCOUNT_ID}/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
+                    }
+                }
+            }
+        }
         stage('set up Route53'){
             when {
                 expression {
@@ -134,7 +136,6 @@ pipeline {
                 }
             }
             steps{
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
                 script{
 
@@ -162,7 +163,6 @@ pipeline {
                  }
             }
         }
-        }
 
         stage('delete cluster'){
             when {
@@ -171,14 +171,11 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
                     dir("kubernetes/eks") {
                         sh 'chmod +x down.sh'
                         sh './down.sh'
                     }
                 }
             }
-        }
     }
 }
