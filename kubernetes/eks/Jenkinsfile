@@ -138,6 +138,8 @@ pipeline {
             steps{
 
                 script{
+                    dir("kubernetes/eks") {
+
                     sh "chmod +x time.sh"
                     sh "./time.sh"
                     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
@@ -162,6 +164,7 @@ pipeline {
                     '"""
                  }
             }
+        }
         }
 
         stage('delete cluster'){
