@@ -43,6 +43,7 @@ module "networks" {
   subnet6_cidr_block    = "10.10.6.0/24"
   rt_cidr_block         = data.aws_vpc.jenkins_vpc.cidr_block
   public_cidr_block     = "0.0.0.0/0"
+  vpc_id                = data.aws_vpc.jenkins_vpc.id
   vpc_name              = "WC-vpc"
   internet_gw_name      = "bastion-host-ig-WC"
   region                = "us-west-2"
