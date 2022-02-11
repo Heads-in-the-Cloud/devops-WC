@@ -6,36 +6,24 @@ data "aws_vpc" "jenkins_vpc" {
 }
 
 data "aws_subnet" "jenkins_public_1" {
-    filter {
-      name   = "tag:Name"
-      values = [ "Jenkins-Public-1-c" ]
-    }
+    tags = {
+      "Name" = "Jenkins-Public-1-c"
+      }
 }
 data "aws_subnet" "jenkins_public_2" {
-    filter {
-      name   = "tag:Name"
-      values = [ "Jenkins-Public-2" ]
-    }
+    tags = {
+      "Name" = "Jenkins-Public-2"
+      }
 }
 data "aws_subnet" "jenkins_private_1" {
-    filter {
-      name   = "tag:Name"
-      values = [ "Jenkins-Private-1" ]
-    }
-    # tags = {
-    #   "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
-    #   "kubernetes.io/role/internal-elb" = 1  
-    #   }
+    tags = {
+      "Name" = "Jenkins-Private-1"
+      }
 }
 data "aws_subnet" "jenkins_private_2" {
-    filter {
-      name   = "tag:Name"
-      values = [ "Jenkins-Private-2" ]
-    }
-    # tags = {
-    #   "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
-    #   "kubernetes.io/role/internal-elb" = 1  
-    #   }
+    tags = {
+      "Name" = "Jenkins-Private-2"
+      }
 }
 
 data "aws_route_table" "private_rt" {
