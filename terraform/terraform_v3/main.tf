@@ -22,20 +22,20 @@ data "aws_subnet" "jenkins_private_1" {
       name   = "tag:Name"
       values = [ "Jenkins-Private-1" ]
     }
-    tags = {
-      "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
-      "kubernetes.io/role/internal-elb" = 1  
-      }
+    # tags = {
+    #   "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
+    #   "kubernetes.io/role/internal-elb" = 1  
+    #   }
 }
 data "aws_subnet" "jenkins_private_2" {
     filter {
       name   = "tag:Name"
       values = [ "Jenkins-Private-2" ]
     }
-    tags = {
-      "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
-      "kubernetes.io/role/internal-elb" = 1  
-      }
+    # tags = {
+    #   "kubernetes.io/cluster/UtopiaClusterWC" = "shared"
+    #   "kubernetes.io/role/internal-elb" = 1  
+    #   }
 }
 
 data "aws_route_table" "private_rt" {
