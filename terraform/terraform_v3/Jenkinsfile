@@ -19,12 +19,12 @@ pipeline {
                     sh 'terraform plan'                }
                 }
         }
-        stage('Terraform action') {
-            steps {
-                dir("terraform/terraform_v3") {
-                    sh "terraform ${action} -auto-approve"
-                }
-            } 
-        }
+        // stage('Terraform action') {
+        //     steps {
+        //         dir("terraform/terraform_v3") {
+        //             sh "terraform ${action} -auto-approve"
+        //         }
+        //     } 
+        // }
     }
 }
