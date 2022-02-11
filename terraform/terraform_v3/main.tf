@@ -79,7 +79,7 @@ module "networks" {
   public_subnet_2       = data.jenkins_public_2.id
   private_subnet_1      = data.jenkins_private_1.id
   private_subnet_2      = data.jenkins_private_2.id
-  rt_id                 = data.private_rt.id
+  rt_id                 = data.aws_route_table.private_rt.id
 }
 
 # module "rds" {
