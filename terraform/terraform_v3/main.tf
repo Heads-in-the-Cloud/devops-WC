@@ -39,7 +39,7 @@ data "aws_subnet" "jenkins_private_2" {
 }
 
 data "aws_route_table" "private_rt" {
-  subnet_id = data.jenkins_private_1.id
+  subnet_id = data.aws_subnet.jenkins_private_1.id
 }
 
 
