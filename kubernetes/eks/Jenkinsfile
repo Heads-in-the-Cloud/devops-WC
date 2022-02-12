@@ -49,7 +49,7 @@ pipeline {
                         private_subnet1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                         private_subnet2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                         sh "echo $private_subnet1"
-                        sh "echo $private_subnet_2"
+                        sh "echo $private_subnet2"
                     }
                 }
             }
