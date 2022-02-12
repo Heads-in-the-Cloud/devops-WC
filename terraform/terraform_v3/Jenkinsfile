@@ -4,6 +4,13 @@ pipeline {
 
     stages {
 
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.ENVIRONMENT="dev"
+                }
+            }
+        }
         stage('Terraform init') {
 
             steps {
