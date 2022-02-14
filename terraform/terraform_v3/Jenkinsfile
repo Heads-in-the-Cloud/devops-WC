@@ -8,6 +8,7 @@ pipeline {
             steps{
                 script{
                     env.ENVIRONMENT="dev"
+                    env.region = "us-west-2"
                 }
             }
         }
