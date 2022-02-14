@@ -88,9 +88,9 @@ pipeline {
                     env.BOOKINGS_CONTAINER = "bookings"
                     env.FRONTEND_CONTAINER = "frontend"
 
-                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
-                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
+                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         } 
