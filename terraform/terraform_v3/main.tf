@@ -61,7 +61,7 @@ module "networks" {
   source                = "./modules/networks"
   public_cidr_block     = "0.0.0.0/0"
   vpc_id                = data.aws_vpc.jenkins_vpc.id
-  region                = "us-west-2"
+  region                = "${var.environment}"
   cluster_name          = "UtopiaClusterWC"
   public_subnet_1       = data.aws_subnet.jenkins_public_1.id
   public_subnet_2       = data.aws_subnet.jenkins_public_2.id
@@ -70,18 +70,18 @@ module "networks" {
   rt_id                 = data.aws_route_table.private_rt.id
 }
 
-module "rds" {
-  source                = "./modules/rds"
-  db_instance           = "db.t2.micro"
-  db_identifier         = "database-wc-${var.environment}"
-  db_name               = "utopia"
-  db_engine             = "mysql"
-  db_engine_version     = "8.0"
-  ami_id                = "ami-00f7e5c52c0f43726"
-  subnet_group_id       = module.networks.subnet_group_id
-  public_subnet_id      = data.aws_subnet.jenkins_public_1.id
-  vpc_id                = data.aws_vpc.jenkins_vpc.id
-  db_username           = local.db_creds.db_username
-  db_password           = local.db_creds.db_password
-  environment           = var.environment
-}
+# module "rds" {
+#   source                = "./modules/rds"
+#   db_instance           = "db.t2.micro"
+#   db_identifier         = "database-wc-${var.environment}"
+#   db_name               = "utopia"
+#   db_engine             = "mysql"
+#   db_engine_version     = "8.0"
+#   ami_id                = "ami-00f7e5c52c0f43726"
+#   subnet_group_id       = module.networks.subnet_group_id
+#   public_subnet_id      = data.aws_subnet.jenkins_public_1.id
+#   vpc_id                = data.aws_vpc.jenkins_vpc.id
+#   db_username           = local.db_creds.db_username
+#   db_password           = local.db_creds.db_password
+#   environment           = var.environment
+# }
