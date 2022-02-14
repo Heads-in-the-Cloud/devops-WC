@@ -58,7 +58,7 @@ module "networks" {
 module "rds" {
   source                = "./modules/rds"
   db_instance           = var.instance_type
-  db_identifier         = "database-wc-${var.environment}"
+  db_identifier         = "database-wc"
   db_name               = "utopia"
   db_engine             = "mysql"
   db_engine_version     = "8.0"
