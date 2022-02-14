@@ -7,22 +7,22 @@ data "aws_vpc" "jenkins_vpc" {
 
 data "aws_subnet" "jenkins_public_1" {
     tags = {
-      "Name" = "Jenkins-Public-1-c"
+      "Name" = "${var.public_subnet_1}"
       }
 }
 data "aws_subnet" "jenkins_public_2" {
     tags = {
-      "Name" = "Jenkins-Public-2"
+      "Name" = "${var.public_subnet_2}"
       }
 }
 data "aws_subnet" "jenkins_private_1" {
     tags = {
-      "Name" = "Jenkins-Private-1"
+      "Name" = "${var.private_subnet_1}"
       }
 }
 data "aws_subnet" "jenkins_private_2" {
     tags = {
-      "Name" = "Jenkins-Private-2"
+      "Name" = "${var.private_subnet_2}"
       }
 }
 
