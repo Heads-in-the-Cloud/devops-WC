@@ -8,7 +8,7 @@ pipeline {
             steps{
                 script{
                     env.ENVIRONMENT="dev"
-                    env.TF_VAR_environment=$ENVIRONMENT
+                    env.TF_VAR_environment="${ENVIRONMENT}"
                     env.TF_VAR_region="${region}"
                     env.TF_VAR_public_subnet_1="Jenkins-Public-1-c"
                     env.TF_VAR_public_subnet_2="Jenkins-Public-2"
