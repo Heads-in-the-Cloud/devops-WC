@@ -74,7 +74,7 @@ module "rds" {
   source                = "./modules/rds"
   db_instance           = "db.t2.micro"
   db_identifier         = "database-wc-${var.environment}"
-  db_name               = "utopia-${var.environment}"
+  db_name               = "utopia"
   db_engine             = "mysql"
   db_engine_version     = "8.0"
   ami_id                = "ami-00f7e5c52c0f43726"
