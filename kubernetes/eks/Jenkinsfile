@@ -15,6 +15,7 @@ pipeline {
                     env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
                     env.RECORD_NAME = "utopia-wc-eks.hitwc.link"
                     env.AWS_ACCOUNT_ID= "${ORG_ACCOUNT_NUM}"
+                    env.DNS=""
 
                     
                 }
