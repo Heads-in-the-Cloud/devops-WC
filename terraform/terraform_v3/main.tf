@@ -61,7 +61,7 @@ module "networks" {
   source                = "./modules/networks"
   public_cidr_block     = "0.0.0.0/0"
   vpc_id                = data.aws_vpc.jenkins_vpc.id
-  region                = "us-west-2"
+  region                = "${region}"
   cluster_name          = "UtopiaClusterWC"
   public_subnet_1       = data.aws_subnet.jenkins_public_1.id
   public_subnet_2       = data.aws_subnet.jenkins_public_2.id

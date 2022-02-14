@@ -64,3 +64,8 @@ variable "public_subnet_id" {
     type = string
     default = ""
 }
+
+variable "environment" {
+    type = string
+    default = ""
+}
