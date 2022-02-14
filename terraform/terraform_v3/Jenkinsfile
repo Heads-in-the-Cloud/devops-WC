@@ -13,6 +13,11 @@ pipeline {
                     env.TF_VAR_public_subnet_2="Jenkins-Public-2"
                     env.TF_VAR_private_subnet_1="Jenkins-Private-1"
                     env.TF_VAR_private_subnet_2="Jenkins-Private-2"
+
+                    env.TF_VAR_users_repo="${USER_REPO_WC}"
+                    env.TF_VAR_flights_repo="${FLIGHT_REPO_WC}"
+                    env.TF_VAR_bookings_repo="${BOOKING_REPO_WC}"
+                    env.TF_VAR_frontend_repo="${FRONTEND_REPO_WC}"
                 }
             }
         }
