@@ -79,8 +79,8 @@ module "rds" {
   db_engine_version     = "8.0"
   ami_id                = "ami-00f7e5c52c0f43726"
   subnet_group_id       = module.networks.subnet_group_id
-  public_subnet_id      = element(module.networks.public-subnet-ids, 0)
-  vpc_id                = module.networks.vpc.id
+  public_subnet_id      = data.aws_subnet.jenkins_public_1.id
+  vpc_id                = data.aws_subnet.jenkins_vpc.id
   db_username           = local.db_creds.db_username
   db_password           = local.db_creds.db_password
   environment           = var.environment
