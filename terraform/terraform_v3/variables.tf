@@ -18,3 +18,15 @@ variable "private_subnet_1" {
 variable "private_subnet_2" {
     type = string
 }
+
+variable "ami_id" {
+    type = string
+}
+
+variable "instance_type" {
+    type = string
+}
+
+variable "cluster_name" {
+    type = string
+}

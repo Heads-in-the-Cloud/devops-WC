@@ -10,7 +10,7 @@ resource "aws_instance" "bastion_host" {
     RDS_MYSQL_ENDPOINT      = aws_db_instance.rds.address
     RDS_MYSQL_USER          = var.db_username
     RDS_MYSQL_PASS          = var.db_password
-    RDS_MYSQL_BASE          = "${var.db_name}"
+    RDS_MYSQL_BASE          = var.db_name
   })
   tags = {
     Name                    = "bastion-host-WC"

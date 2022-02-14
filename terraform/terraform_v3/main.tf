@@ -35,21 +35,6 @@ data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = "prod/Walter/secrets"
 }
 
-data "aws_ecr_repository" "user-container" {
-    name = "wc-users-api"
-}
-
-data "aws_ecr_repository" "flight-container" {
-    name = "wc-flights-api"
-}
-
-data "aws_ecr_repository" "booking-container" {
-    name = "wc-bookings-api"
-}
-
-data "aws_ecr_repository" "frontend-container" {
-    name = "wc-frontend"
-}
 
 locals {
   db_creds = jsondecode(
@@ -61,8 +46,8 @@ module "networks" {
   source                = "./modules/networks"
   public_cidr_block     = "0.0.0.0/0"
   vpc_id                = data.aws_vpc.jenkins_vpc.id
-  region                = "${var.environment}"
-  cluster_name          = "UtopiaClusterWC"
+  region                = var.environment
+  cluster_name          = var.cluster_name
   public_subnet_1       = data.aws_subnet.jenkins_public_1.id
   public_subnet_2       = data.aws_subnet.jenkins_public_2.id
   private_subnet_1      = data.aws_subnet.jenkins_private_1.id
@@ -70,18 +55,18 @@ module "networks" {
   rt_id                 = data.aws_route_table.private_rt.id
 }
 
-# module "rds" {
-#   source                = "./modules/rds"
-#   db_instance           = "db.t2.micro"
-#   db_identifier         = "database-wc-${var.environment}"
-#   db_name               = "utopia"
-#   db_engine             = "mysql"
-#   db_engine_version     = "8.0"
-#   ami_id                = "ami-00f7e5c52c0f43726"
-#   subnet_group_id       = module.networks.subnet_group_id
-#   public_subnet_id      = data.aws_subnet.jenkins_public_1.id
-#   vpc_id                = data.aws_vpc.jenkins_vpc.id
-#   db_username           = local.db_creds.db_username
-#   db_password           = local.db_creds.db_password
-#   environment           = var.environment
-# }
+module "rds" {
+  source                = "./modules/rds"
+  db_instance           = var.instance_type
+  db_identifier         = "database-wc-${var.environment}"
+  db_name               = "utopia"
+  db_engine             = "mysql"
+  db_engine_version     = "8.0"
+  ami_id                = var.ami_id
+  subnet_group_id       = module.networks.subnet_group_id
+  public_subnet_id      = data.aws_subnet.jenkins_public_1.id
+  vpc_id                = data.aws_vpc.jenkins_vpc.id
+  db_username           = local.db_creds.db_username
+  db_password           = local.db_creds.db_password
+  environment           = var.environment
+}
