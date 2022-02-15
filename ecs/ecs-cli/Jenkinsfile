@@ -190,22 +190,100 @@ pipeline {
         }
 
         stage('Docker Compose Up'){
-            when {
-                anyOf {
-                    expression { 
+            when {                    
+                expression { 
                         return params.action == 'create'
                     }
-                    expression { 
-                        return params.action == 'update'
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {                   
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG}"
+                            // sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG}"
+                            // sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG}"
+                            // sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
                     }
                 }
             }
+        }
+        stage('Update users'){
+            when {                    
+                expression { 
+                        return params.action == 'users'
+                    }
+                }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
                         try {
                             sh 'chmod +x up.sh'
-                            sh './up.sh'
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update flights'){
+            when {                    
+                expression { 
+                        return params.action == 'flights'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update bookings'){
+            when {                    
+                expression { 
+                        return params.action == 'bookings'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update frontend'){
+            when {                    
+                expression { 
+                        return params.action == 'frontend'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG}"
                         }
                         catch (err) {
                             echo err.getMessage()
