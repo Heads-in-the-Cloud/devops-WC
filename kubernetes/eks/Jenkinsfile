@@ -146,7 +146,7 @@ pipeline {
                     sh "./time.sh"
 
                     sh """
-                    while [[ -z ${DNS} ]]; do
+                    while [[ -z "${DNS}" ]]; do
                     export DNS = kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
                     sleep 200;
                     done
