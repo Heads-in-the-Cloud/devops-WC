@@ -55,7 +55,7 @@ kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
 
 sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -
 
-
+if [[ ${ENVIRONMENT} = "dev" ]] then
 kubectl get configmap/aws-auth -n kube-system -o yaml | 
   sed '0,/data:/s//data: \
   mapUsers: | \
@@ -63,7 +63,8 @@ kubectl get configmap/aws-auth -n kube-system -o yaml |
       username: Walter \
       groups: \
       \- system:masters/' > configmap.yaml && kubectl apply -f configmap.yaml
-
+echo 'permissions to Walter'
+fi 
 # sleep 200
 
 

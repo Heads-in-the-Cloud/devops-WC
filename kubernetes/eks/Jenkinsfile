@@ -60,7 +60,8 @@ stage('Setup parameters') {
         stage('retrieve secrets'){
             steps{
                 script{
-
+                    
+                    env.ENVIRONMENT = params.environment
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
