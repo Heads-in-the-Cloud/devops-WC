@@ -142,19 +142,9 @@ pipeline {
 
                 script{
                     dir("kubernetes/eks") {
-                    sh "chmod +x time.sh"
-                    sh "./time.sh"
+                    sh "sleep 200"
+                    DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
 
-                    sh """
-                    while [[ -z "${DNS}" ]]; do
-                    export DNS = kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-                    sleep 200;
-                    done
-                    echo ${DNS}
-                    """
-                    // DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
-                    sh "echo ${DNS}"
-                    sh "./time.sh"
 
                     sh """aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch '
                     {
