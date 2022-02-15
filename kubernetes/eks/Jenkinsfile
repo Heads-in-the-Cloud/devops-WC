@@ -2,6 +2,61 @@ pipeline {
     agent any
 
     stages{
+stage('Setup parameters') {
+            steps {
+                script {
+                properties([
+                        parameters([
+                            [$class: 'ChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the action to perform', 
+                                filterLength: 1, 
+                                filterable: false, 
+                                name: 'action', 
+                                script: [
+                                    $class: 'GroovyScript', 
+                                    fallbackScript: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['Could not load actions']"
+                                    ], 
+                                    script: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['up','down']"
+                                    ]
+                                ]
+                            ],
+                            [$class: 'CascadeChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the environment',
+                                name: 'environment', 
+                                referencedParameters: 'action', 
+                                script: 
+                                    [$class: 'GroovyScript', 
+                                    fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: "return['Could not get Environment from Env Param']"
+                                            ], 
+                                    script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: '''
+                                            if(action.equals("up")){
+                                                return["dev","prod"]
+                                            }
+                                            '''
+                                        ] 
+                                ]
+                            ]
+                        ])
+                    ])
+                }
+            }
+        }
         stage('retrieve secrets'){
             steps{
                 script{
@@ -13,7 +68,7 @@ pipeline {
                     env.AWS_REGION = "${region}"
                     env.HOSTED_ZONE = "${HOSTED_ZONE}"
                     env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                    env.RECORD_NAME = "utopia-wc-eks.hitwc.link"
+                    env.RECORD_NAME = "utopia-wc-eks-${params.environment}.hitwc.link"
                     env.AWS_ACCOUNT_ID= "${ORG_ACCOUNT_NUM}"
                     env.DNS=""
 
@@ -37,6 +92,7 @@ pipeline {
         //         }
         //     }
         // }
+        
         stage('export VPC and subnet IDs'){
             when {
                 expression {
