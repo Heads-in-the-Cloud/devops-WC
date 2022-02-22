@@ -11,6 +11,7 @@
       ##########################
     - name: Getting VPC info
       ec2_vpc_net_info:
+        region: "{{ REGION }}"
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
@@ -26,6 +27,7 @@
       ##############################
     - name: Getting private subnets info
       ec2_vpc_subnet_info:
+        region: "{{ REGION }}"
         filters:
           vpc-id: "{{ vpc_id }}"
           "tag:kubernetes.io/role/internal-elb": "1"
