@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - eks_vars.yaml
+    
+  tasks:
+      ##########################
+      ######  Get VPC ID  ######
+      ##########################
+    - name: Getting VPC info
+      amazon.aws.ec2_vpc_net_info:
+        filters:
+          "tag:Name": "{{VPC_NAME}}"
+      register: vpc
+      
+
+    - name: Setting vpc_id fact
+      set_fact:
+        vpc_id: "{{ vpc.vpcs[0].vpc_id }}"
+
+
+      ##############################
+      ######  Get Subnet IDs  ######
+      ##############################
+    - name: Getting private subnets info
+      amazon.aws.ec2_vpc_subnet_info:
+        filters:
+          vpc-id: "{{ vpc_id }}"
+          "tag:kubernetes.io/role/internal-elb": "1"
+          "tag:kubernetes.io/cluster/UtopiaClusterWC": "shared"
+      loop:
+        - subnet1
+        - subnet2
+      register: subnets
+
+    - name: Setting subnet1 fact
+      set_fact:
+        subnet1: "{{ subnets.results[0].subnets[0].id }}"
+
+    - name: Setting subnet2 fact
+      set_fact:
+        subnet2: "{{ subnets.results[1].subnets[0].id }}"
+
+    - name: debug
+      debug:
+        msg: "{{ subnet1 }}"
+
+    - name: debug
+      debug:
+        msg: "{{ subnet2 }}"
+
+    - name: Create EKS cluster
+      shell: |
+        echo hi
+
