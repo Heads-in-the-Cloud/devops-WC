@@ -80,38 +80,34 @@
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
 
+
     - name: Create secrets deployments services ingress
       shell: | 
-        echo hello
-    # - name: Create secrets deployments services ingress
-    #   shell: | 
-
-    #     kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-    #     sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
-
-    #   args:
-    #     chdir: "{{ EKS_LOCATION }}"
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
     #   ##############################
     #   #########  Route 53  #########
     #   ##############################
 
-    # - name: Set up Route53
-    #   shell: | 
-    #     sleep 200
-    #     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
-    #     aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-    #       {
-    #           "Comment": "Testing creating a record set"
-    #           ,"Changes": [{
-    #               "Action"              : "CREATE"
-    #               ,"ResourceRecordSet"  : {
-    #               "Name"              : "'{{ ENVIRONMENT }}-{{ RECORD_NAME }}'"
-    #               ,"Type"             : "CNAME"
-    #               ,"TTL"              : 120
-    #               ,"ResourceRecords"  : [{
-    #                   "Value"         : "'{{ DNS }}'"
-    #               }]
-    #               }
-    #           }]
-    #           }     
+    - name: Set up Route53
+      shell: | 
+        sleep 200
+        DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+          {
+              "Comment": "Testing creating a record set"
+              ,"Changes": [{
+                  "Action"              : "CREATE"
+                  ,"ResourceRecordSet"  : {
+                  "Name"              : "'{{ ENVIRONMENT }}-{{ RECORD_NAME }}'"
+                  ,"Type"             : "CNAME"
+                  ,"TTL"              : 120
+                  ,"ResourceRecords"  : [{
+                      "Value"         : "'{{ DNS }}'"
+                  }]
+                  }
+              }]
+              }     
 
