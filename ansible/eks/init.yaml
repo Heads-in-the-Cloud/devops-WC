@@ -19,7 +19,7 @@
 
     - name: Setting vpc_id fact
       set_fact:
-        vpc_id: "{{ vpc.vpcs[0].vpc_id }}"
+        VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
 
 
       ##############################
@@ -29,7 +29,7 @@
       ec2_vpc_subnet_info:
         region: "{{ REGION }}"
         filters:
-          vpc-id: "{{ vpc_id }}"
+          vpc-id: "{{ VPC_ID }}"
           "tag:kubernetes.io/role/internal-elb": "1"
           "tag:kubernetes.io/cluster/UtopiaClusterWC": "shared"
       loop:
@@ -39,19 +39,12 @@
 
     - name: Setting subnet1 fact
       set_fact:
-        subnet1: "{{ subnets.results[0].subnets[0].id }}"
+        SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
 
     - name: Setting subnet2 fact
       set_fact:
-        subnet2: "{{ subnets.results[0].subnets[1].id }}"
+        SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
 
-    - name: debug
-      debug:
-        msg: "{{ subnet1 }}"
-
-    - name: debug
-      debug:
-        msg: "{{ subnet2 }}"
 
       ##############################
       ######  Create Cluster  ######
@@ -60,7 +53,11 @@
     - name: Create EKS cluster
       shell: |
         eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-        --vpc-private-subnets="{{subnet1}},{{subnet2}}"
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+
+      ##############################
+      ######  Set Up Cluster  ######
+      ##############################
 
     - name: Associate Open ID Provider
       shell: |
@@ -81,5 +78,41 @@
             | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
             | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
-            | kubectl apply -f -        
+            | kubectl apply -f -
+
+    - name: Apply .yaml files
+      shell: | 
+        kubectl create secret generic db-info \
+          --from-literal=db_user="{{DB_USER}}" \
+          --from-literal=db_host="{{DB_HOST}}" \
+          --from-literal=db_user_password="{{DB_USER_PASSWORD}}"
+        kubectl create secret generic jwt-secret \
+          --from-literal=secret_key="{{SECRET_KEY}}"
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{RECORD_NAME}}'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      ##############################
+      #########  Route 53  #########
+      ##############################
+
+    - name: Set up Route53
+      shell: | 
+        sleep 200
+        DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
+        aws route53 change-resource-record-sets --hosted-zone-id "{{HOSTED_ZONE}}" --change-batch '
+          {
+              "Comment": "Testing creating a record set"
+              ,"Changes": [{
+                  "Action"              : "CREATE"
+                  ,"ResourceRecordSet"  : {
+                  "Name"              : "'{{ENVIRONMENT}}-{{RECORD_NAME}}'"
+                  ,"Type"             : "CNAME"
+                  ,"TTL"              : 120
+                  ,"ResourceRecords"  : [{
+                      "Value"         : "'{{DNS}}'"
+                  }]
+                  }
+              }]
+              }     
 
