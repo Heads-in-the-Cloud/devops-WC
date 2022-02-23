@@ -83,6 +83,8 @@
     - name: Set up asdf
       shell: | 
         echo hello
+        sleep 200
+        echo hello
     # - name: Create Kubernetes Resources
     #   shell: |
     #     echo hello
