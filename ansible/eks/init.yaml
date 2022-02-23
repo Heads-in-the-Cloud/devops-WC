@@ -84,7 +84,9 @@
       shell: | 
 
         kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-        sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
+        # sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
+        # sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -
+
       args:
         chdir: "{{ EKS_LOCATION }}"
       ##############################
