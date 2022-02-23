@@ -89,10 +89,10 @@
       shell: |
         kubectl create secret generic db-info \
           --from-literal=db_user="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}".db_username \
-          --from-literal=db_host="{{DB_HOST}}" \
-          --from-literal=db_user_password="{{DB_USER_PASSWORD}}"
+          --from-literal=db_host="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}".db_host" \
+          --from-literal=db_user_password="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}".db_password"
         kubectl create secret generic jwt-secret \
-          --from-literal=secret_key="{{SECRET_KEY}}"
+          --from-literal=secret_key="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}".secret_key"
         kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
         sed -e 's/$AWS_REGION/'"{{AWS_REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
