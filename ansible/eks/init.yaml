@@ -80,26 +80,27 @@
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
 
-    - name: Set up asdf
-      shell: | 
-        echo hello
-        sleep 200
-        echo hello
-    # - name: Create Kubernetes Resources
-    #   shell: |
-    #     echo hello
-    #     kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-    #     sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
-    #   args:
-    #     chdir: "{{ EKS_LOCATION }}"
-    #   ##############################
-    #   #########  Route 53  #########
-    #   ##############################
+    - name: Create Kubernetes Resources
+      shell: |
+        kubectl create secret generic db-info \
+          --from-literal=db_user="{{DB_USER}}" \
+          --from-literal=db_host="{{DB_HOST}}" \
+          --from-literal=db_user_password="{{DB_USER_PASSWORD}}"
+        kubectl create secret generic jwt-secret \
+          --from-literal=secret_key="{{SECRET_KEY}}"
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      ##############################
+      #########  Route 53  #########
+      ##############################
 
     - name: Set up Route53
       shell: | 
-        sleep 200
-        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        # sleep 200
+        # https://stackoverflow.com/a/70108500
+        DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
           {
               "Comment": "Testing creating a record set"
               ,"Changes": [{
