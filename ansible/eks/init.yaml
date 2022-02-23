@@ -53,7 +53,12 @@
       debug:
         msg: "{{ subnet2 }}"
 
+      ##############################
+      ######  Create Cluster  ######
+      ##############################
+     
     - name: Create EKS cluster
       shell: |
-        echo hi
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{subnet1}},{{subnet2}}"
 
