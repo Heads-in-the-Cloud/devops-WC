@@ -59,9 +59,9 @@
       ######  Set Up Cluster  ######
       ##############################
 
-    - name: Associate Open ID Provider
-      shell: |
-        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+    # - name: Associate Open ID Provider
+    #   shell: |
+    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
   
     - name: Create ALB Ingress Controller
       shell: |
