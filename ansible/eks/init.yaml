@@ -80,6 +80,9 @@
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
 
+    - name: Create secrets deployments services ingress
+      shell: | 
+        echo hello
     # - name: Create secrets deployments services ingress
     #   shell: | 
 
