@@ -80,7 +80,7 @@
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
 
-    - name: Apply .yaml files
+    - name: Create secrets deployments services ingress
       shell: | 
         kubectl create secret generic db-info \
           --from-literal=db_user="{{ DB_USER }}" \
