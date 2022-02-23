@@ -80,7 +80,9 @@
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
 
-
+    - name: Set up asdf
+          shell: | 
+            echo hello
     # - name: Create Kubernetes Resources
     #   shell: |
     #     echo hello
