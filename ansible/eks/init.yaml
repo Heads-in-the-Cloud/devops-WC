@@ -57,29 +57,29 @@
       ######  Create Cluster  ######
       ##############################
      
-    # - name: Create EKS cluster
-    #   shell: |
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{subnet1}},{{subnet2}}"
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{subnet1}},{{subnet2}}"
 
-    # - name: Associate Open ID Provider
-    #   shell: |
-    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+    - name: Associate Open ID Provider
+      shell: |
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
   
-    # - name: Create ALB Ingress Controller
-    #   shell: |
-    #     kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
-    #     eksctl create iamserviceaccount \
-    #       --name=alb-ingress-controller \
-    #       --namespace=kube-system \
-    #       --cluster="{{ CLUSTER_NAME }}" \
-    #       --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}}:policy/ALBIngressControllerIAMPolicy" \
-    #       --override-existing-serviceaccounts \
-    #       --approve
+    - name: Create ALB Ingress Controller
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+        eksctl create iamserviceaccount \
+          --name=alb-ingress-controller \
+          --namespace=kube-system \
+          --cluster="{{ CLUSTER_NAME }}" \
+          --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}}:policy/ALBIngressControllerIAMPolicy" \
+          --override-existing-serviceaccounts \
+          --approve
 
-    #     curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
-    #         | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
-    #         | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
-    #         | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
-    #         | kubectl apply -f -        
+        curl -sS 'https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml' \
+            | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
+            | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
+            | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
+            | kubectl apply -f -        
 
