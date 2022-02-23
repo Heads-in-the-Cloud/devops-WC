@@ -81,8 +81,8 @@
             | kubectl apply -f -
 
     - name: Set up asdf
-          shell: | 
-            echo hello
+      shell: | 
+        echo hello
     # - name: Create Kubernetes Resources
     #   shell: |
     #     echo hello
