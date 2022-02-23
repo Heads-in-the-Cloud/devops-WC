@@ -50,18 +50,18 @@
       ######  Create Cluster  ######
       ##############################
      
-    # - name: Create EKS cluster
-    #   shell: |
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
 
       ##############################
       ######  Set Up Cluster  ######
       ##############################
 
-    # - name: Associate Open ID Provider
-    #   shell: |
-    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+    - name: Associate Open ID Provider
+      shell: |
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
   
     - name: Create ALB Ingress Controller
       shell: |
