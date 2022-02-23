@@ -99,20 +99,20 @@
     - name: Set up Route53
       shell: | 
         sleep 200
-        DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
-        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-          {
-              "Comment": "Testing creating a record set"
-              ,"Changes": [{
-                  "Action"              : "CREATE"
-                  ,"ResourceRecordSet"  : {
-                  "Name"              : "'{{ ENVIRONMENT }}-{{ RECORD_NAME }}'"
-                  ,"Type"             : "CNAME"
-                  ,"TTL"              : 120
-                  ,"ResourceRecords"  : [{
-                      "Value"         : "'{{ DNS }}'"
-                  }]
-                  }
-              }]
-              }     
+        # DNS="timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'"
+        # aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        #   {
+        #       "Comment": "Testing creating a record set"
+        #       ,"Changes": [{
+        #           "Action"              : "CREATE"
+        #           ,"ResourceRecordSet"  : {
+        #           "Name"              : "'{{ ENVIRONMENT }}-{{ RECORD_NAME }}'"
+        #           ,"Type"             : "CNAME"
+        #           ,"TTL"              : 120
+        #           ,"ResourceRecords"  : [{
+        #               "Value"         : "'{{ DNS }}'"
+        #           }]
+        #           }
+        #       }]
+        #       }     
 
