@@ -50,19 +50,23 @@
       ######  Create Cluster  ######
       ##############################
      
-    - name: Create EKS cluster
-      shell: |
-        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+    # - name: Create EKS cluster
+    #   shell: |
+    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
 
       ##############################
       ######  Set Up Cluster  ######
       ##############################
 
-    - name: Associate Open ID Provider
-      shell: |
-        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+    # - name: Associate Open ID Provider
+    #   shell: |
+    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
   
+    - name: Switch context to cluster
+      shell: |
+        aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
+
     - name: Create ALB Ingress Controller
       shell: |
         kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
