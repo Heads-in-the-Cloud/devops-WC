@@ -88,7 +88,7 @@
     - name: Create Kubernetes Resources
       shell: |
         kubectl create secret generic db-info \
-          --from-literal=db_user="{{DB_USER}}" \
+          --from-literal=db_user="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}".db_username \
           --from-literal=db_host="{{DB_HOST}}" \
           --from-literal=db_user_password="{{DB_USER_PASSWORD}}"
         kubectl create secret generic jwt-secret \
