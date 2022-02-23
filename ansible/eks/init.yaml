@@ -81,13 +81,13 @@
             | kubectl apply -f -
 
 
-    - name: Create secrets deployments services ingress
-      shell: |
-        echo hello
-        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-        sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
-      args:
-        chdir: "{{ EKS_LOCATION }}"
+    # - name: Create Kubernetes Resources
+    #   shell: |
+    #     echo hello
+    #     kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+    #     sed -e 's/$AWS_REGION/'"{{ REGION }}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{ AWS_ACCOUNT_ID }}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ RECORD_NAME }}'/g' deployment.yaml | kubectl apply -f -
+    #   args:
+    #     chdir: "{{ EKS_LOCATION }}"
     #   ##############################
     #   #########  Route 53  #########
     #   ##############################
