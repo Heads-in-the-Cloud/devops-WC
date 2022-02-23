@@ -88,7 +88,8 @@
           --from-literal=db_user_password="{{DB_USER_PASSWORD}}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{SECRET_KEY}}"
-        
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{AWS_REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
       ##############################
