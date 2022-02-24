@@ -126,33 +126,33 @@
               }'
       tags: ['create']
 
-      - name: Delete load balancer
-        shell: | 
-          kubectl delete ingress utopia-ingress
-        tags: ['destroy']
+    - name: Delete load balancer
+      shell: | 
+        kubectl delete ingress utopia-ingress
+      tags: ['destroy']
 
-      - name: Delete Route53
-        shell: | 
-          DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
-          aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-          {
-              "Comment": "Testing creating a record set"
-              ,"Changes": [{
-                "Action"              : "DELETE"
-                ,"ResourceRecordSet"  : {
-                  "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-                  ,"Type"             : "CNAME"
-                  ,"TTL"              : 120
-                  ,"ResourceRecords"  : [{
-                      "Value"         : "'$DNS'"
-                  }]
-                }
-              }]
-            }
-        tags: ['destroy']
-          
-      - name: Delete EKS cluster
-        shell: | 
-           eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
-        tags: ['destroy']
+    - name: Delete Route53
+      shell: | 
+        DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        {
+            "Comment": "Testing creating a record set"
+            ,"Changes": [{
+              "Action"              : "DELETE"
+              ,"ResourceRecordSet"  : {
+                "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
+                ,"Type"             : "CNAME"
+                ,"TTL"              : 120
+                ,"ResourceRecords"  : [{
+                    "Value"         : "'$DNS'"
+                }]
+              }
+            }]
+          }
+      tags: ['destroy']
+        
+    - name: Delete EKS cluster
+      shell: | 
+          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+      tags: ['destroy']
 
