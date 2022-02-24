@@ -39,6 +39,10 @@
       register: subnets
       tags: ['create', 'test', 'init-all']
 
+    - name: debug
+      debug: msg="{{ subnets }}"
+
+
     - name: Setting subnet1 fact
       set_fact:
         SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
