@@ -56,145 +56,145 @@
       ######  Create Cluster  ######
       ##############################
      
-    # - name: Create EKS cluster
-    #   shell: |
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-    #   tags: ['create', 'test']
-    #   ##############################
-    #   ######  Set Up Cluster  ######
-    #   ##############################
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+      tags: ['create', 'test']
+      ##############################
+      ######  Set Up Cluster  ######
+      ##############################
 
 
-    # - name: Create EKS cluster TEST
-    #   shell: | 
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
-    #     kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
-    #     eksctl create iamserviceaccount \
-    #       --name=alb-ingress-controller \
-    #       --namespace=kube-system \
-    #       --cluster="{{ CLUSTER_NAME }}" \
-    #       --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
-    #       --override-existing-serviceaccounts \
-    #       --approve
+    - name: Create EKS cluster TEST
+      shell: | 
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+        kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+        eksctl create iamserviceaccount \
+          --name=alb-ingress-controller \
+          --namespace=kube-system \
+          --cluster="{{ CLUSTER_NAME }}" \
+          --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
+          --override-existing-serviceaccounts \
+          --approve
 
-    #     curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
-    #         | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
-    #         | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
-    #         | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
-    #         | kubectl apply -f -
-    #     kubectl create secret generic db-info \
-    #       --from-literal=db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_USER }}" \
-    #       --from-literal=db_host="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_HOST }}" \
-    #       --from-literal=db_user_password="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_PASSWORD }}"
-    #     kubectl create secret generic jwt-secret \
-    #       --from-literal=secret_key="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ SECRET_KEY }}"
-    #     kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-    #     sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
-    #   args:
-    #     chdir: "{{ EKS_LOCATION }}"
-    #   tags: ['init-all']
+        curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
+            | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
+            | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
+            | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
+            | kubectl apply -f -
+        kubectl create secret generic db-info \
+          --from-literal=db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_USER }}" \
+          --from-literal=db_host="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_HOST }}" \
+          --from-literal=db_user_password="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_PASSWORD }}"
+        kubectl create secret generic jwt-secret \
+          --from-literal=secret_key="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ SECRET_KEY }}"
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      tags: ['init-all']
 
 
-    # - name: Associate Open ID Provider
-    #   shell: |
-    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
-    #   tags: ['create']
+    - name: Associate Open ID Provider
+      shell: |
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+      tags: ['create']
   
-    # - name: Switch context to cluster
-    #   shell: |
-    #     aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
-    #   tags: ['create', 'destroy', 'update']
+    - name: Switch context to cluster
+      shell: |
+        aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags: ['create', 'destroy', 'update']
 
-    # - name: Create ALB Ingress Controller
-    #   shell: |
-    #     kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
-    #     eksctl create iamserviceaccount \
-    #       --name=alb-ingress-controller \
-    #       --namespace=kube-system \
-    #       --cluster="{{ CLUSTER_NAME }}" \
-    #       --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
-    #       --override-existing-serviceaccounts \
-    #       --approve
+    - name: Create ALB Ingress Controller
+      shell: |
+        kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+        eksctl create iamserviceaccount \
+          --name=alb-ingress-controller \
+          --namespace=kube-system \
+          --cluster="{{ CLUSTER_NAME }}" \
+          --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
+          --override-existing-serviceaccounts \
+          --approve
 
-    #     curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
-    #         | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
-    #         | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
-    #         | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
-    #         | kubectl apply -f -
-    #   tags: ['create']
+        curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
+            | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
+            | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
+            | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
+            | kubectl apply -f -
+      tags: ['create']
 
-    # - name: Create Kubernetes Resources
-    #   shell: |
-    #     kubectl create secret generic db-info \
-    #       --from-literal=db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_USER }}" \
-    #       --from-literal=db_host="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_HOST }}" \
-    #       --from-literal=db_user_password="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_PASSWORD }}"
-    #     kubectl create secret generic jwt-secret \
-    #       --from-literal=secret_key="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ SECRET_KEY }}"
-    #     kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
-    #     sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
-    #   args:
-    #     chdir: "{{ EKS_LOCATION }}"
-    #   tags: ['create', 'update']
+    - name: Create Kubernetes Resources
+      shell: |
+        kubectl create secret generic db-info \
+          --from-literal=db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_USER }}" \
+          --from-literal=db_host="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_HOST }}" \
+          --from-literal=db_user_password="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_PASSWORD }}"
+        kubectl create secret generic jwt-secret \
+          --from-literal=secret_key="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ SECRET_KEY }}"
+        kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      tags: ['create', 'update']
       
-    #   ##############################
-    #   #########  Route 53  #########
-    #   ##############################
+      ##############################
+      #########  Route 53  #########
+      ##############################
 
-    # - name: Set up Route53
-    #   shell: | 
-    #     # sleep 200
-    #     # https://stackoverflow.com/a/70108500
-    #     DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        
-    #     aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-    #       {
-    #           "Comment": "Testing creating a record set"
-    #           ,"Changes": [{
-    #               "Action"              : "CREATE"
-    #               ,"ResourceRecordSet"  : {
-    #               "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-    #               ,"Type"             : "CNAME"
-    #               ,"TTL"              : 120
-    #               ,"ResourceRecords"  : [{
-    #                   "Value"         : "'$DNS'"
-    #               }]
-    #               }
-    #           }]
-    #           }'
-    #   tags: ['create']
+    - name: Set up Route53
+      shell: | 
+        # sleep 200
+        # https://stackoverflow.com/a/70108500
+        DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+          {
+              "Comment": "Testing creating a record set"
+              ,"Changes": [{
+                  "Action"              : "CREATE"
+                  ,"ResourceRecordSet"  : {
+                  "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
+                  ,"Type"             : "CNAME"
+                  ,"TTL"              : 120
+                  ,"ResourceRecords"  : [{
+                      "Value"         : "'$DNS'"
+                  }]
+                  }
+              }]
+              }'
+      tags: ['create']
 
-    # - name: Delete load balancer
-    #   ignore_errors: yes
-    #   shell: | 
-    #     kubectl delete ingress utopia-ingress
-    #   tags: ['destroy']
+    - name: Delete load balancer
+      ignore_errors: yes
+      shell: | 
+        kubectl delete ingress utopia-ingress
+      tags: ['destroy']
 
-    # - name: Delete Route53
-    #   ignore_errors: yes
-    #   shell: | 
-    #     DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
-    #     aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-    #     {
-    #         "Comment": "Testing creating a record set"
-    #         ,"Changes": [{
-    #           "Action"              : "DELETE"
-    #           ,"ResourceRecordSet"  : {
-    #             "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-    #             ,"Type"             : "CNAME"
-    #             ,"TTL"              : 120
-    #             ,"ResourceRecords"  : [{
-    #                 "Value"         : "'$DNS'"
-    #             }]
-    #           }
-    #         }]
-    #       }'
-    #   tags: ['destroy']
+    - name: Delete Route53
+      ignore_errors: yes
+      shell: | 
+        DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        {
+            "Comment": "Testing creating a record set"
+            ,"Changes": [{
+              "Action"              : "DELETE"
+              ,"ResourceRecordSet"  : {
+                "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
+                ,"Type"             : "CNAME"
+                ,"TTL"              : 120
+                ,"ResourceRecords"  : [{
+                    "Value"         : "'$DNS'"
+                }]
+              }
+            }]
+          }'
+      tags: ['destroy']
       
-    # - name: Delete EKS cluster
-    #   shell: | 
-    #       eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
-    #   tags: ['destroy']
+    - name: Delete EKS cluster
+      shell: | 
+          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+      tags: ['destroy']
 
