@@ -50,22 +50,24 @@
       ######  Create Cluster  ######
       ##############################
      
-    # - name: Create EKS cluster
-    #   shell: |
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+      tags: ['create']
       ##############################
       ######  Set Up Cluster  ######
       ##############################
 
-    # - name: Associate Open ID Provider
-    #   shell: |
-    #     eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+    - name: Associate Open ID Provider
+      shell: |
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+      tags: ['create']
   
     - name: Switch context to cluster
       shell: |
         aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags: ['create']
 
     - name: Create ALB Ingress Controller
       shell: |
@@ -83,7 +85,7 @@
             | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}}/g" \
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
-
+      tags: ['create']
 
     - name: Create Kubernetes Resources
       shell: |
@@ -97,6 +99,7 @@
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
+      tags: ['create', 'update']
       ##############################
       #########  Route 53  #########
       ##############################
@@ -105,7 +108,8 @@
       shell: | 
         # sleep 200
         # https://stackoverflow.com/a/70108500
-        DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
           {
               "Comment": "Testing creating a record set"
               ,"Changes": [{
@@ -120,4 +124,35 @@
                   }
               }]
               }'
+      tags: ['create']
+
+      - name: Delete load balancer
+        shell: | 
+          kubectl delete ingress utopia-ingress
+        tags: ['destroy']
+
+      - name: Delete Route53
+        shell: | 
+          DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
+          aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+          {
+              "Comment": "Testing creating a record set"
+              ,"Changes": [{
+                "Action"              : "DELETE"
+                ,"ResourceRecordSet"  : {
+                  "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
+                  ,"Type"             : "CNAME"
+                  ,"TTL"              : 120
+                  ,"ResourceRecords"  : [{
+                      "Value"         : "'$DNS'"
+                  }]
+                }
+              }]
+            }
+        tags: ['destroy']
+          
+      - name: Delete EKS cluster
+        shell: | 
+           eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+        tags: ['destroy']
 
