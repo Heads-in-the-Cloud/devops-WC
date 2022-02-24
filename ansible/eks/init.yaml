@@ -129,11 +129,13 @@
       tags: ['create']
 
     - name: Delete load balancer
+      ignore_errors: yes
       shell: | 
         kubectl delete ingress utopia-ingress
       tags: ['destroy']
 
     - name: Delete Route53
+      ignore_errors: yes
       shell: | 
         DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
@@ -152,7 +154,7 @@
             }]
           }'
       tags: ['destroy']
-        
+      
     - name: Delete EKS cluster
       shell: | 
           eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
