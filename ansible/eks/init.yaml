@@ -15,13 +15,13 @@
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
-      tags: ['create']
+      tags: ['create', 'test']
       
 
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
-      tags: ['create']
+      tags: ['create', 'test']
 
       ##############################
       ######  Get Subnet IDs  ######
@@ -37,17 +37,17 @@
         - subnet1
         - subnet2
       register: subnets
-      tags: ['create']
+      tags: ['create', 'test']
 
     - name: Setting subnet1 fact
       set_fact:
         SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
-      tags: ['create']
+      tags: ['create', 'test']
 
     - name: Setting subnet2 fact
       set_fact:
         SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
-      tags: ['create']
+      tags: ['create', 'test']
 
       ##############################
       ######  Create Cluster  ######
@@ -57,7 +57,7 @@
       shell: |
         eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
         --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-      tags: ['create']
+      tags: ['create', 'test']
       ##############################
       ######  Set Up Cluster  ######
       ##############################
