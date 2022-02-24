@@ -42,6 +42,7 @@
     - name: Setting subnet1 fact
       set_fact:
         SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
+      tags: ['create']
 
     - name: Setting subnet2 fact
       set_fact:
