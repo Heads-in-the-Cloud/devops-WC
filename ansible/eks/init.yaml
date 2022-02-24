@@ -15,12 +15,13 @@
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
+      tags: ['create']
       
 
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
-
+      tags: ['create']
 
       ##############################
       ######  Get Subnet IDs  ######
@@ -36,6 +37,7 @@
         - subnet1
         - subnet2
       register: subnets
+      tags: ['create']
 
     - name: Setting subnet1 fact
       set_fact:
@@ -44,7 +46,7 @@
     - name: Setting subnet2 fact
       set_fact:
         SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
-
+      tags: ['create']
 
       ##############################
       ######  Create Cluster  ######
@@ -67,7 +69,7 @@
     - name: Switch context to cluster
       shell: |
         aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create']
+      tags: ['create', 'destroy', 'update']
 
     - name: Create ALB Ingress Controller
       shell: |
