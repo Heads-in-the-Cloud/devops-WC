@@ -32,7 +32,7 @@
         filters:
           vpc-id: "{{ VPC_ID }}"
           "tag:kubernetes.io/role/internal-elb": "1"
-          "tag:kubernetes.io/cluster/UtopiaClusterWC": "shared"
+          "tag:kubernetes.io/cluster/{{ CLUSTER_NAME }}": "shared"
       loop:
         - subnet1
         - subnet2
