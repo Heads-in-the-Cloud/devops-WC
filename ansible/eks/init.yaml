@@ -148,7 +148,7 @@
                 }]
               }
             }]
-          }
+          }'
       tags: ['destroy']
         
     - name: Delete EKS cluster
