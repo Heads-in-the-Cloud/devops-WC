@@ -21,6 +21,9 @@ environment: \
 - DB_HOST=${DB_HOST} \
 - USERS_PORT=${PORT}' > docker-compose.yaml
 
+cat docker-compose.yaml
+cat ecs-params.yaml
+
 ecs-cli compose --file docker-compose.yaml --project-name ${3} \
 --ecs-params ecs-params.yaml service up \
 --force-deployment \
