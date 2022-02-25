@@ -21,32 +21,27 @@ pipeline {
                 }
             }
         }
-        stage('state list'){
-            steps{
-                sh 'terraform state list'
+        stage('Terraform init') {
+
+            steps {
+                dir("terraform/terraform_v3") {
+                    sh 'terraform init'
+                }
             }
         }
-        // stage('Terraform init') {
+        stage('Terraform plan') {
 
-        //     steps {
-        //         dir("terraform/terraform_v3") {
-        //             sh 'terraform init'
-        //         }
-        //     }
-        // }
-        // stage('Terraform plan') {
-
-        //     steps {
-        //         dir("terraform/terraform_v3") {
-        //             sh 'terraform plan'                }
-        //         }
-        // }
-        // stage('Terraform action') {
-        //     steps {
-        //         dir("terraform/terraform_v3") {
-        //             sh "terraform ${action} -auto-approve"
-        //         }
-        //     } 
-        // }
+            steps {
+                dir("terraform/terraform_v3") {
+                    sh 'terraform plan'                }
+                }
+        }
+        stage('Terraform action') {
+            steps {
+                dir("terraform/terraform_v3") {
+                    sh "terraform ${action} -auto-approve"
+                }
+            } 
+        }
     }
 }
