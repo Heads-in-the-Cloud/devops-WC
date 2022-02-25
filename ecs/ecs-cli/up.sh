@@ -14,12 +14,12 @@ sed -e 's/$SUBNET1/'"${PUBLIC_SUBNET1}"'/g' \
     -e 's/$SERVICE/'"${2}"'/g' ecs-template.yaml > ecs-params.yaml
 
 sed -e 's/$SERVICE/'"${2}"'/g' compose-template.yaml | sed '/'"${2}"':/a \
-environment: \
-- DB_USER=${DB_USER} \
-- DB_USER_PASSWORD=${DB_USER_PASSWORD} \
-- SECRET_KEY=${SECRET_KEY} \
-- DB_HOST=${DB_HOST} \
-- USERS_PORT=${PORT}' > docker-compose.yaml
+        environment: \
+        - DB_USER=${DB_USER} \
+        - DB_USER_PASSWORD=${DB_USER_PASSWORD} \
+        - SECRET_KEY=${SECRET_KEY} \
+        - DB_HOST=${DB_HOST} \
+        - USERS_PORT=${PORT}' > docker-compose.yaml
 
 cat docker-compose.yaml
 cat ecs-params.yaml
