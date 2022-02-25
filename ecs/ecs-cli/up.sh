@@ -11,7 +11,9 @@ export IMAGE=$1
 sed -e 's/$SUBNET1/'"${PUBLIC_SUBNET1}"'/g' \
     -e 's/$SUBNET2/'"${PUBLIC_SUBNET2}"'/g' \
     -e 's/$SECURITY_GROUP/'"${SECURITY_GROUP}"'/g' \
-    -e 's/$SERVICE/'"${2}"'/g' ecs-template.yaml > ecs-params.yaml
+    -e 's/$SERVICE/'"${2}"'/g ' \
+    -e 's/$CPU_LIMIT/'"${5}"'/g ' \
+    -e 's/$MEM_LIMIT/'"${6}"'/g ' ecs-template.yaml > ecs-params.yaml
 
 sed -e 's/$SERVICE/'"${2}"'/g' compose-template.yaml | sed '/'"${2}"':/a \
     environment: \
