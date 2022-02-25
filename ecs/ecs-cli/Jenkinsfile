@@ -266,7 +266,8 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG}"
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+                            ${CPU_USERS} ${MEM_USERS}"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -286,7 +287,8 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG}"
+                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+                            ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -306,7 +308,8 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG}"
+                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+                            ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -326,7 +329,8 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG}"
+                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+                            ${CPU_FRONTEND} ${MEM_FRONTEND}"
                         }
                         catch (err) {
                             echo err.getMessage()
