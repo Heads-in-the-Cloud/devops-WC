@@ -101,10 +101,10 @@ pipeline {
                     env.FLIGHTS_REPO        = "${FLIGHT_REPO_WC}"
                     env.BOOKINGS_REPO       = "${BOOKING_REPO_WC}"
                     env.FRONTEND_REPO       = "${FRONTEND_REPO_WC}"
-                    env.USERS_CONTAINER     = "users"
-                    env.FLIGHTS_CONTAINER   = "flights"
-                    env.BOOKINGS_CONTAINER  = "bookings"
-                    env.FRONTEND_CONTAINER  = "frontend"
+                    env.USERS_CONTAINER     = "USERS"
+                    env.FLIGHTS_CONTAINER   = "FLIGHTS"
+                    env.BOOKINGS_CONTAINER  = "BOOKINGS"
+                    env.FRONTEND_CONTAINER  = "FRONTEND"
 
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
@@ -241,13 +241,13 @@ pipeline {
                         try {                   
                             sh 'chmod +x up.sh'
                             sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
-                            ${CPU_USERS} ${MEM_USERS}"
+                            ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
                             sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
-                            ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
+                            ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
                             sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
-                            ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
+                            ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
                             sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
-                            ${CPU_FRONTEND} ${MEM_FRONTEND}"
+                            ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
                         }
                         catch (err) {
                             echo err.getMessage()

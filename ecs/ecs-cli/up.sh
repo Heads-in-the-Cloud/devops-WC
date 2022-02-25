@@ -21,10 +21,9 @@ sed -e 's/$SERVICE/'"${2}"'/g' compose-template.yaml | sed '/'"${2}"':/a \
     - DB_USER_PASSWORD=${DB_USER_PASSWORD} \
     - SECRET_KEY=${SECRET_KEY} \
     - DB_HOST=${DB_HOST} \
-    - USERS_PORT=${PORT}' > docker-compose.yaml
+    - ${2}_PORT=${PORT} \
+    - HOST_DOMAIN=${7}'> docker-compose.yaml
 
-cat docker-compose.yaml
-cat ecs-params.yaml
 
 ecs-cli compose --file docker-compose.yaml --project-name ${3} \
 --ecs-params ecs-params.yaml service up \
