@@ -88,9 +88,21 @@ pipeline {
                     env.BOOKINGS_CONTAINER = "bookings"
                     env.FRONTEND_CONTAINER = "frontend"
 
+
                     env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                     env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    when {                    
+                        expression { 
+                                return params.action == 'update'
+                            }
+                        }
+                    steps{
+                        script{
+                            echo 'hello'
+                        }
+                    }
+
                 }
             }
         } 
@@ -196,10 +208,14 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {                   
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG}"
-                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG}"
-                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG}"
-                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG}"
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+                            ${CPU_USERS} ${MEM_USERS}"
+                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+                            ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
+                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+                            ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
+                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+                            ${CPU_FRONTEND} ${MEM_FRONTEND}"
                         }
                         catch (err) {
                             echo err.getMessage()
