@@ -91,11 +91,11 @@ pipeline {
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
-                    env.STACK_NAME          = "WC-ecs-alb-stack"
-                    env.USERS_SERVICE       = "WC-ecs-users"
-                    env.FLIGHTS_SERVICE     = "WC-ecs-flights"
-                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings"
-                    env.FRONTEND_SERVICE    = "WC-ecs-frontend"
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${params.environment}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${params.environment}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${params.environment}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${params.environment}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${params.environment}"
                     env.PORT                = 5000
                     env.USERS_REPO          = "${USER_REPO_WC}"
                     env.FLIGHTS_REPO        = "${FLIGHT_REPO_WC}"
@@ -151,6 +151,7 @@ pipeline {
                         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                         ParameterKey=Subnet1,ParameterValue=${PUBLIC_SUBNET1} \
                         ParameterKey=Subnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                        ParameterKey=Environment,ParameterValue=${params.environment} \
                         ParameterKey=FlightsPath,ParameterValue=/airline/* \
                         ParameterKey=BookingsPath,ParameterValue=/booking/* \
                         ParameterKey=FrontendPath,ParameterValue=/lms/* \

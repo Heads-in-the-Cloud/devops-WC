@@ -10,6 +10,10 @@ Parameters:
     Description: Public subnets for the load balancer
   Subnet2:
     Type: String
+  
+  Environment:
+    Type: String
+    Default: dev
 
   #ALB Listener Parameters
   FlightsPath:
@@ -40,7 +44,7 @@ Resources:
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: WC-ecs-alb
+      Name: !Join [ '-', [WC-ecs-alb, !Ref Environment ]]
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
@@ -215,6 +219,6 @@ Resources:
       ResourceRecords:
         - !GetAtt ECSALB.DNSName
       HostedZoneId: !Ref HostedZoneId
-      Name: !Ref RecordName
+      Name: !Join [ '-', [!Ref RecordName, !Ref Environment ]]
       Type: 'CNAME'
       TTL: '300'
