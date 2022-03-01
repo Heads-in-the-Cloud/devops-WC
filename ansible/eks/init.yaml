@@ -124,7 +124,7 @@
       shell: | 
         sleep 200
         # https://stackoverflow.com/a/70108500
-        DNS=$(timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done')        
+        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
           {
               "Comment": "Testing creating a record set"
