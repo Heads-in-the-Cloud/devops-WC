@@ -112,8 +112,8 @@ pipeline {
                     env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
 
                     env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         }
@@ -149,8 +149,8 @@ pipeline {
 
                         sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
                         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                        ParameterKey=Subnet1,ParameterValue=${PUBLIC_SUBNET1} \
-                        ParameterKey=Subnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
                         ParameterKey=Environment,ParameterValue=${params.environment} \
                         ParameterKey=FlightsPath,ParameterValue=/airline/* \
                         ParameterKey=BookingsPath,ParameterValue=/booking/* \
@@ -225,7 +225,7 @@ pipeline {
 
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
                     --capability-iam --cluster-config ECS-Cluster-WC \
-                    --subnets ${PUBLIC_SUBNET1},${PUBLIC_SUBNET2}"
+                    --subnets ${SUBNET1},${SUBNET2}"
             }
         }
 
@@ -240,14 +240,35 @@ pipeline {
                     dir("ecs/ecs-cli"){
                         try {                   
                             sh 'chmod +x up.sh'
-                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
-                            ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
-                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
-                            ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
-                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
-                            ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
-                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
-                            ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
+
+                            env.CPU_LIMIT = $CPU_USERS
+                            env.MEM_LIMIT = $MEM_USERS
+                            env.SERVICE = $USERS_CONTAINER
+                            sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}'"
+
+                            env.CPU_LIMIT = $CPU_FLIGHTS
+                            env.MEM_LIMIT = $MEM_FLIGHTS
+                            env.SERVICE = $FLIGHTS_CONTAINER
+                            sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}'"
+                            
+                            env.CPU_LIMIT = $CPU_BOOKINGS
+                            env.MEM_LIMIT = $MEM_BOOKINGS
+                            env.SERVICE = $BOOKINGS_CONTAINER
+                            sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}'"
+
+                            env.CPU_LIMIT = $CPU_FRONTEND
+                            env.MEM_LIMIT = $MEM_FRONTEND
+                            env.SERVICE = $FRONTEND_CONTAINER
+                            sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}'"
+
+                            // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+                            // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
+                            // sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+                            // ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
+                            // sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+                            // ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
+                            // sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+                            // ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
                         }
                         catch (err) {
                             echo err.getMessage()

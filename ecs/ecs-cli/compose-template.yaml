@@ -1,6 +1,6 @@
 version: '3'
 services:
-  $SERVICE:
+  $SERVICE
     image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${IMAGE}:latest"
     ports:
       - "${DEFAULT_PORT}:${DEFAULT_PORT}"
@@ -9,4 +9,4 @@ services:
       options:
         awslogs-group: ecs_wc
         awslogs-region: ${REGION}
-        awslogs-stream-prefix: $SERVICE
+        awslogs-stream-prefix: ${SERVICE}
