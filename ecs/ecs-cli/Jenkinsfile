@@ -384,6 +384,7 @@ pipeline {
             dir("ecs/ecs-cli"){
                 sh 'chmod +x down.sh'
                 sh './down.sh'
+                sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
             }
         }
     }
