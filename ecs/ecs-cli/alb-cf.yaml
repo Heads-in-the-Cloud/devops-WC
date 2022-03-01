@@ -240,6 +240,6 @@ Resources:
       ResourceRecords:
         - !GetAtt ECSALB.DNSName
       HostedZoneId: !Ref HostedZoneId
-      Name: !Join [ '-', [!Ref RecordName, !Ref Environment ]]
+      Name: !Join [ '-', [ !Ref Environment, !Ref RecordName ]]
       Type: 'CNAME'
       TTL: '300'
