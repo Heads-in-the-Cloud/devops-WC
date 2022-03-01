@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-
+Conditions:
+  ProdEnv:
+    "Fn::Equals":
+        - !Ref Environment
+        - prod
 Parameters:
   VpcId:
     Type: 'AWS::EC2::VPC::Id'
@@ -31,6 +35,14 @@ Parameters:
   BookingsHealthCheck:
     Type: String
   FrontendHealthCheck:
+    Type: String
+  TGNameUsers:
+    Type: String
+  TGNameFlights:
+    Type: String
+  TGNameBookings:
+    Type: String
+  TGNameFrontend:
     Type: String
   
   #Route53 Parameters
@@ -67,6 +79,15 @@ Resources:
       FromPort: 80
       ToPort: 80
       CidrIp: 0.0.0.0/0
+  AlbSecurityGroupHTTPSinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 0.0.0.0/0
+    Condition: ProdEnv
   AlbSecurityGroupSSHinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -150,7 +171,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: UsersTG
+      Name: !Join [ '-', [TGNameUsers, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -168,7 +189,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FlightsTG
+      Name: !Join [ '-', [TGNameFlights, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -186,7 +207,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: BookingsTG
+      Name: !Join [ '-', [TGNameBookings, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -204,7 +225,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FrontendTG
+      Name: !Join [ '-', [TGNameFrontend, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
