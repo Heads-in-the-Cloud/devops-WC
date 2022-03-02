@@ -119,7 +119,7 @@ pipeline {
                     env.BOOKINGS_TG         = "BookingsTG"
                     env.FRONTEND_TG         = "FrontendTG"
 
-                    env.ECS_ALB              = "EcsALB"
+                    env.ECS_ALB              = "ECSALB"
                     env.ECS_SG               = "EcsSecurityGroup"
 
                     env.CPU_USERS           = "512"
