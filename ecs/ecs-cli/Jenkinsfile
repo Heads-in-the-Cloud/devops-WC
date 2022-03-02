@@ -111,6 +111,14 @@ pipeline {
                     env.TG_NAME_BOOKINGS    = "WC-Bookings"
                     env.TG_NAME_FRONTEND    = "WC-Frontend"
 
+                    env.USERS_TG            = "UsersTG"
+                    env.FLIGHTS_TG          = "FlightsTG"
+                    env.BOOKINGS_TG         = "BookingsTG"
+                    env.FRONTEND_TG         = "FrontendTG"
+
+                    env.ECS_ALB              = "EcsALB"
+                    env.ESC_SG               = "EcsSecurityGroup"
+
                     env.CPU_USERS           = "512"
                     env.CPU_FLIGHTS         = "512"
                     env.CPU_BOOKINGS        = "512"
@@ -152,41 +160,47 @@ pipeline {
                 }
             }
         }
-        // stage('Create ALB') {
-        //     when {
-        //         expression { 
-        //            return params.action == 'create'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             dir('ecs/ecs-cli'){
+        stage('Create ALB') {
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+                script{
+                    dir('ecs/ecs-cli'){
 
-        //                 sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
-        //                 ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-        //                 ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-        //                 ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-        //                 ParameterKey=Environment,ParameterValue=${params.environment} \
-        //                 ParameterKey=FlightsPath,ParameterValue=/airline/* \
-        //                 ParameterKey=BookingsPath,ParameterValue=/booking/* \
-        //                 ParameterKey=FrontendPath,ParameterValue=/lms/* \
-        //                 ParameterKey=UsersHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-        //                 ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-        //                 ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-        //                 ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-        //                 ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-        //                 ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-        //                 ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
+                        ParameterKey=Environment,ParameterValue=${params.environment} \
+                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
+                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
+                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
+                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
+                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
+                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
+                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
+                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
+                        ParameterKey=UsersTG,ParameterValue=${USERS_TG} \
+                        ParameterKey=FlightsTG,ParameterValue=${FLIGHTS_TG} \
+                        ParameterKey=BookingsTG,ParameterValue=${BOOKINGS_TG} \
+                        ParameterKey=FrontendTG,ParameterValue=${FRONTEND_TG} \
+                        ParameterKey=ECSALB,ParameterValue=${ECS_ALB} \
+                        ParameterKey=EcsSecurityGroup,ParameterValue=${ECS_SG} \
+                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-        //                 //wait for cloudformation to finish for outputs then get output ID's
-        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-        //             }
-        //         }
-        //     }
-        // }
+                        //wait for cloudformation to finish for outputs then get output ID's
+                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+                    }
+                }
+            }
+        }
         stage('Get ALB Resource IDs'){
             when { 
                 anyOf {
@@ -202,51 +216,51 @@ pipeline {
                 script{
                     env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id EcsSecurityGroup \
+                                        --logical-resource-id $ECS_SG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.USERS_TG= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id UsersTG \
+                                        --logical-resource-id $USERS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.FLIGHTS_TG= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id FlightsTG \
+                                        --logical-resource-id $FLIGHTS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.BOOKINGS_TG= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id BookingsTG \
+                                        --logical-resource-id $BOOKINGS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.FRONTEND_TG= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id FrontendTG \
+                                        --logical-resource-id $FRONTEND_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
                     
                     env.LOAD_BALANCER_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
-                                        --logical-resource-id ECSALB \
+                                        --logical-resource-id $ECS_ALB \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
                 }
             }
         }
-        // stage('Create Cluster'){
-        //     when {
-        //         expression { 
-        //            return params.action == 'create'
-        //         }
-        //     }
-        //     steps{
+        stage('Create Cluster'){
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
 
-        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-        //             --capability-iam --cluster-config ECS-Cluster-WC \
-        //             --subnets ${SUBNET1},${SUBNET2}"
-        //     }
-        // }
+                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+                    --capability-iam --cluster-config ECS-Cluster-WC \
+                    --subnets ${SUBNET1},${SUBNET2}"
+            }
+        }
 
         stage('Docker Compose Up'){
             when {                    
