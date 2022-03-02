@@ -163,47 +163,47 @@ pipeline {
                 }
             }
         }
-    //     stage('Create ALB') {
-    //         when {
-    //             expression { 
-    //                return params.action == 'create'
-    //             }
-    //         }
-    //         steps{
-    //             script{
-    //                 dir('ecs/ecs-cli'){
+        stage('Create ALB') {
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+                script{
+                    dir('ecs/ecs-cli'){
 
-    //                     sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
-    //                     ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-    //                     ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-    //                     ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-    //                     ParameterKey=Environment,ParameterValue=${params.environment} \
-    //                     ParameterKey=FlightsPath,ParameterValue=/airline/* \
-    //                     ParameterKey=BookingsPath,ParameterValue=/booking/* \
-    //                     ParameterKey=FrontendPath,ParameterValue=/lms/* \
-    //                     ParameterKey=UsersHealthCheck,ParameterValue=/health \
-    //                     ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-    //                     ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-    //                     ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-    //                     ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-    //                     ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-    //                     ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-    //                     ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-    //                     ParameterKey=UsersTG,ParameterValue=${USERS_TG} \
-    //                     ParameterKey=FlightsTG,ParameterValue=${FLIGHTS_TG} \
-    //                     ParameterKey=BookingsTG,ParameterValue=${BOOKINGS_TG} \
-    //                     ParameterKey=FrontendTG,ParameterValue=${FRONTEND_TG} \
-    //                     ParameterKey=ECSALB,ParameterValue=${ECS_ALB} \
-    //                     ParameterKey=EcsSecurityGroup,ParameterValue=${ECS_SG} \
-    //                     ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-    //                     ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
+                        ParameterKey=Environment,ParameterValue=${params.environment} \
+                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
+                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
+                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
+                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
+                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
+                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
+                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
+                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
+                        ParameterKey=UsersTG,ParameterValue=${USERS_TG} \
+                        ParameterKey=FlightsTG,ParameterValue=${FLIGHTS_TG} \
+                        ParameterKey=BookingsTG,ParameterValue=${BOOKINGS_TG} \
+                        ParameterKey=FrontendTG,ParameterValue=${FRONTEND_TG} \
+                        ParameterKey=ECSALB,ParameterValue=${ECS_ALB} \
+                        ParameterKey=EcsSecurityGroup,ParameterValue=${ECS_SG} \
+                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-    //                     //wait for cloudformation to finish for outputs then get output ID's
-    //                     sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-    //                 }
-    //             }
-    //         }
-    //     }
+                        //wait for cloudformation to finish for outputs then get output ID's
+                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+                    }
+                }
+            }
+        }
     //     stage('Get ALB Resource IDs'){
     //         when { 
     //             anyOf {
