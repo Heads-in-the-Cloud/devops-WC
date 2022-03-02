@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# $1=repository
-# $2=container
-# $3=service
-# $4=targetgrouparn
-
 
 #Split first argument into array
 IFS=',' read -ra ECS_VARS <<< "$2"
