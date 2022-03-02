@@ -1,18 +1,12 @@
 version: '3'
 services:
-  USERS: 
-    environment: 
-     - DB_USER: 
-     - DB_USER_PASSWORD: 
-     - SECRET_KEY: 
-     - DB_HOST: 
-     - USER_PORT: 
-    image: "123124124.dkr.ecr.us-west-2.amazonaws.com/users-api:latest"
+  users-api:
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${SERVICE}:latest"
     ports:
-      - "5000:5000"
+      - "${PORT}:${PORT}"
     logging:
       driver: awslogs
       options:
         awslogs-group: ecs_wc
-        awslogs-region: us-west-2
-        awslogs-stream-prefix: USERS
+        awslogs-region: ${AWS_REGION}
+        awslogs-stream-prefix: ${SERVICE}
