@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo $REGION
+echo $AWS_REGION
 
 #Split first argument into array
 IFS=',' read -ra ECS_VARS <<< "$2"
