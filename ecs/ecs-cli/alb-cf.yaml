@@ -69,7 +69,7 @@ Parameters:
 
 
 Resources:
-  !Ref ECSALB:
+  ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Name: !Join [ '-', [WC-ecs-alb, !Ref Environment ]]
@@ -120,7 +120,7 @@ Resources:
       FromPort: 31000
       ToPort: 61000
       SourceSecurityGroupId: !Ref AlbSecurityGroup
-  !Ref EcsSecurityGroup:
+  EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Security Group
@@ -178,7 +178,7 @@ Resources:
             - !Ref FrontendPath
       ListenerArn: !Ref ALBListener
       Priority: 3
-  !Ref UsersTG:
+  UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -196,7 +196,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  !Ref FlightsTG:
+  FlightsTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -214,7 +214,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  !Ref BookingsTG:
+  BookingsTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -232,7 +232,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  !Ref FrontendTG:
+  FrontendTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
