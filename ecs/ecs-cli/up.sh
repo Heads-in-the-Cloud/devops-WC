@@ -62,8 +62,8 @@ cat ecs-params.yaml
 #     - HOST_DOMAIN=${7}'> docker-compose.yaml
 
 
-# ecs-cli compose --file docker-compose.yaml --project-name ${3} \
-# --ecs-params ecs-params.yaml service up \
-# --force-deployment \
-# --target-groups "targetGroupArn=${4},containerName=${2},containerPort=${PORT}" 
+ecs-cli compose --file docker-compose.yaml --project-name ${SERVICE} \
+--ecs-params ecs-params.yaml service up \
+--force-deployment \
+--target-groups "targetGroupArn=${3},containerName=${SERVICE},containerPort=${PORT}" 
 
