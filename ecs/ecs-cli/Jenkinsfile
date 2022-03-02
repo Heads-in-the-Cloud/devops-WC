@@ -132,6 +132,11 @@ pipeline {
                     env.MEM_BOOKINGS        = "2GB"
                     env.MEM_FRONTEND        = "2GB"
 
+                    env.DESIRED_COUNT_USERS     = 1
+                    env.DESIRED_COUNT_FLIGHTS   = 1
+                    env.DESIRED_COUNT_BOOKING  = 1
+                    env.DESIRED_COUNT_FRONTEND  = 1
+
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
@@ -160,44 +165,49 @@ pipeline {
                     env.MEM_FLIGHTS         = "4GB"
                     env.MEM_BOOKINGS        = "4GB"
                     env.MEM_FRONTEND        = "4GB"
+
+                    env.DESIRED_COUNT_USERS     = 1
+                    env.DESIRED_COUNT_FLIGHTS   = 2
+                    env.DESIRED_COUNT_BOOKING   = 2
+                    env.DESIRED_COUNT_FRONTEND  = 2
                 }
             }
         }
-        // stage('Create ALB') {
-        //     when {
-        //         expression { 
-        //            return params.action == 'create'
-        //         }
-        //     }
-        //     steps{
-        //         script{
-        //             dir('ecs/ecs-cli'){
+        stage('Create ALB') {
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+                script{
+                    dir('ecs/ecs-cli'){
 
-        //                 sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
-        //                 ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-        //                 ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-        //                 ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-        //                 ParameterKey=Environment,ParameterValue=${params.environment} \
-        //                 ParameterKey=FlightsPath,ParameterValue=/airline/* \
-        //                 ParameterKey=BookingsPath,ParameterValue=/booking/* \
-        //                 ParameterKey=FrontendPath,ParameterValue=/lms/* \
-        //                 ParameterKey=UsersHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-        //                 ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-        //                 ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-        //                 ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-        //                 ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-        //                 ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-        //                 ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-        //                 ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
+                        ParameterKey=Environment,ParameterValue=${params.environment} \
+                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
+                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
+                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
+                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
+                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
+                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
+                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
+                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
+                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-        //                 //wait for cloudformation to finish for outputs then get output ID's
-        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-        //             }
-        //         }
-        //     }
-        // }
+                        //wait for cloudformation to finish for outputs then get output ID's
+                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+                    }
+                }
+            }
+        }
         stage('Get ALB Resource IDs'){
             when { 
                 anyOf {
@@ -245,19 +255,19 @@ pipeline {
                 }
             }
         }
-        // stage('Create Cluster'){
-        //     when {
-        //         expression { 
-        //            return params.action == 'create'
-        //         }
-        //     }
-        //     steps{
+        stage('Create Cluster'){
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
 
-        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-        //             --capability-iam --cluster-config ECS-Cluster-WC \
-        //             --subnets ${SUBNET1},${SUBNET2}"
-        //     }
-        // }
+                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+                    --capability-iam --cluster-config ECS-Cluster-WC \
+                    --subnets ${SUBNET1},${SUBNET2}"
+            }
+        }
 
         stage('Docker Compose Up'){
             when {                    
@@ -271,24 +281,28 @@ pipeline {
                         try {                   
                             sh 'chmod +x up.sh'
 
-                            env.CPU_LIMIT = "$CPU_USERS"
-                            env.MEM_LIMIT = "$MEM_USERS"
-                            env.SERVICE = "$USERS_CONTAINER"
+                            env.CPU_LIMIT       = "$CPU_USERS"
+                            env.MEM_LIMIT       = "$MEM_USERS"
+                            env.SERVICE         = "$USERS_CONTAINER"
+                            env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
                             sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}' $USERS_TG"
 
-                            env.CPU_LIMIT = "$CPU_FLIGHTS"
-                            env.MEM_LIMIT = "$MEM_FLIGHTS"
-                            env.SERVICE = "$FLIGHTS_CONTAINER"
+                            env.CPU_LIMIT       = "$CPU_FLIGHTS"
+                            env.MEM_LIMIT       = "$MEM_FLIGHTS"
+                            env.SERVICE         = "$FLIGHTS_CONTAINER"
+                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
                             sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}' $FLIGHTS_TG"
                             
-                            env.CPU_LIMIT = "$CPU_BOOKINGS"
-                            env.MEM_LIMIT = "$MEM_BOOKINGS"
-                            env.SERVICE = "$BOOKINGS_CONTAINER"
+                            env.CPU_LIMIT       = "$CPU_BOOKINGS"
+                            env.MEM_LIMIT       = "$MEM_BOOKINGS"
+                            env.SERVICE         = "$BOOKINGS_CONTAINER"
+                            env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
                             sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}' $BOOKINGS_TG"
 
-                            env.CPU_LIMIT = "$CPU_FRONTEND"
-                            env.MEM_LIMIT =" $MEM_FRONTEND"
-                            env.SERVICE = "$FRONTEND_CONTAINER"
+                            env.CPU_LIMIT       = "$CPU_FRONTEND"
+                            env.MEM_LIMIT       =" $MEM_FRONTEND"
+                            env.SERVICE         = "$FRONTEND_CONTAINER"
+                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
                             sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG"
 
                             // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
