@@ -88,6 +88,8 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
+                    env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
+
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
@@ -101,10 +103,10 @@ pipeline {
                     env.FLIGHTS_REPO        = "${FLIGHT_REPO_WC}"
                     env.BOOKINGS_REPO       = "${BOOKING_REPO_WC}"
                     env.FRONTEND_REPO       = "${FRONTEND_REPO_WC}"
-                    env.USERS_CONTAINER     = "USERS"
-                    env.FLIGHTS_CONTAINER   = "FLIGHTS"
-                    env.BOOKINGS_CONTAINER  = "BOOKINGS"
-                    env.FRONTEND_CONTAINER  = "FRONTEND"
+                    env.USERS_CONTAINER     = "users-api"
+                    env.FLIGHTS_CONTAINER   = "flights-api"
+                    env.BOOKINGS_CONTAINER  = "bookings-api"
+                    env.FRONTEND_CONTAINER  = "frontend"
 
                     env.TG_NAME_USERS       = "WC-Users"
                     env.TG_NAME_FLIGHTS     = "WC-Flights"
