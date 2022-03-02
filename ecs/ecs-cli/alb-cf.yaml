@@ -26,12 +26,12 @@ Parameters:
     Type: String
   FrontendPath:
     Type: String
-  ECSALB:
-    Type: String
-    Description: Logical ID of the ALB
-  EcsSecurityGroup:
-    Type: String
-    Description: Logical ID of the security group
+  # ECSALB:
+  #   Type: String
+  #   Description: Logical ID of the ALB
+  # EcsSecurityGroup:
+  #   Type: String
+  #   Description: Logical ID of the security group
     
   #Target Group Parameters
   UsersHealthCheck:
@@ -51,15 +51,15 @@ Parameters:
     Type: String
   TGNameFrontend:
     Type: String
-  UsersTG:
-    Type: String
-    Description: Logical ID of target group
-  FlightsTG:
-    Type: String
-  BookingsTG:
-    Type: String
-  FrontendTG:
-    Type: String
+  # UsersTG:
+  #   Type: String
+  #   Description: Logical ID of target group
+  # FlightsTG:
+  #   Type: String
+  # BookingsTG:
+  #   Type: String
+  # FrontendTG:
+  #   Type: String
   
   #Route53 Parameters
   HostedZoneId:
@@ -69,7 +69,7 @@ Parameters:
 
 
 Resources:
-  ECSALB:
+  !Ref ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Name: !Join [ '-', [WC-ecs-alb, !Ref Environment ]]
@@ -120,7 +120,7 @@ Resources:
       FromPort: 31000
       ToPort: 61000
       SourceSecurityGroupId: !Ref AlbSecurityGroup
-  EcsSecurityGroup:
+  !Ref EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Security Group
@@ -178,7 +178,7 @@ Resources:
             - !Ref FrontendPath
       ListenerArn: !Ref ALBListener
       Priority: 3
-  UsersTG:
+  !Ref UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -196,7 +196,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  FlightsTG:
+  !Ref FlightsTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -214,7 +214,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  BookingsTG:
+  !Ref BookingsTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -232,7 +232,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  FrontendTG:
+  !Ref FrontendTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
