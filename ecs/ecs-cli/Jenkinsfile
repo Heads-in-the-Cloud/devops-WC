@@ -414,7 +414,7 @@ pipeline {
                 
     //         }
     //     }
-    // }
+    }
     post {
         failure {
             dir("ecs/ecs-cli"){
