@@ -226,22 +226,22 @@ pipeline {
                                         --logical-resource-id $ECS_SG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.USERS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                    env.USERS_TG_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $USERS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.FLIGHTS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                    env.FLIGHTS_TG_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $FLIGHTS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.BOOKINGS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                    env.BOOKINGS_TG_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $BOOKINGS_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.FRONTEND_TG= sh ( script: "aws cloudformation describe-stack-resource \
+                    env.FRONTEND_TG_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $FRONTEND_TG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
@@ -285,25 +285,25 @@ pipeline {
                             env.MEM_LIMIT       = "$MEM_USERS"
                             env.SERVICE         = "$USERS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
-                            sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}' $USERS_TG"
+                            sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}' $USERS_TG_ARN"
 
                             env.CPU_LIMIT       = "$CPU_FLIGHTS"
                             env.MEM_LIMIT       = "$MEM_FLIGHTS"
                             env.SERVICE         = "$FLIGHTS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-                            sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}' $FLIGHTS_TG"
+                            sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}' $FLIGHTS_TG_ARN"
                             
                             env.CPU_LIMIT       = "$CPU_BOOKINGS"
                             env.MEM_LIMIT       = "$MEM_BOOKINGS"
                             env.SERVICE         = "$BOOKINGS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-                            sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}' $BOOKINGS_TG"
+                            sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}' $BOOKINGS_TG_ARN"
 
                             env.CPU_LIMIT       = "$CPU_FRONTEND"
                             env.MEM_LIMIT       =" $MEM_FRONTEND"
                             env.SERVICE         = "$FRONTEND_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                            sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG"
+                            sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
                             // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
                             // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
