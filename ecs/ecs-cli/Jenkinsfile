@@ -89,6 +89,7 @@ pipeline {
             steps{
                 script{
                     env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
+                    env.REGION              = "us-west-2"
 
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
