@@ -100,10 +100,10 @@ pipeline {
                     env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${params.environment}"
                     env.FRONTEND_SERVICE    = "WC-ecs-frontend-${params.environment}"
                     env.PORT                = 5000
-                    env.USERS_CONTAINER          = "${USER_REPO_WC}"
-                    env.FLIGHTS_CONTAINER        = "${FLIGHT_REPO_WC}"
-                    env.BOOKINGS_CONTAINER       = "${BOOKING_REPO_WC}"
-                    env.FRONTEND_CONTAINER       = "${FRONTEND_REPO_WC}"
+                    env.USERS_CONTAINER     = "${USER_REPO_WC}"
+                    env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
+                    env.BOOKINGS_CONTAINER  = "${BOOKING_REPO_WC}"
+                    env.FRONTEND_CONTAINER  = "${FRONTEND_REPO_WC}"
                     // env.USERS_CONTAINER     = "users-api"
                     // env.FLIGHTS_CONTAINER   = "flights-api"
                     // env.BOOKINGS_CONTAINER  = "bookings-api"
@@ -134,7 +134,7 @@ pipeline {
 
                     env.DESIRED_COUNT_USERS     = 1
                     env.DESIRED_COUNT_FLIGHTS   = 1
-                    env.DESIRED_COUNT_BOOKING  = 1
+                    env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
@@ -168,46 +168,46 @@ pipeline {
 
                     env.DESIRED_COUNT_USERS     = 1
                     env.DESIRED_COUNT_FLIGHTS   = 2
-                    env.DESIRED_COUNT_BOOKING   = 2
+                    env.DESIRED_COUNT_BOOKINGS  = 2
                     env.DESIRED_COUNT_FRONTEND  = 2
                 }
             }
         }
-        stage('Create ALB') {
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
-                script{
-                    dir('ecs/ecs-cli'){
+        // stage('Create ALB') {
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             dir('ecs/ecs-cli'){
 
-                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
-                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-                        ParameterKey=Environment,ParameterValue=${params.environment} \
-                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
-                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
-                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
-                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
-                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+        //                 sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+        //                 ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+        //                 ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+        //                 ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
+        //                 ParameterKey=Environment,ParameterValue=${params.environment} \
+        //                 ParameterKey=FlightsPath,ParameterValue=/airline/* \
+        //                 ParameterKey=BookingsPath,ParameterValue=/booking/* \
+        //                 ParameterKey=FrontendPath,ParameterValue=/lms/* \
+        //                 ParameterKey=UsersHealthCheck,ParameterValue=/health \
+        //                 ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+        //                 ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+        //                 ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+        //                 ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
+        //                 ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
+        //                 ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
+        //                 ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
+        //                 ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+        //                 ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-                        //wait for cloudformation to finish for outputs then get output ID's
-                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-                    }
-                }
-            }
-        }
+        //                 //wait for cloudformation to finish for outputs then get output ID's
+        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+        //             }
+        //         }
+        //     }
+        // }
         stage('Get ALB Resource IDs'){
             when { 
                 anyOf {
@@ -255,19 +255,19 @@ pipeline {
                 }
             }
         }
-        stage('Create Cluster'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
+        // stage('Create Cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
 
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-                    --capability-iam --cluster-config ECS-Cluster-WC \
-                    --subnets ${SUBNET1},${SUBNET2}"
-            }
-        }
+        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+        //             --capability-iam --cluster-config ECS-Cluster-WC \
+        //             --subnets ${SUBNET1},${SUBNET2}"
+        //     }
+        // }
 
         stage('Docker Compose Up'){
             when {                    
@@ -285,25 +285,25 @@ pipeline {
                             env.MEM_LIMIT       = "$MEM_USERS"
                             env.SERVICE         = "$USERS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
-                            sh "./up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}' $USERS_TG_ARN"
+                            sh "./up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
 
                             env.CPU_LIMIT       = "$CPU_FLIGHTS"
                             env.MEM_LIMIT       = "$MEM_FLIGHTS"
                             env.SERVICE         = "$FLIGHTS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-                            sh "./up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}' $FLIGHTS_TG_ARN"
+                            sh "./up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
                             
                             env.CPU_LIMIT       = "$CPU_BOOKINGS"
                             env.MEM_LIMIT       = "$MEM_BOOKINGS"
                             env.SERVICE         = "$BOOKINGS_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-                            sh "./up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}' $BOOKINGS_TG_ARN"
+                            sh "./up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
 
                             env.CPU_LIMIT       = "$CPU_FRONTEND"
                             env.MEM_LIMIT       =" $MEM_FRONTEND"
                             env.SERVICE         = "$FRONTEND_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                            sh "./up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+                            sh "./up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTENDS_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
                             // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
                             // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
@@ -415,13 +415,13 @@ pipeline {
                 dir("ecs/ecs-cli"){
                     sh 'chmod +x down.sh'
 
-                    sh "./down.sh $USERS_CONTAINER"
+                    sh "./down.sh $USERS_SERVICE"
 
-                    sh "./down.sh $FLIGHTS_CONTAINER"
+                    sh "./down.sh $FLIGHTS_SERVICE"
 
-                    sh "./down.sh $BOOKINGS_CONTAINER"
+                    sh "./down.sh $BOOKINGS_SERVICE"
 
-                    sh "./down.sh $FRONTEND_CONTAINER"
+                    sh "./down.sh $FRONTEND_SERVICE"
 
                     //wait for cloudformation stack to delete
                     sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
