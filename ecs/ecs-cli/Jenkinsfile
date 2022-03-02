@@ -163,258 +163,258 @@ pipeline {
                 }
             }
         }
-        stage('Create ALB') {
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
-                script{
-                    dir('ecs/ecs-cli'){
+    //     stage('Create ALB') {
+    //         when {
+    //             expression { 
+    //                return params.action == 'create'
+    //             }
+    //         }
+    //         steps{
+    //             script{
+    //                 dir('ecs/ecs-cli'){
 
-                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
-                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-                        ParameterKey=Environment,ParameterValue=${params.environment} \
-                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
-                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
-                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
-                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
-                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-                        ParameterKey=UsersTG,ParameterValue=${USERS_TG} \
-                        ParameterKey=FlightsTG,ParameterValue=${FLIGHTS_TG} \
-                        ParameterKey=BookingsTG,ParameterValue=${BOOKINGS_TG} \
-                        ParameterKey=FrontendTG,ParameterValue=${FRONTEND_TG} \
-                        ParameterKey=ECSALB,ParameterValue=${ECS_ALB} \
-                        ParameterKey=EcsSecurityGroup,ParameterValue=${ECS_SG} \
-                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+    //                     sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://alb-cf.yaml --parameters \
+    //                     ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+    //                     ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
+    //                     ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
+    //                     ParameterKey=Environment,ParameterValue=${params.environment} \
+    //                     ParameterKey=FlightsPath,ParameterValue=/airline/* \
+    //                     ParameterKey=BookingsPath,ParameterValue=/booking/* \
+    //                     ParameterKey=FrontendPath,ParameterValue=/lms/* \
+    //                     ParameterKey=UsersHealthCheck,ParameterValue=/health \
+    //                     ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
+    //                     ParameterKey=BookingsHealthCheck,ParameterValue=/health \
+    //                     ParameterKey=FrontendHealthCheck,ParameterValue=/health \
+    //                     ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
+    //                     ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
+    //                     ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
+    //                     ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
+    //                     ParameterKey=UsersTG,ParameterValue=${USERS_TG} \
+    //                     ParameterKey=FlightsTG,ParameterValue=${FLIGHTS_TG} \
+    //                     ParameterKey=BookingsTG,ParameterValue=${BOOKINGS_TG} \
+    //                     ParameterKey=FrontendTG,ParameterValue=${FRONTEND_TG} \
+    //                     ParameterKey=ECSALB,ParameterValue=${ECS_ALB} \
+    //                     ParameterKey=EcsSecurityGroup,ParameterValue=${ECS_SG} \
+    //                     ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+    //                     ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-                        //wait for cloudformation to finish for outputs then get output ID's
-                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-                    }
-                }
-            }
-        }
-        stage('Get ALB Resource IDs'){
-            when { 
-                anyOf {
-                    expression { 
-                    return params.action == 'create'
-                    }
-                    expression { 
-                    return params.action == 'update'
-                    }
-                }
-            }
-            steps{
-                script{
-                    env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $ECS_SG \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                     //wait for cloudformation to finish for outputs then get output ID's
+    //                     sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Get ALB Resource IDs'){
+    //         when { 
+    //             anyOf {
+    //                 expression { 
+    //                 return params.action == 'create'
+    //                 }
+    //                 expression { 
+    //                 return params.action == 'update'
+    //                 }
+    //             }
+    //         }
+    //         steps{
+    //             script{
+    //                 env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $ECS_SG \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.USERS_TG= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $USERS_TG \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                 env.USERS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $USERS_TG \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.FLIGHTS_TG= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $FLIGHTS_TG \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                 env.FLIGHTS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $FLIGHTS_TG \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.BOOKINGS_TG= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $BOOKINGS_TG \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                 env.BOOKINGS_TG= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $BOOKINGS_TG \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.FRONTEND_TG= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $FRONTEND_TG \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                 env.FRONTEND_TG= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $FRONTEND_TG \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
                     
-                    env.LOAD_BALANCER_ARN= sh ( script: "aws cloudformation describe-stack-resource \
-                                        --stack-name $STACK_NAME \
-                                        --logical-resource-id $ECS_ALB \
-                                        --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+    //                 env.LOAD_BALANCER_ARN= sh ( script: "aws cloudformation describe-stack-resource \
+    //                                     --stack-name $STACK_NAME \
+    //                                     --logical-resource-id $ECS_ALB \
+    //                                     --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
-                    env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
-                }
-            }
-        }
-        stage('Create Cluster'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
+    //                 env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
+    //             }
+    //         }
+    //     }
+    //     stage('Create Cluster'){
+    //         when {
+    //             expression { 
+    //                return params.action == 'create'
+    //             }
+    //         }
+    //         steps{
 
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-                    --capability-iam --cluster-config ECS-Cluster-WC \
-                    --subnets ${SUBNET1},${SUBNET2}"
-            }
-        }
+    //             sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+    //                 --capability-iam --cluster-config ECS-Cluster-WC \
+    //                 --subnets ${SUBNET1},${SUBNET2}"
+    //         }
+    //     }
 
-        stage('Docker Compose Up'){
-            when {                    
-                expression { 
-                        return params.action == 'create'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {                   
-                            sh 'chmod +x up.sh'
+    //     stage('Docker Compose Up'){
+    //         when {                    
+    //             expression { 
+    //                     return params.action == 'create'
+    //                 }
+    //             }
+    //         steps{
+    //             script{
+    //                 dir("ecs/ecs-cli"){
+    //                     try {                   
+    //                         sh 'chmod +x up.sh'
 
-                            env.CPU_LIMIT = "$CPU_USERS"
-                            env.MEM_LIMIT = "$MEM_USERS"
-                            env.SERVICE = "$USERS_CONTAINER"
-                            sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}'"
+    //                         env.CPU_LIMIT = "$CPU_USERS"
+    //                         env.MEM_LIMIT = "$MEM_USERS"
+    //                         env.SERVICE = "$USERS_CONTAINER"
+    //                         sh "./up.sh $USERS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}'"
 
-                            env.CPU_LIMIT = "$CPU_FLIGHTS"
-                            env.MEM_LIMIT = "$MEM_FLIGHTS"
-                            env.SERVICE = "$FLIGHTS_CONTAINER"
-                            sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}'"
+    //                         env.CPU_LIMIT = "$CPU_FLIGHTS"
+    //                         env.MEM_LIMIT = "$MEM_FLIGHTS"
+    //                         env.SERVICE = "$FLIGHTS_CONTAINER"
+    //                         sh "./up.sh $FLIGHTS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHT_PORT=${PORT}'"
                             
-                            env.CPU_LIMIT = "$CPU_BOOKINGS"
-                            env.MEM_LIMIT = "$MEM_BOOKINGS"
-                            env.SERVICE = "$BOOKINGS_CONTAINER"
-                            sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}'"
+    //                         env.CPU_LIMIT = "$CPU_BOOKINGS"
+    //                         env.MEM_LIMIT = "$MEM_BOOKINGS"
+    //                         env.SERVICE = "$BOOKINGS_CONTAINER"
+    //                         sh "./up.sh $BOOKINGS_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKING_PORT=${PORT}'"
 
-                            env.CPU_LIMIT = "$CPU_FRONTEND"
-                            env.MEM_LIMIT =" $MEM_FRONTEND"
-                            env.SERVICE = "$FRONTEND_CONTAINER"
-                            sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}'"
+    //                         env.CPU_LIMIT = "$CPU_FRONTEND"
+    //                         env.MEM_LIMIT =" $MEM_FRONTEND"
+    //                         env.SERVICE = "$FRONTEND_CONTAINER"
+    //                         sh "./up.sh $FRONTEND_CONTAINER 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}'"
 
-                            // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
-                            // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
-                            // ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
-                            // ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
-                            // ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Update users'){
-            when {                    
-                expression { 
-                        return params.action == 'users'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x up.sh'
-                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
-                            ${CPU_USERS} ${MEM_USERS}"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Update flights'){
-            when {                    
-                expression { 
-                        return params.action == 'flights'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x up.sh'
-                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
-                            ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Update bookings'){
-            when {                    
-                expression { 
-                        return params.action == 'bookings'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x up.sh'
-                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
-                            ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Update frontend'){
-            when {                    
-                expression { 
-                        return params.action == 'frontend'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x up.sh'
-                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
-                            ${CPU_FRONTEND} ${MEM_FRONTEND}"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Compose Down'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                dir("ecs/ecs-cli"){
-                    sh 'chmod +x down.sh'
-                    sh './down.sh'
+    //                         // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+    //                         // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
+    //                         // sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+    //                         // ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
+    //                         // sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+    //                         // ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
+    //                         // sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+    //                         // ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
+    //                     }
+    //                     catch (err) {
+    //                         echo err.getMessage()
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Update users'){
+    //         when {                    
+    //             expression { 
+    //                     return params.action == 'users'
+    //                 }
+    //             }
+    //         steps{
+    //             script{
+    //                 dir("ecs/ecs-cli"){
+    //                     try {
+    //                         sh 'chmod +x up.sh'
+    //                         sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+    //                         ${CPU_USERS} ${MEM_USERS}"
+    //                     }
+    //                     catch (err) {
+    //                         echo err.getMessage()
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Update flights'){
+    //         when {                    
+    //             expression { 
+    //                     return params.action == 'flights'
+    //                 }
+    //             }
+    //         steps{
+    //             script{
+    //                 dir("ecs/ecs-cli"){
+    //                     try {
+    //                         sh 'chmod +x up.sh'
+    //                         sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+    //                         ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
+    //                     }
+    //                     catch (err) {
+    //                         echo err.getMessage()
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Update bookings'){
+    //         when {                    
+    //             expression { 
+    //                     return params.action == 'bookings'
+    //                 }
+    //             }
+    //         steps{
+    //             script{
+    //                 dir("ecs/ecs-cli"){
+    //                     try {
+    //                         sh 'chmod +x up.sh'
+    //                         sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+    //                         ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
+    //                     }
+    //                     catch (err) {
+    //                         echo err.getMessage()
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Update frontend'){
+    //         when {                    
+    //             expression { 
+    //                     return params.action == 'frontend'
+    //                 }
+    //             }
+    //         steps{
+    //             script{
+    //                 dir("ecs/ecs-cli"){
+    //                     try {
+    //                         sh 'chmod +x up.sh'
+    //                         sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+    //                         ${CPU_FRONTEND} ${MEM_FRONTEND}"
+    //                     }
+    //                     catch (err) {
+    //                         echo err.getMessage()
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Docker Compose Down'){
+    //         when {
+    //             expression { 
+    //                return params.action == 'delete'
+    //             }
+    //         }
+    //         steps{
+    //             dir("ecs/ecs-cli"){
+    //                 sh 'chmod +x down.sh'
+    //                 sh './down.sh'
 
-                    //wait for cloudformation stack to delete
-                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                }
+    //                 //wait for cloudformation stack to delete
+    //                 sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+    //             }
                 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
     post {
         failure {
             dir("ecs/ecs-cli"){
