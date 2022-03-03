@@ -414,7 +414,7 @@ pipeline {
             steps{
                 dir("ecs/ecs-cli"){
                     sh 'chmod +x down.sh'
-                    sh "echo $(ls)"
+                    sh "ls"
                     sh "./down.sh $USERS_SERVICE"
 
                     sh "./down.sh $FLIGHTS_SERVICE"
