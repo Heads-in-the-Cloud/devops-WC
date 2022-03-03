@@ -9,6 +9,9 @@ rm -f docker-compose.yaml temp.yaml
 ) >temp.yaml
 . temp.yaml
 
+
+cat docker-compose.yaml
+rm temp.yaml
 rm temp-docker-compose.yaml
 
 ecs-cli compose --project-name ${1} --file docker-compose.yaml service rm
