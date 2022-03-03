@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sed -e 's/$SERVICE/'"${1}"'/g' compose-template.yaml > temp-docker-compose.yaml
+sed -e 's/$SERVICE/'"${1}"':/g' compose-template.yaml > temp-docker-compose.yaml
 
 
 rm -f docker-compose.yaml temp.yaml
