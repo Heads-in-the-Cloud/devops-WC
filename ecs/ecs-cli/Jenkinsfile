@@ -427,27 +427,28 @@ pipeline {
                 }
             }
             steps{
-                dir("ecs/ecs-cli"){
-                    try {
+                script {
+                    dir("ecs/ecs-cli"){
+                        try {
 
-                        sh 'chmod +x down.sh'
+                            sh 'chmod +x down.sh'
 
-                        sh "./down.sh $USERS_SERVICE"
+                            sh "./down.sh $USERS_SERVICE"
 
-                        sh "./down.sh $FLIGHTS_SERVICE"
+                            sh "./down.sh $FLIGHTS_SERVICE"
 
-                        sh "./down.sh $BOOKINGS_SERVICE"
+                            sh "./down.sh $BOOKINGS_SERVICE"
 
-                        sh "./down.sh $FRONTEND_SERVICE"
+                            sh "./down.sh $FRONTEND_SERVICE"
 
-                        //wait for cloudformation stack to delete
-                        sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                    }
-                    catch (err) {
-                        echo err.getMessage()
+                            //wait for cloudformation stack to delete
+                            sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
                     }
                 }
-                
             }
         }
     }
