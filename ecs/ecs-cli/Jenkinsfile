@@ -414,7 +414,7 @@ pipeline {
             steps{
                 dir("ecs/ecs-cli"){
                     sh 'chmod +x down.sh'
-
+                    sh "echo $(ls)"
                     sh "./down.sh $USERS_SERVICE"
 
                     sh "./down.sh $FLIGHTS_SERVICE"
@@ -434,7 +434,14 @@ pipeline {
         failure {
             dir("ecs/ecs-cli"){
                 sh 'chmod +x down.sh'
-                sh './down.sh'
+
+                sh "./down.sh $USERS_SERVICE"
+
+                sh "./down.sh $FLIGHTS_SERVICE"
+
+                sh "./down.sh $BOOKINGS_SERVICE"
+
+                sh "./down.sh $FRONTEND_SERVICE"
                 sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
             }
         }
