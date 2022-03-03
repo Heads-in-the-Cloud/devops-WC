@@ -326,7 +326,7 @@ pipeline {
         stage('Update users'){
             when {                    
                 expression { 
-                        return params.action == 'users'
+                        return params.container == 'users'
                     }
                 }
             steps{
@@ -350,7 +350,7 @@ pipeline {
         stage('Update flights'){
             when {                    
                 expression { 
-                        return params.action == 'flights'
+                        return params.container == 'flights'
                     }
                 }
             steps{
@@ -375,7 +375,7 @@ pipeline {
         stage('Update bookings'){
             when {                    
                 expression { 
-                        return params.action == 'bookings'
+                        return params.container == 'bookings'
                     }
                 }
             steps{
@@ -400,7 +400,7 @@ pipeline {
         stage('Update frontend'){
             when {                    
                 expression { 
-                        return params.action == 'frontend'
+                        return params.container == 'frontend'
                     }
                 }
             steps{
