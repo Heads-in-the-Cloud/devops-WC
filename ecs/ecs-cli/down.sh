@@ -30,4 +30,4 @@ ecs-cli compose --project-name ${1} --file docker-compose.yaml service rm
 
 # ecs-cli down --cluster ECS-Cluster-WC -f
 
-# aws cloudformation delete-stack --stack-name ${STACK_NAME}
+aws cloudformation delete-stack --stack-name ${STACK_NAME}
