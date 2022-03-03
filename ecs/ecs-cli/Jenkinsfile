@@ -442,8 +442,7 @@ pipeline {
 
                         //wait for cloudformation stack to delete
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                        }
-
+                
                     }
                 }
             }
