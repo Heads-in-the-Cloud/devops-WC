@@ -94,6 +94,8 @@ pipeline {
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
+                    env.CLUSTER_NAME        = "ECS-Cluster-WC"
+
                     env.STACK_NAME          = "WC-ecs-alb-stack-${params.environment}"
                     env.USERS_SERVICE       = "WC-ecs-users-${params.environment}"
                     env.FLIGHTS_SERVICE     = "WC-ecs-flights-${params.environment}"
@@ -264,7 +266,7 @@ pipeline {
             steps{
 
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-                    --capability-iam --cluster-config ECS-Cluster-WC \
+                    --capability-iam --cluster-config ${CLUSTER_NAME} \
                     --subnets ${SUBNET1},${SUBNET2}"
             }
         }
