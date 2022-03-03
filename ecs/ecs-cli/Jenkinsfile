@@ -305,16 +305,8 @@ pipeline {
                             env.MEM_LIMIT       =" $MEM_FRONTEND"
                             env.SERVICE         = "$FRONTEND_CONTAINER"
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                            sh "./up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTENDS_PORT=${PORT},HOST_DOMAIN=${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+                            sh "./up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
-                            // sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
-                            // ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
-                            // ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
-                            // ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
-                            // sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
-                            // ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
                         }
                         catch (err) {
                             echo err.getMessage()
