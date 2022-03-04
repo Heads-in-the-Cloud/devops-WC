@@ -27,7 +27,3 @@ ecs-cli compose --project-name ${1} --file docker-compose.yaml service rm
 # sed -e 's/$SERVICE/'"${FRONTEND_CONTAINER}"'/g' compose-template.yaml > docker-compose.yaml
 
 # ecs-cli compose --project-name ${FRONTEND_SERVICE} --file docker-compose.yaml service rm
-
-ecs-cli down --cluster ${CLUSTER_NAME} -f
-
-aws cloudformation delete-stack --stack-name ${STACK_NAME}

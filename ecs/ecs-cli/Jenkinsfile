@@ -139,6 +139,9 @@ pipeline {
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
+                    env.ALB_CREATED             = false
+                    env.CLUSTER_CREATED         = false
+
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
@@ -256,6 +259,13 @@ pipeline {
                     env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
                 }
             }
+            post {
+                success {
+                    script {
+                        ALB_CREATED = true
+                    }
+                }
+            }
         }
         stage('Create Cluster'){
             when {
@@ -268,6 +278,13 @@ pipeline {
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
                     --capability-iam --cluster-config ${CLUSTER_NAME} \
                     --subnets ${SUBNET1},${SUBNET2}"
+            }
+            post {
+                success {
+                    script {
+                        CLUSTER_CREATED = true
+                    }
+                }
             }
         }
 
@@ -443,18 +460,32 @@ pipeline {
         }
     }
     post {
+        when {                    
+            expression { 
+                    return params.action == 'create'
+                }
+            }
         failure {
-            dir("ecs/ecs-cli"){
-                sh 'chmod +x down.sh'
+            script {
+                dir("ecs/ecs-cli"){
+                    sh 'chmod +x down.sh'
 
-                sh "./down.sh $USERS_SERVICE"
+                    sh "./down.sh $USERS_SERVICE"
 
-                sh "./down.sh $FLIGHTS_SERVICE"
+                    sh "./down.sh $FLIGHTS_SERVICE"
 
-                sh "./down.sh $BOOKINGS_SERVICE"
+                    sh "./down.sh $BOOKINGS_SERVICE"
 
-                sh "./down.sh $FRONTEND_SERVICE"
-                sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                    sh "./down.sh $FRONTEND_SERVICE"
+
+                    if(CLUSTER_CREATED) {
+                        ecs-cli down --cluster ${CLUSTER_NAME} -f
+                    }
+                    if(ALB_CREATED) {
+                        aws cloudformation delete-stack --stack-name ${STACK_NAME}
+                        sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                    }
+                }
             }
         }
     }
