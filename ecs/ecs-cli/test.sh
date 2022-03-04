@@ -11,4 +11,4 @@ export REGION='us-west-2'
 
 
 
-./up.sh 'USERS' 'HOST_DOMAIN=https://jenkinw1.hisdf'
+./up.sh 'USERS' 'HOST_DOMAIN=https://${IMAGE}'

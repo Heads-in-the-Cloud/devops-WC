@@ -13,7 +13,7 @@ for i in "${!ECS_VARS[@]}"
 do
     IFS='=' read -ra var <<< ${ECS_VARS[$i]}
     ARGS+="
-     - ${var[0]}=${var[1]//'/'/'\/'}"
+     - ${var[0]}=${var[1]////'\/'}"
     if [[ i -lt ${#ECS_VARS[@]}-1 ]]; then
       ARGS+=' \'
     fi
@@ -49,9 +49,9 @@ cat ecs-params.yaml
 
 
 
-ecs-cli compose --file docker-compose.yaml --project-name ${1} \
---ecs-params ecs-params.yaml service up \
---force-deployment \
---target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
+# ecs-cli compose --file docker-compose.yaml --project-name ${1} \
+# --ecs-params ecs-params.yaml service up \
+# --force-deployment \
+# --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
 
-ecs-cli compose --project-name ${SERVICE} service scale ${DESIRED_COUNT}
+# ecs-cli compose --project-name ${SERVICE} service scale ${DESIRED_COUNT}

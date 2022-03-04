@@ -2,7 +2,7 @@ version: '3'
 services:
   USERS: 
     environment: 
-     - HOST_DOMAIN=https://jenkinw1.hisdf 
+     - HOST_DOMAIN=https://users-api 
     image: "123124124.dkr.ecr.us-west-2.amazonaws.com/USERS:latest"
     ports:
       - ":"
