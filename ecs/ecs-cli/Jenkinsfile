@@ -442,18 +442,30 @@ pipeline {
                     dir("ecs/ecs-cli"){
 
                         sh 'chmod +x down.sh'
-
-                        sh "./down.sh $USERS_SERVICE"
-
-                        sh "./down.sh $FLIGHTS_SERVICE"
-
-                        sh "./down.sh $BOOKINGS_SERVICE"
-
-                        sh "./down.sh $FRONTEND_SERVICE"
-
+                        try {
+                            sh "./down.sh $USERS_SERVICE"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                        try {
+                            sh "./down.sh $FLIGHTS_SERVICE"
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                        try{
+                            sh "./down.sh $BOOKINGS_SERVICE"
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                        try{
+                            sh "./down.sh $FRONTEND_SERVICE"
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                        //delete the ecs cluster using ecs-cli and delete the cloudformation stack using aws-cli
                         sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
-
-                        sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                        sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
 
                         //wait for cloudformation stack to delete
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
@@ -467,15 +479,6 @@ pipeline {
         failure {
             script {
                 dir("ecs/ecs-cli"){
-                    sh 'chmod +x down.sh'
-
-                    sh "./down.sh $USERS_SERVICE"
-
-                    sh "./down.sh $FLIGHTS_SERVICE"
-
-                    sh "./down.sh $BOOKINGS_SERVICE"
-
-                    sh "./down.sh $FRONTEND_SERVICE"
 
                     if(CLUSTER_CREATED) {
                         sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
