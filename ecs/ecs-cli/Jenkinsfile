@@ -430,8 +430,8 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('Docker Compose Down'){
+        }                
+        stage('Docker Compose Down Users'){
             when {
                 expression { 
                    return params.action == 'delete'
@@ -448,29 +448,87 @@ pipeline {
                         catch (err) {
                             echo err.getMessage()
                         }
+                    }
+                }
+            }
+        }
+        stage('Docker Compose Down Flights'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
+            steps{
+                script {
+                    dir("ecs/ecs-cli"){
+
+                        sh 'chmod +x down.sh'
                         try {
                             sh "./down.sh $FLIGHTS_SERVICE"
+                        }
                         catch (err) {
                             echo err.getMessage()
                         }
-                        try{
-                            sh "./down.sh $BOOKINGS_SERVICE"
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                        try{
-                            sh "./down.sh $FRONTEND_SERVICE"
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                        //delete the ecs cluster using ecs-cli and delete the cloudformation stack using aws-cli
-                        sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
-                        sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
-
-                        //wait for cloudformation stack to delete
-                        sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                
                     }
+                }
+            }
+        }
+        stage('Docker Compose Down Bookings'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
+            steps{
+                script {
+                    dir("ecs/ecs-cli"){
+
+                        sh 'chmod +x down.sh'
+                        try {
+                            sh "./down.sh $BOOKINGS_SERVICE"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Docker Compose Down Frontend'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
+            steps{
+                script {
+                    dir("ecs/ecs-cli"){
+
+                        sh 'chmod +x down.sh'
+                        try {
+                            sh "./down.sh $FRONTEND_SERVICE"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Delete Cluster'){
+            steps{
+                script{
+                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
+                }
+            }
+        }
+        stage('Delete Cloudformation Stack'){
+            steps{
+                script{
+                    
+                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
+                    //wait for cloudformation stack to delete
+                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                 }
             }
         }
