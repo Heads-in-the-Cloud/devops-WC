@@ -460,12 +460,12 @@ pipeline {
         }
     }
     post {
-        when {                    
-            expression { 
-                    return params.action == 'create'
-                }
-            }
         failure {
+            when {                    
+                expression { 
+                        return params.action == 'create'
+                    }
+                }
             script {
                 dir("ecs/ecs-cli"){
                     sh 'chmod +x down.sh'
