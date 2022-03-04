@@ -479,10 +479,10 @@ pipeline {
                     sh "./down.sh $FRONTEND_SERVICE"
 
                     if(CLUSTER_CREATED) {
-                        ecs-cli down --cluster ${CLUSTER_NAME} -f
+                        sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
                     }
                     if(ALB_CREATED) {
-                        aws cloudformation delete-stack --stack-name ${STACK_NAME}
+                        sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                     }
                 }
