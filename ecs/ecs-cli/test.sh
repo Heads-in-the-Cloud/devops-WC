@@ -11,4 +11,4 @@ export REGION='us-west-2'
 
 
 
-./up.sh 'USERS' 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USER_PORT=${PORT}'
+./up.sh 'USERS' 'HOST_DOMAIN=https://jenkinw1.hisdf'

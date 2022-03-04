@@ -1,12 +1,14 @@
 version: '3'
 services:
-  users-api:
-    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${SERVICE}:latest"
+  USERS: 
+    environment: 
+     - HOST_DOMAIN=https://jenkinw1.hisdf 
+    image: "123124124.dkr.ecr.us-west-2.amazonaws.com/USERS:latest"
     ports:
-      - "${PORT}:${PORT}"
+      - ":"
     logging:
       driver: awslogs
       options:
         awslogs-group: ecs_wc
-        awslogs-region: ${AWS_REGION}
-        awslogs-stream-prefix: ${SERVICE}
+        awslogs-region: 
+        awslogs-stream-prefix: USERS
