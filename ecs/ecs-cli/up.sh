@@ -12,8 +12,10 @@ ARGS='environment: \'
 for i in "${!ECS_VARS[@]}"
 do
     IFS='=' read -ra var <<< ${ECS_VARS[$i]}
+    ${var[1]}=${var[1]////'\/'}
+    ${var[1]}=${var[1]//\'/}
     ARGS+="
-     - ${var[0]}=${var[1]////\/}" # replace all slashes to appease SED
+     - ${var[0]}=${var[1]//'/'/'\/'}" # replace all slashes to appease SED
 
     if [[ i -lt ${#ECS_VARS[@]}-1 ]]; then
       ARGS+=' \'
