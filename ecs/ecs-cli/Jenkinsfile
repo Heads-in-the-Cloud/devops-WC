@@ -94,7 +94,7 @@ pipeline {
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
-                    env.CLUSTER_NAME        = "ECS-Cluster-WC"
+                    env.CLUSTER_NAME        = "${params.environment}-ECS-Cluster-WC"
 
                     env.STACK_NAME          = "WC-ecs-alb-stack-${params.environment}"
                     env.USERS_SERVICE       = "WC-ecs-users-${params.environment}"
