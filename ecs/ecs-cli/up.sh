@@ -58,4 +58,4 @@ ecs-cli compose --file docker-compose.yaml --project-name ${1} \
 --force-deployment \
 --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
 
-# ecs-cli compose --project-name ${SERVICE} service scale ${DESIRED_COUNT}
+ecs-cli compose --project-name ${1} service scale ${DESIRED_COUNT} --cluster ${CLUSTER_NAME}
