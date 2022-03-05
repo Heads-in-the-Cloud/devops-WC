@@ -106,10 +106,6 @@ pipeline {
                     env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
                     env.BOOKINGS_CONTAINER  = "${BOOKING_REPO_WC}"
                     env.FRONTEND_CONTAINER  = "${FRONTEND_REPO_WC}"
-                    // env.USERS_CONTAINER     = "users-api"
-                    // env.FLIGHTS_CONTAINER   = "flights-api"
-                    // env.BOOKINGS_CONTAINER  = "bookings-api"
-                    // env.FRONTEND_CONTAINER  = "frontend"
 
                     env.TG_NAME_USERS       = "WC-Users"
                     env.TG_NAME_FLIGHTS     = "WC-Flights"
@@ -265,6 +261,11 @@ pipeline {
                         ALB_CREATED = true
                     }
                 }
+            }
+        }
+        stage('Configure Cluster'){
+            steps{
+                sh "ecs-cli configure --cluster $CLUSTER_NAME --region $AWS_REGION --config-name $CLUSTER_NAME"
             }
         }
         stage('Create Cluster'){
