@@ -14,4 +14,4 @@ cat docker-compose.yaml
 rm temp.yaml
 rm temp-docker-compose.yaml
 
-ecs-cli compose --project-name ${1} --file docker-compose.yaml --timeout 10 service rm
+ecs-cli compose --project-name ${1} --file docker-compose.yaml service rm --timeout 10
