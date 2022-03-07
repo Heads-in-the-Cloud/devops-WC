@@ -517,6 +517,11 @@ pipeline {
             }
         }
         stage('Delete Cluster'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
             steps{
                 script{
                     sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
@@ -524,6 +529,11 @@ pipeline {
             }
         }
         stage('Delete Cloudformation Stack'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
             steps{
                 script{
                     
