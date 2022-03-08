@@ -14,7 +14,8 @@
         db_user="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}"
         chmod +x parser.py
         username=$(python parser.py $db_user "{{ SECRET_KEY }}" 2>&1 > /dev/null)
-        
+        echo hello
+        echo $username
     # - name: Create Kubernetes Resources
     #   shell: |
     #     kubectl create secret generic db-info \
