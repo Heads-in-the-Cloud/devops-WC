@@ -11,11 +11,19 @@
 
     - name: Create Kubernetes Resources
       shell: |
-        db_user="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}"
+        secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
         chmod +x parser.py
-        username=$(python parser.py $db_user "{{ SECRET_KEY }}" 2>&1 > /dev/null)
-        echo hello
-        echo $username
+        db_user=$(python parser.py $db_user "{{ DB_USER }}" 2>&1 > /dev/null)
+        db_password=$(python parser.py $db_user "{{ DB_PASSWORD }}" 2>&1 > /dev/null)
+        db_host=$(python parser.py $db_user "{{ DB_HOST }}" 2>&1 > /dev/null)
+        secret_key=$(python parser.py $db_user "{{ SECRET_KEY }}" 2>&1 > /dev/null)
+
+        kubectl create secret generic db-info \
+          --from-literal=db_user=$db_user \
+          --from-literal=db_host=$db_host \
+          --from-literal=db_user_password=$db_password"
+        kubectl create secret generic jwt-secret \
+          --from-literal=secret_key=$secret_key
     # - name: Create Kubernetes Resources
     #   shell: |
     #     kubectl create secret generic db-info \
