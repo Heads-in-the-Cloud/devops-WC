@@ -124,7 +124,7 @@
         kubectl scale flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
         kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
         kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
-      when: "{{ ENVIRONMENT }}" == "prod"
+      when: {{ ENVIRONMENT }} == "prod"
       tags: ['create', 'update']
 
     - name: Set up Route53
