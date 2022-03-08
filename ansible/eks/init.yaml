@@ -105,7 +105,7 @@
         kubectl create secret generic db-info \
           --from-literal=db_user=$db_user \
           --from-literal=db_host=$db_host \
-          --from-literal=db_user_password=$db_password"
+          --from-literal=db_user_password=$db_password
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key=$secret_key
         kubectl apply -f service.yaml -f ingress.yaml -f cloudwatch.yaml
