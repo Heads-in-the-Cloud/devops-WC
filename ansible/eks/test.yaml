@@ -14,7 +14,6 @@
         secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
         chmod +x parser.py
         db_user=$(python parser.py $secrets "{{ DB_USER }}" 2>&1 > /dev/null)
-        db_password=$(python parser.py $secrets "{{ DB_PASSWORD }}" 2>&1 > /dev/null)
 
 
 
