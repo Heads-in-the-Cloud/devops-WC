@@ -13,7 +13,7 @@
       shell: |
         db_user="{{ lookup('aws_secret', 'prod/Walter/secrets', region=REGION, nested=true) }}"
         chmod +x parser.py
-        python parser.py $db_user "{{ lookup(SECRET_KEY)}}""
+        python parser.py $db_user "{{ SECRET_KEY}}""
         
     # - name: Create Kubernetes Resources
     #   shell: |
