@@ -17,8 +17,6 @@
         echo $db_user
 
 
-        kubectl create secret generic db-info \
-          --from-literal=db_user=$db_user
     # - name: Create Kubernetes Resources
     #   shell: |
     #     kubectl create secret generic db-info \
