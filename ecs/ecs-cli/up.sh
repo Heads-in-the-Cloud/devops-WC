@@ -1,8 +1,11 @@
 #!/bin/bash
 
-echo $AWS_REGION
 
-#Split first argument into array
+#Parameter 1: name of service
+#Parameter 2: comma-separated environment variables in key-value pairs
+#Parameter 3: target-group arn to be associated with service
+
+#Split second argument into array
 IFS=',' read -ra ECS_VARS <<< "$2"
 
 #Environment variables metadata for yaml
@@ -23,8 +26,7 @@ do
     fi
 done
 
-echo $ARGS
-
+#Use sed to insert environment variables metadata
 sed -e 's/$SERVICE/'"${1}:"' \
     '"$ARGS"' /g' compose-template.yaml > temp-docker-compose.yaml
 
@@ -44,18 +46,17 @@ rm -f docker-compose.yaml temp.yaml
 ) >temp.yaml
 . temp.yaml
 
-
+# Remove temporary files
 rm temp.yaml
 rm temp-docker-compose.yaml
 
-cat docker-compose.yaml
-cat ecs-params.yaml
 
 
-
+#Docker-Compose Up with target-group 
 ecs-cli compose --file docker-compose.yaml --project-name ${1} \
 --ecs-params ecs-params.yaml service up \
 --force-deployment \
 --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
 
+#Scale the service to the desired count
 ecs-cli compose --project-name ${1} --file docker-compose.yaml service scale ${DESIRED_COUNT}
