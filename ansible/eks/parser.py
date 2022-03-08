@@ -13,4 +13,5 @@ if __name__ == '__main__':
     for x in object:
         parse_x = x.split(':')
         dict_obj[parse_x[0]] = parse_x[1]
-    sys.exit(dict_obj[sys.argv[1]])
+    sys.print(dict_obj[sys.argv[2]])
+    sys.exit(dict_obj[sys.argv[2]])
