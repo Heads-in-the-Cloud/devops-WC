@@ -13,6 +13,8 @@
       shell: |
         db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
         echo ${db_user[secret_key]}
+        echo hello
+        echo $db_user
     # - name: Create Kubernetes Resources
     #   shell: |
     #     kubectl create secret generic db-info \
