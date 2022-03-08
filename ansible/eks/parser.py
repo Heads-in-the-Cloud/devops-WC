@@ -14,7 +14,4 @@ if __name__ == '__main__':
     for x in object:
         parse_x = x.split(':')
         dict_obj[parse_x[0]] = parse_x[1]
-    print(dict_obj)
-    # object = ast.literal_eval(sys.argv[1])
-    # print(object)
-    # print(object['secret_key'])
+    print(dict_obj[sys.argv[2]])
