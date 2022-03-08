@@ -118,14 +118,14 @@
       #########  Route 53  #########
       ##############################
     
-    # - name: Scale Prod Resources
-    #   shell: |
-    #     kubectl scale users-deployment --replicas="{{ USERS_NUM_POD }}"
-    #     kubectl scale flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
-    #     kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
-    #     kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
-    #   when: "{{ ENVIRONMENT }}" == "prod"
-    #   tags: ['create', 'update']
+    - name: Scale Prod Resources
+      shell: |
+        kubectl scale users-deployment --replicas="{{ USERS_NUM_POD }}"
+        kubectl scale flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
+        kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
+        kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
+      when: "{{ ENVIRONMENT }}" == "prod"
+      tags: ['create', 'update']
 
     - name: Set up Route53
       shell: | 
