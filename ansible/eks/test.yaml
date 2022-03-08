@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - eks_vars.yaml
+  tasks:
+    - name: Create Kubernetes Resources
+      shell: |
+        aws eks --region us-west-2 update-kubeconfig --name UtopiaClusterWC
+
+    - name: Create Kubernetes Resources
+      shell: |
+        db_user="{{ lookup('aws_secret', 'prod/Walter/secrets.secret_key', region=REGION, nested=true) }}"
+        echo $db_user
+    # - name: Create Kubernetes Resources
+    #   shell: |
+    #     kubectl create secret generic db-info \
+    #       --from-literal=db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_USER }}" \
+    #       --from-literal=db_host="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_HOST }}" \
+    #       --from-literal=db_user_password="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ DB_PASSWORD }}"
+    #     kubectl create secret generic jwt-secret \
+    #       --from-literal=secret_key="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{ SECRET_KEY }}"
