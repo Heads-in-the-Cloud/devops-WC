@@ -12,10 +12,16 @@
     - name: Create Kubernetes Resources
       shell: |
         db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
-        python - << EOF 
-        print(db_user)
+        export bashvar=100
+        cat << EOF > pyscript.py
+        import subprocess
+
+        print 'Hello python'
+        subprocess.call(["echo","$bashvar"])
 
         EOF
+        chmod 755 pyscript.py
+        ./pyscript.py
     # - name: Create Kubernetes Resources
     #   shell: |
     #     kubectl create secret generic db-info \
