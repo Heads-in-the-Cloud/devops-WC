@@ -11,7 +11,7 @@
 
     - name: Create Kubernetes Resources
       shell: |
-        db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
+        db_user="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}.{{DB_USER}}"
         echo $db_user
     # - name: Create Kubernetes Resources
     #   shell: |
