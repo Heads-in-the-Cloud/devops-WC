@@ -2,8 +2,9 @@
 VPC_NAME: Jenkins-VPC
 REGION: us-west-2
 CLUSTER_NAME: UtopiaClusterWC
-DB_HOST: "{{ lookup('amazon.aws.aws_secret', 'prod/Walter/secrets.db_host', region=region, aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
-SECRET_KEY: "{{ lookup('amazon.aws.aws_secret', 'prod/Walter/secrets.secret_key', region=region, aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
-DB_USER: "{{ lookup('amazon.aws.aws_secret', 'prod/Walter/secrets.db_username', region=region, aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
-DB_USER_PASSWORD: "{{ lookup('amazon.aws.aws_secret', 'prod/Walter/secrets.db_password', region=region, aws_access_key=aws_access_key, aws_secret_key=aws_secret_key, nested=true) }}"
+SECRET_NAME: prod/Walter/secrets
+DB_HOST: db_host
+SECRET_KEY: secret_key
+DB_USER: db_user
+DB_PASSWORD: db_password
 AWS_ACCOUNT_ID: 026390315914
