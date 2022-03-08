@@ -6,6 +6,9 @@
     - eks_vars.yaml
     
   tasks:
+    - name: Get Environment
+      set_fact:
+        environment: "{{ ENVIRONMENT }}"
       ##########################
       ######  Get VPC ID  ######
       ##########################
@@ -124,7 +127,7 @@
         kubectl scale flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
         kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
         kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
-      when: "{{ ENVIRONMENT }}" == "prod"
+      when: environment == "prod"
       tags: ['create', 'update']
 
     - name: Set up Route53
