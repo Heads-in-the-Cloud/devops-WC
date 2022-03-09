@@ -31,7 +31,7 @@ sed -e 's/$SERVICE/'"${1}:"' \
     '"$ARGS"' /g' compose-template.yaml > temp-docker-compose.yaml
 
 
-envsubst < "ecs-params-template.yaml" > "ecs-params.yaml"
+envsubst < "ecs-template.yaml" > "ecs-params.yaml"
 envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
 # Inject all environment variables in ecs-params-template.yaml
 # rm -f ecs-params.yaml temp.yaml
