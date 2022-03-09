@@ -76,7 +76,7 @@
     - name: Switch context to cluster
       shell: |
         aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update']
+      tags: ['create', 'destroy', 'update', 'try']
 
       #####################################
       ##### Set up Ingress controller #####
@@ -127,10 +127,10 @@
     - name: Create Kubernetes Resources
       shell: |
         kubectl apply -f service.yaml -f ingress.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http://{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
-      tags: ['create', 'update']
+      tags: ['create', 'update', 'try']
       
     - name: Set up CloudWatch Logs
       shell: |
