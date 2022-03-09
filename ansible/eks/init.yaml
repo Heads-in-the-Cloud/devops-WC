@@ -5,99 +5,100 @@
   vars_files:
     - eks_vars.yaml
     
-  tasks:
-    - name: Get Environment
-      set_fact:
-        environment: "{{ ENVIRONMENT }}"
-      ##########################
-      ######  Get VPC ID  ######
-      ##########################
-    - name: Getting VPC info
-      ec2_vpc_net_info:
-        region: "{{ REGION }}"
-        filters:
-          "tag:Name": "{{VPC_NAME}}"
-      register: vpc
-      tags: ['create', 'test']
+  # tasks:
+  #   - name: Get Environment
+  #     set_fact:
+  #       environment: "{{ ENVIRONMENT }}"
+  #     ##########################
+  #     ######  Get VPC ID  ######
+  #     ##########################
+  #   - name: Getting VPC info
+  #     ec2_vpc_net_info:
+  #       region: "{{ REGION }}"
+  #       filters:
+  #         "tag:Name": "{{VPC_NAME}}"
+  #     register: vpc
+  #     tags: ['create', 'test']
       
 
-    - name: Setting vpc_id fact
-      set_fact:
-        VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
-      tags: ['create', 'test']
+  #   - name: Setting vpc_id fact
+  #     set_fact:
+  #       VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
+  #     tags: ['create', 'test']
 
-      ##############################
-      ######  Get Subnet IDs  ######
-      ##############################
-    - name: Getting private subnets info
-      ec2_vpc_subnet_info:
-        region: "{{ REGION }}"
-        filters:
-          vpc-id: "{{ VPC_ID }}"
-          "tag:kubernetes.io/role/internal-elb": "1"
-      loop:
-        - subnet1
-        - subnet2
-      register: subnets
-      tags: ['create', 'test']
+  #     ##############################
+  #     ######  Get Subnet IDs  ######
+  #     ##############################
+  #   - name: Getting private subnets info
+  #     ec2_vpc_subnet_info:
+  #       region: "{{ REGION }}"
+  #       filters:
+  #         vpc-id: "{{ VPC_ID }}"
+  #         "tag:kubernetes.io/role/internal-elb": "1"
+  #     loop:
+  #       - subnet1
+  #       - subnet2
+  #     register: subnets
+  #     tags: ['create', 'test']
 
-    - name: debug
-      debug: msg="{{ subnets }}"
+  #   - name: debug
+  #     debug: msg="{{ subnets }}"
 
 
-    - name: Setting subnet1 fact
-      set_fact:
-        SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
-      tags: ['create', 'test']
+  #   - name: Setting subnet1 fact
+  #     set_fact:
+  #       SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
+  #     tags: ['create', 'test']
 
-    - name: Setting subnet2 fact
-      set_fact:
-        SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
-      tags: ['create', 'test']
+  #   - name: Setting subnet2 fact
+  #     set_fact:
+  #       SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
+  #     tags: ['create', 'test']
 
-      ##############################
-      ######  Create Cluster  ######
-      ##############################
+  #     ##############################
+  #     ######  Create Cluster  ######
+  #     ##############################
      
-    - name: Create EKS cluster
-      shell: |
-        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-      tags: ['create', 'test']
-      ##############################
-      ######  Set Up Cluster  ######
-      ##############################
+  #   - name: Create EKS cluster
+  #     shell: |
+  #       eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+  #       --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+  #     tags: ['create', 'test']
+  #     ##############################
+  #     ######  Set Up Cluster  ######
+  #     ##############################
 
-    - name: Associate Open ID Provider
-      shell: |
-        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
-      tags: ['create']
+  #   - name: Associate Open ID Provider
+  #     shell: |
+  #       eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+  #     tags: ['create']
   
-    - name: Switch context to cluster
-      shell: |
-        aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update']
+  #   - name: Switch context to cluster
+  #     shell: |
+  #       aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
+  #     tags: ['create', 'destroy', 'update']
 
-    - name: Create ALB Ingress Controller
-      shell: |
-        kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
-        eksctl create iamserviceaccount \
-          --name=alb-ingress-controller \
-          --namespace=kube-system \
-          --cluster="{{ CLUSTER_NAME }}" \
-          --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
-          --override-existing-serviceaccounts \
-          --approve
+  #   - name: Create ALB Ingress Controller
+  #     shell: |
+  #       kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+  #       eksctl create iamserviceaccount \
+  #         --name=alb-ingress-controller \
+  #         --namespace=kube-system \
+  #         --cluster="{{ CLUSTER_NAME }}" \
+  #         --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
+  #         --override-existing-serviceaccounts \
+  #         --approve
 
-        curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
-            | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
-            | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}/g" \
-            | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
-            | kubectl apply -f -
-      tags: ['create']
+  #       curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
+  #           | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
+  #           | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}/g" \
+  #           | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
+  #           | kubectl apply -f -
+  #     tags: ['create']
 
     - name: Extract Secrets from SSM and create Kubernetes Secrets
       shell: | 
+        ls
         secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
         chmod +x parser.py
         db_user=$(python parser.py $secrets "{{ DB_USER }}" 2>&1 > /dev/null)
