@@ -105,7 +105,6 @@
 
     - name: Extract Secrets from SSM and create Kubernetes Secrets
       shell: | 
-        ls
         secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
         chmod +x parser.py
         db_user=$(python parser.py $secrets "{{ DB_USER }}" 2>&1 > /dev/null)
@@ -128,15 +127,25 @@
     - name: Create Kubernetes Resources
       shell: |
         kubectl apply -f service.yaml -f ingress.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http://{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update']
       
     - name: Set up CloudWatch Logs
-      shell: |
+      shell: |   
+
+
         kubectl apply -f namespace.yaml
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+        curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+        aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        aws iam attach-role-policy \
+                --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+                --role-name ${PodRole}
+        echo $PodRole
+
       args:
         chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update']
@@ -189,7 +198,7 @@
     - name: Delete Route53
       ignore_errors: yes
       shell: | 
-        DNS=$(bash -c 'kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'')
+        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
         {
             "Comment": "Testing creating a record set"
