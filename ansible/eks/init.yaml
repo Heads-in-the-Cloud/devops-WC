@@ -119,8 +119,6 @@
           --from-literal=db_user_password=$db_password
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key=$secret_key
-      args:
-        chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update']
 
       ################################
