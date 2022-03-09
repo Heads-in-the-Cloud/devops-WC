@@ -5,7 +5,7 @@
   vars_files:
     - eks_vars.yaml
     
-  # tasks:
+  tasks:
   #   - name: Get Environment
   #     set_fact:
   #       environment: "{{ ENVIRONMENT }}"
