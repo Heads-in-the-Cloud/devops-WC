@@ -263,11 +263,6 @@ pipeline {
                 }
             }
         }
-        // stage('Configure Cluster'){
-        //     steps{
-        //         sh "ecs-cli configure --cluster $CLUSTER_NAME --region $AWS_REGION --config-name $CLUSTER_NAME"
-        //     }
-        // }
         stage('Create Cluster'){
             when {
                 expression { 
