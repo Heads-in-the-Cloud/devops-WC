@@ -1,32 +1,17 @@
-variable "environment" {
-    type = string
-    default = "dev"
-}
+variable "environment" {}
 
-variable "public_subnet_1" {
-    type = string
-}
+variable "region" {}
 
-variable "public_subnet_2" {
-    type = string
-}
+variable "public_subnet_1" {}
 
-variable "private_subnet_1" {
-    type = string
-}
+variable "public_subnet_2" {}
 
-variable "private_subnet_2" {
-    type = string
-}
+variable "private_subnet_1" {}
 
-variable "ami_id" {
-    type = string
-}
+variable "private_subnet_2" {}
 
-variable "instance_type" {
-    type = string
-}
+variable "ami_id" {}
 
-variable "cluster_name" {
-    type = string
-}
+variable "instance_type" {}
+
+variable "cluster_name" {}

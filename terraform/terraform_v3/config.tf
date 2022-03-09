@@ -5,10 +5,9 @@ terraform {
       version = "~> 3.0"
     }
   }
-}
-
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-west-2"
-  shared_credentials_file = "$HOME/.aws/credentials"
+  backend "s3" {
+      bucket = "WC-terraform-state-prod"
+      key    = "network/terraform.tfstate"
+      region = var.region
+    }
 }
