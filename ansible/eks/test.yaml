@@ -5,11 +5,17 @@
   vars_files:
     - eks_vars.yaml
   tasks:
-    - name: Create Kubernetes Resources
+    - name: Switch context to cluster
       shell: |
-        curl -s https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluentd-quickstart.yaml \
-          | sed "s/{{cluster_name}}/{{ CLUSTER_NAME }}/;s/{{region_name}}/{{ REGION }}/"
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
 
+    - name: set dns name
+      set_fact:
+        dns_hostname: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+    - name:
+      debug:
+        msg: dns_hostname
     # - name: Create Kubernetes Resources
     #   shell: |
     #     secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
