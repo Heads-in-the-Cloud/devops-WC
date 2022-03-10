@@ -174,7 +174,7 @@ pipeline {
                 }
             }
         }
-        stage('Create ALB') {
+        stage('Create Cloudformation Stack') {
             when {
                 expression { 
                    return params.action == 'create'
