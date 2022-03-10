@@ -64,6 +64,7 @@ module "rds" {
   db_engine_version     = "8.0"
   ami_id                = "ami-0359b3157f016ae46"
   key_name              = "SSH_KEY_WC"
+  instance_type         = "db.t2.micro"
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = data.aws_subnet.jenkins_public_1.id
   vpc_id                = data.aws_vpc.jenkins_vpc.id
