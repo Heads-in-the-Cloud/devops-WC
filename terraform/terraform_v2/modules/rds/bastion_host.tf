@@ -1,4 +1,6 @@
 
+
+
 resource "aws_instance" "bastion_host" {
   ami                       = var.ami_id
   instance_type             = var.instance_type
