@@ -132,46 +132,27 @@
         chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update']
       
-    # - name: Set up CloudWatch Logs
-    #   shell: |
-    #     kubectl apply -f namespace.yaml
-    #     sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-    #     curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
-    #     aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
-    #     export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-    #     aws iam attach-role-policy \
-    #       --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
-    #       --role-name ${PodRole}
-    #     echo $PodRole
-
-    #     eksctl utils update-cluster-logging \
-    #     --enable-types all \
-    #     --region "{{ REGION }}" \
-    #     --cluster "{{ CLUSTER_NAME }}" \
-    #     --approve
-
-    #   args:
-    #     chdir: "{{ EKS_LOCATION }}"
-    #   tags: ['create', 'update']
-    
-    - name: Set up CloudWatch Logs with Fluent Bit
+    - name: Set up CloudWatch Logs
       shell: |
-        kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml
-        ClusterName="{{ CLUSTER_NAME }}"
-        RegionName="{{ REGION }}"
-        FluentBitHttpPort='2020'
-        FluentBitReadFromHead='Off'
-        [[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off'|| FluentBitReadFromTail='On'
-        [[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
-        kubectl create configmap fluent-bit-cluster-info \
-        --from-literal=cluster.name="UtopiaClusterWC" \
-        --from-literal=http.server='On' \
-        --from-literal=http.port='2020' \
-        --from-literal=read.head='On' \
-        --from-literal=read.tail='Off' \
-        --from-literal=logs.region='us-west-2' -n amazon-cloudwatch
-        kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
-      tags: ['logging']
+        kubectl apply -f namespace.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+        curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+        aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        aws iam attach-role-policy \
+          --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+          --role-name ${PodRole}
+        echo $PodRole
+
+        eksctl utils update-cluster-logging \
+        --enable-types all \
+        --region "{{ REGION }}" \
+        --cluster "{{ CLUSTER_NAME }}" \
+        --approve
+
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      tags: ['create', 'update']
 
 
     - name: Scale Prod Resources
