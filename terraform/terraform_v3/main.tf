@@ -57,12 +57,12 @@ module "networks" {
 
 module "rds" {
   source                = "./modules/rds"
-  db_instance           = var.instance_type
+  db_instance           = "db.t2.micro"
   db_identifier         = "database-wc"
   db_name               = "utopia"
   db_engine             = "mysql"
   db_engine_version     = "8.0"
-  ami_id                = var.ami_id
+  ami_id                = "ami-0359b3157f016ae46"
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = data.aws_subnet.jenkins_public_1.id
   vpc_id                = data.aws_vpc.jenkins_vpc.id
