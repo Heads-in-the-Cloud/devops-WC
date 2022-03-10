@@ -31,30 +31,15 @@ sed -e 's/$SERVICE/'"${1}:"' \
     '"$ARGS"' /g' compose-template.yaml > temp-docker-compose.yaml
 
 
+# Inject environment variables in definition files
 envsubst < "ecs-template.yaml" > "ecs-params.yaml"
 envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
-# Inject all environment variables in ecs-params-template.yaml
-# rm -f ecs-params.yaml temp.yaml
-# ( echo "cat <<EOF >ecs-params.yaml";
-#   cat ecs-template.yaml;
-#   echo "EOF";
-# ) >temp.yaml
-# . temp.yaml
 
-
-# Inject all environment variables in compose-template.yaml
-# rm -f docker-compose.yaml temp.yaml
-# ( echo "cat <<EOF >docker-compose.yaml";
-#   cat temp-docker-compose.yaml;
-# ) >temp.yaml
-# . temp.yaml
 
 # Remove temporary files
 rm temp.yaml
 rm temp-docker-compose.yaml
 
-cat ecs-params.yaml
-cat docker-compose.yaml
 
 
 #Docker-Compose Up with target-group 
