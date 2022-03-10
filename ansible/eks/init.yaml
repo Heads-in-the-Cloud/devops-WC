@@ -75,8 +75,8 @@
   
     - name: Switch context to cluster
       shell: |
-        aws eks --region us-west-2 update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update', 'try']
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags: ['create', 'destroy', 'update']
 
       #####################################
       ##### Set up Ingress controller #####
@@ -132,25 +132,47 @@
         chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update']
       
-    - name: Set up CloudWatch Logs
-      shell: |
-        kubectl apply -f namespace.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-        curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
-        aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
-        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-        aws iam attach-role-policy \
-          --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
-          --role-name ${PodRole}
-        echo $PodRole
-      args:
-        chdir: "{{ EKS_LOCATION }}"
-      tags: ['create', 'update', 'try']
+    # - name: Set up CloudWatch Logs
+    #   shell: |
+    #     kubectl apply -f namespace.yaml
+    #     sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+    #     curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+    #     aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+    #     export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+    #     aws iam attach-role-policy \
+    #       --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+    #       --role-name ${PodRole}
+    #     echo $PodRole
 
-      ##############################
-      #########  Route 53  #########
-      ##############################
+    #     eksctl utils update-cluster-logging \
+    #     --enable-types all \
+    #     --region "{{ REGION }}" \
+    #     --cluster "{{ CLUSTER_NAME }}" \
+    #     --approve
+
+    #   args:
+    #     chdir: "{{ EKS_LOCATION }}"
+    #   tags: ['create', 'update']
     
+    - name: Set up CloudWatch Logs with Fluent Bit
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml
+        ClusterName="{{ CLUSTER_NAME }}"
+        RegionName="{{ REGION }}"
+        FluentBitHttpPort='2020'
+        FluentBitReadFromHead='Off'
+        [[ ${FluentBitReadFromHead} = 'On' ]] && FluentBitReadFromTail='Off'|| FluentBitReadFromTail='On'
+        [[ -z ${FluentBitHttpPort} ]] && FluentBitHttpServer='Off' || FluentBitHttpServer='On'
+        kubectl create configmap fluent-bit-cluster-info \
+        --from-literal=cluster.name=${ClusterName} \
+        --from-literal=http.server=${FluentBitHttpServer} \
+        --from-literal=http.port=${FluentBitHttpPort} \
+        --from-literal=read.head=${FluentBitReadFromHead} \
+        --from-literal=read.tail=${FluentBitReadFromTail} \
+        --from-literal=logs.region=${RegionName} -n amazon-cloudwatch
+        kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
+
+
     - name: Scale Prod Resources
       shell: |
         kubectl scale users-deployment --replicas="{{ USERS_NUM_POD }}"
@@ -160,11 +182,15 @@
       when: environment == "prod"
       tags: ['create', 'update']
 
+      ##############################
+      #########  Route 53  #########
+      ##############################
+
     - name: Set up Route53
       shell: | 
         sleep 200
         # https://stackoverflow.com/a/70108500
-        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
+        # DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
           {
               "Comment": "Testing creating a record set"
