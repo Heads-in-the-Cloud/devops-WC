@@ -3,28 +3,72 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Terraform init') {
-
+        stage('Setup parameters') {
             steps {
-                dir("terraform/terraform_v2") {
-                    sh 'terraform init'
+                    script {
+                    properties([
+                            parameters([
+                                [$class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the working environment', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'environment', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load environments']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['dev','prod']"
+                                        ]
+                                    ]
+                                ]
+                            ])
+                        ])
+                    }
+                }
+        }
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.ENVIRONMENT=params.environment
+                    env.TF_VAR_environment="${ENVIRONMENT}"
+                    env.TF_VAR_region="${region}"
+
+                    env.TF_VAR_instance_type="db.t2.micro"
+                    env.TF_VAR_ami_id="ami-00f7e5c52c0f43726"
+                    env.TF_VAR_cluster_name="UtopiaClusterWC"
                 }
             }
         }
-        stage('Terraform plan') {
+        // stage('Terraform init') {
 
-            steps {
-                dir("terraform/terraform_v2") {
-                    sh 'terraform plan'                }
-                }
-        }
-        stage('Terraform action') {
-            steps {
-                dir("terraform/terraform_v2") {
-                    sh "terraform ${action} -auto-approve"
-                }
-            } 
-        }
+        //     steps {
+        //         dir("terraform/terraform_v2") {
+        //             sh 'terraform init'
+        //         }
+        //     }
+        // }
+        // stage('Terraform plan') {
+
+        //     steps {
+        //         dir("terraform/terraform_v2") {
+        //             sh 'terraform plan'                }
+        //         }
+        // }
+        // stage('Terraform action') {
+        //     steps {
+        //         dir("terraform/terraform_v2") {
+        //             sh "terraform ${action} -auto-approve"
+        //         }
+        //     } 
+        // }
     }
 }
