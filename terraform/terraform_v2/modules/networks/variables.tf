@@ -1,35 +1,25 @@
-variable "vpc_cidr_block" {} 
+variable "vpc_cidr_block" { type = string } 
 
-variable "region" {}
+variable "region" { type = string }
 
-variable "subnet1_cidr_block" {}
+variable "environment" { type = string }
 
-variable "subnet2_cidr_block" {}
+variable "subnet1_cidr_block" { type = string }
 
-variable "subnet3_cidr_block" {}
+variable "subnet2_cidr_block" { type = string }
 
-variable "subnet4_cidr_block" {}
+variable "subnet3_cidr_block" { type = string }
 
-variable "subnet5_cidr_block" {}
+variable "subnet4_cidr_block" { type = string }
 
-variable "subnet6_cidr_block" {}
+variable "subnet5_cidr_block" { type = string }
 
-variable "rt_cidr_block" {}
+variable "subnet6_cidr_block" { type = string }
 
-variable "public_cidr_block" {}
+variable "anywhere_ipv4" { type = string }
 
-variable "default_rt_id" {}
+variable "vpc_name" { type = string }
 
-variable "az_1" {}
+variable "internet_gw_name" { type = string }
 
-variable "az_2" {}
-
-variable "vpc_name" {}
-
-variable "internet_gw_name" {}
-
-variable "peer_vpc_id" {}
-
-variable "peer_owner_id" {}
-
-variable "cluster_name"{}
+variable "cluster_name" { type = string }
