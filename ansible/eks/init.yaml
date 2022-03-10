@@ -171,16 +171,17 @@
         --from-literal=read.tail=${FluentBitReadFromTail} \
         --from-literal=logs.region=${RegionName} -n amazon-cloudwatch
         kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
+      tags: ['create', 'logging']
 
 
     - name: Scale Prod Resources
       shell: |
-        kubectl scale users-deployment --replicas="{{ USERS_NUM_POD }}"
-        kubectl scale flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
-        kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
-        kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
+        kubectl scale deployment/users-deployment --replicas="{{ USERS_NUM_POD }}"
+        kubectl scale deployment/flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
+        kubectl scale deployment/bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
+        kubectl scale deployment/frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
       when: environment == "prod"
-      tags: ['create', 'update', 'logging']
+      tags: ['create', 'update']
 
       ##############################
       #########  Route 53  #########
