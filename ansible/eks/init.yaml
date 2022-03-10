@@ -171,7 +171,7 @@
         --from-literal=read.tail='Off' \
         --from-literal=logs.region='us-west-2' -n amazon-cloudwatch
         kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
-      tags: ['create', 'logging']
+      tags: ['logging']
 
 
     - name: Scale Prod Resources
