@@ -76,7 +76,7 @@
     - name: Switch context to cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update']
+      tags: ['create', 'destroy', 'update', 'logging']
 
       #####################################
       ##### Set up Ingress controller #####
@@ -180,7 +180,7 @@
         kubectl scale bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
         kubectl scale frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
       when: environment == "prod"
-      tags: ['create', 'update']
+      tags: ['create', 'update', 'logging']
 
       ##############################
       #########  Route 53  #########
@@ -190,7 +190,7 @@
       shell: | 
         sleep 200
         # https://stackoverflow.com/a/70108500
-        # DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
+        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
           {
               "Comment": "Testing creating a record set"
