@@ -209,7 +209,7 @@ pipeline {
                 }
             }
         }
-        stage('Get ALB Resource IDs'){
+        stage('Get Cloudformation Stack Resource IDs'){
             when { 
                 anyOf {
                     expression { 
