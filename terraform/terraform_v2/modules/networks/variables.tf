@@ -12,10 +12,6 @@ variable "subnet3_cidr_block" { type = string }
 
 variable "subnet4_cidr_block" { type = string }
 
-variable "subnet5_cidr_block" { type = string }
-
-variable "subnet6_cidr_block" { type = string }
-
 variable "anywhere_ipv4" { type = string }
 
 variable "vpc_name" { type = string }
