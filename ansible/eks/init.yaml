@@ -102,11 +102,6 @@
       #################################
       #### Create Secrets from SSM ####
       #################################
-    - name: test
-      shell: |
-        echo "{{ DB_USER }}"
-        echo "{{ SECRET_KEY }}"
-      tags: ['create', 'update', kubectl]
 
     - name: Extract Secrets from SSM and create Kubernetes Secrets
       shell: | 
@@ -124,7 +119,7 @@
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-      tags: ['create', 'update', kubectl]
+      tags: ['create', 'update']
 
       ################################
       ### kubectl create resources ###
