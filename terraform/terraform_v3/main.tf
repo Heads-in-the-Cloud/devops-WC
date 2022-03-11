@@ -57,7 +57,7 @@ module "networks" {
 
 module "rds" {
   source                = "./modules/rds"
-  db_instance           = "db.t2.micro"
+  db_instance           = "t2.micro"
   db_identifier         = "database-wc"
   db_name               = "utopia"
   db_engine             = "mysql"
