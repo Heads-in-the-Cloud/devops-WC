@@ -114,13 +114,14 @@
         # db_host=$(python parser.py $secrets "{{ DB_HOST }}" 2>&1 > /dev/null)
         # secret_key=$(python parser.py $secrets "{{ SECRET_KEY }}" 2>&1 > /dev/null)
 
+        echo "{{ DB_USER }}"
         kubectl create secret generic db-info \
           --from-literal=db_user="{{ DB_USER }}" \
           --from-literal=db_host="{{ DB_HOST}}" \
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-      tags: ['create', 'update']
+      tags: ['create', 'update', kubectl]
 
       ################################
       ### kubectl create resources ###
