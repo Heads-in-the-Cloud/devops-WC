@@ -29,6 +29,28 @@ pipeline {
                                                 "return['dev','prod']"
                                         ]
                                     ]
+                                ],
+                                $class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the action', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'action', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load actions']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['apply','destroy']"
+                                        ]
+                                    ]
                                 ]
                             ])
                         ])
