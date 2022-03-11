@@ -73,10 +73,10 @@
         eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
       tags: ['create']
   
-    - name: Switch context to cluster
+    - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update']
+      tags: ['create', 'destroy', 'update', 'kubectl']
 
       #####################################
       ##### Set up Ingress controller #####
