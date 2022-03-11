@@ -1,5 +1,22 @@
 
 
+data "aws_ami" "amzon_linux" {
+  executable_users = ["self"]
+  most_recent      = true
+  owners           = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["Amazon Linux 2 AMI"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+
 data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
 }
@@ -27,9 +44,7 @@ locals {
 }
 
 module "networks" {
-  # providers = {
-  #     aws = aws.us_west_1
-  # }
+
   source                = "./modules/networks"
   vpc_cidr_block        = "10.10.0.0/16"
   subnet1_cidr_block    = "10.10.1.0/24"
@@ -45,9 +60,7 @@ module "networks" {
 }
 
 # module "rds" {
-#   providers = {
-#       aws = aws.us-west-2
-#   }
+
 #   source                = "./modules/rds"
 #   db_instance           = "db.t2.micro"
 #   db_identifier         = "database-wc"
