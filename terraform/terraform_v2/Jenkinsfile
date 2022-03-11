@@ -30,7 +30,7 @@ pipeline {
                                         ]
                                     ]
                                 ],
-                                $class: 'ChoiceParameter', 
+                                [$class: 'ChoiceParameter', 
                                     choiceType: 'PT_SINGLE_SELECT', 
                                     description: 'Select the action', 
                                     filterLength: 1, 
