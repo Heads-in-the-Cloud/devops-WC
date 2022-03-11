@@ -80,7 +80,7 @@ pipeline {
                     VPC_NAME: "Jenkins-VPC"
                     REGION: "us-west-2"
                     DB_HOST: "$DB_HOST"
-                    SECRET_KEY: "$SECRET_KEY
+                    SECRET_KEY: "$SECRET_KEY"
                     DB_USER: "$DB_USER"
                     DB_USER_PASSWORD: "$DB_USER_PASSWORD"
                     CLUSTER_NAME: "$CLUSTER_NAME_WC"
