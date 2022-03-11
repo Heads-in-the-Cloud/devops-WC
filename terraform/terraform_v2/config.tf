@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "WC-terraform-state"
+    bucket = "utopia-bucket-wc"
     key    = "network/terraform.tfstate"
     region = "us-west-2"
   }
