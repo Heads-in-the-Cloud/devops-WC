@@ -68,32 +68,32 @@ pipeline {
                     }
                 }
             }
-            // stage('Run Ansible Playbook') {
-            //     steps {
-            //         ansibleTower(
-            //         towerServer: 'Tower 1',
-            //         jobTemplate: 'EKS',
-            //         jobTags: params.action,
-            //         verbose: true,
-            //         extraVars: '''---
-            //         ENVIRONMENT: "$ENVIRONMENT"
-            //         VPC_NAME: "Jenkins-VPC"
-            //         REGION: "us-west-2"
-            //         DB_HOST: "$DB_HOST"
-            //         SECRET_KEY: "$SECRET_KEY"
-            //         DB_USER: "$DB_USER"
-            //         DB_USER_PASSWORD: "$DB_USER_PASSWORD"
-            //         CLUSTER_NAME: "$CLUSTER_NAME_WC"
-            //         AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
-            //         RECORD_NAME: "wc-eks-utopia.hitwc.link"
-            //         HOSTED_ZONE: "$HOSTED_ZONE"
-            //         EKS_LOCATION: "../../kubernetes/eks"
-            //         USERS_NUM_POD: "1"
-            //         FLIGHTS_NUM_POD: "2"
-            //         BOOKINGS_NUM_POD: "2"
-            //         FRONTEND_NUM_POD: "2"
-            //         ''')
-            //     }
-            // }
+            stage('Run Ansible Playbook') {
+                steps {
+                    ansibleTower(
+                    towerServer: 'Tower 1',
+                    jobTemplate: 'EKS',
+                    jobTags: params.action,
+                    verbose: true,
+                    extraVars: '''---
+                    ENVIRONMENT: "$ENVIRONMENT"
+                    VPC_NAME: "Jenkins-VPC"
+                    REGION: "us-west-2"
+                    DB_HOST: "$DB_HOST"
+                    SECRET_KEY: "$SECRET_KEY"
+                    DB_USER: "$DB_USER"
+                    DB_USER_PASSWORD: "$DB_USER_PASSWORD"
+                    CLUSTER_NAME: "$CLUSTER_NAME_WC"
+                    AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
+                    RECORD_NAME: "wc-eks-utopia.hitwc.link"
+                    HOSTED_ZONE: "$HOSTED_ZONE"
+                    EKS_LOCATION: "../../kubernetes/eks"
+                    USERS_NUM_POD: "1"
+                    FLIGHTS_NUM_POD: "2"
+                    BOOKINGS_NUM_POD: "2"
+                    FRONTEND_NUM_POD: "2"
+                    ''')
+                }
+            }
         }
 }
