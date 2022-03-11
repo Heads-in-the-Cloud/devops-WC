@@ -1,25 +1,35 @@
-variable "db_instance"{}
+variable "environment" { type=string }
 
-variable "db_name"{}
+variable "db_instance"{ type=string }
 
-variable "db_identifier"{}
+variable "db_name"{ type=string }
 
-variable "db_engine_version"{}
+variable "db_identifier"{ type=string }
 
-variable "db_engine"{}
+variable "db_engine_version"{ type=string }
 
-variable "subnet_group_id"{}
+variable "db_engine"{ type=string }
 
-variable "vpc_id"{}
+variable "subnet_group_id"{ type=string }
 
-variable "db_username"{}
+variable "vpc_id"{ type=string }
 
-variable "db_password"{}
+variable "db_username"{ type=string }
 
-variable "ami_id" {}
+variable "db_password"{ type=string }
 
-variable "instance_type" {}
+variable "ami_id" { type=string }
 
-variable "key_name" {}
+variable "instance_type" { type=string }
 
-variable "public_subnet_id" {}
+variable "key_name" { type=string }
+
+variable "public_subnet_id" { type=string }
+
+variable "ssh_port" { type=number }
+
+variable "http_port" { type=number }
+
+variable "https_port" { type=number }
+
+variable "mysql_port" { type=number }

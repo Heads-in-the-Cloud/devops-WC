@@ -17,7 +17,7 @@ resource "aws_db_instance" "rds" {
 
 
 resource "aws_security_group" "db_sg" {
-  name        = "db_sg_WC"
+  name        = "db_sg_WC_${var.environment}"
   description = "Allow HTTP from any IPv4"
   vpc_id      = var.vpc_id
 
@@ -32,8 +32,8 @@ resource "aws_security_group" "db_sg" {
 
   ingress {
     description      = "Allow connection to MYSQL"
-    from_port        = 3306
-    to_port          = 3306
+    from_port        = var.mysql_port
+    to_port          = var.mysql_port
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
   }
@@ -47,7 +47,7 @@ resource "aws_security_group" "db_sg" {
   }
 
   tags = {
-    Name = "db_sg_WC"
+    Name = "db_sg_WC_${var.environment}"
   }
 
 }

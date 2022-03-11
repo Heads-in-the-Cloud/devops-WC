@@ -15,7 +15,7 @@ resource "aws_instance" "bastion_host" {
     RDS_MYSQL_BASE          = "${var.db_name}"
   })
   tags = {
-    Name                    = "bastion-host-WC"
+    Name                    = "bastion-host-WC_${var.environment}"
   }
 }
 
@@ -26,8 +26,8 @@ resource "aws_security_group" "ssh_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = var.ssh_port
+    to_port     = var.ssh_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -39,12 +39,12 @@ resource "aws_security_group" "ssh_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "ssh_sg"
+    Name = "ssh_sg_${var.environment}"
   }
 }
 
 resource "aws_iam_instance_profile" "bastion_host_profile" {
-  name = "bastion_host_profile_WC"
+  name = "bastion_host_profile_WC_${var.environment}"
   role = aws_iam_role.s3_iam_role.name
 }
 

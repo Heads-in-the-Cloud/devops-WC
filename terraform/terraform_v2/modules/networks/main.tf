@@ -143,10 +143,10 @@ resource "aws_route_table_association" "private_2" {
 
 
 resource "aws_db_subnet_group" "private-subnet-group" {
-  name       = "wc_private_subnet_group"
+  name       = "wc_private_subnet_group_${var.environment}"
   subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 
   tags = {
-    Name = "wc_default_db_sg"
+    Name = "wc_default_db_sg_${var.environment}"
   }
 }

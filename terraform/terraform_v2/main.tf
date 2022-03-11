@@ -1,6 +1,6 @@
 
 
-data "aws_ami" "amzon_linux" {
+data "aws_ami" "amazon_linux" {
   most_recent      = true
   owners           = ["amazon"]
 
@@ -66,7 +66,8 @@ module "networks" {
 #   db_name               = "utopia"
 #   db_engine             = "mysql"
 #   db_engine_version     = "8.0"
-#   ami_id                = "ami-00f7e5c52c0f43726"
+#   instance_type         = "t2.micro"
+#   ami_id                = data.aws_ami.amazon_linux
 #   subnet_group_id       = module.networks.subnet_group_id
 #   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
 #   vpc_id                = module.networks.vpc.id
@@ -75,4 +76,5 @@ module "networks" {
 #   ssh_port              = "22"
 #   http_port             = "80"
 #   https_port            = "443"
+#   mysql_port            = "3306"
 # }
