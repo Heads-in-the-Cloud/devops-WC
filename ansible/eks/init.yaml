@@ -106,11 +106,10 @@
       #################################
     - name: test
       shell: |
-        echo "{{ DB_USER_PASSWORD }}"
         echo "{{ DB_USER }}"
         echo "{{ SECRET_KEY }}"
       tags: ['create', 'update', kubectl]
-      
+
     - name: Extract Secrets from SSM and create Kubernetes Secrets
       shell: | 
         # secrets="{{ lookup('aws_secret', SECRET_NAME, region=REGION, nested=true) }}"
