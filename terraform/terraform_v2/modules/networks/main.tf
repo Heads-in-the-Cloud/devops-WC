@@ -99,7 +99,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.my_vpc.id
 
   route {
-    cidr_block = var.public_cidr_block
+    cidr_block = var.anywhere_ipv4
     gateway_id = aws_internet_gateway.default.id
   }
 
