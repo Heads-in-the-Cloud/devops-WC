@@ -1,22 +1,4 @@
-data "aws_ami" "amzon_linux" {
-  executable_users = ["self"]
-  most_recent      = true
-  owners           = ["amazon"]
 
-  filter {
-    name   = "name"
-    values = ["Amazon Linux 2 AMI"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
-output "amazon_linux" {
-    value = data.aws_ami.amazon_linux
-}
 
 data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
