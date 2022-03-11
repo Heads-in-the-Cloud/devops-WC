@@ -12,9 +12,7 @@
     - name: Get Environment
       set_fact:
         environment: "{{ ENVIRONMENT }}"
-    - name: Get directory path
-      set_fact:
-        eks_location: "{{ EKS_LOCATION }}"
+
       ##########################
       ######  Get VPC ID  ######
       ##########################
@@ -119,7 +117,7 @@
         # db_host=$(python parser.py $secrets "{{ DB_HOST }}" 2>&1 > /dev/null)
         # secret_key=$(python parser.py $secrets "{{ SECRET_KEY }}" 2>&1 > /dev/null)
 
-        echo "{{ DB_USER }}"
+
         kubectl create secret generic db-info \
           --from-literal=db_user="{{ DB_USER }}" \
           --from-literal=db_host="{{ DB_HOST}}" \
@@ -137,7 +135,7 @@
         kubectl apply -f service.yaml -f ingress.yaml
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
-        chdir: eks_location
+        chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update', 'kubectl']
       
     - name: Set up CloudWatch Logs
@@ -159,7 +157,7 @@
         --approve
 
       args:
-        chdir: eks_location
+        chdir: "{{ EKS_LOCATION }}"
       tags: ['create', 'update', 'kubectl']
 
 
