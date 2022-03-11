@@ -52,14 +52,10 @@ module "networks" {
   subnet3_cidr_block    = "10.10.3.0/24"
   subnet4_cidr_block    = "10.10.4.0/24"
   anywhere_ipv4         = "0.0.0.0/0"
-  ssh_port              = "22"
-  http_port             = "80"
-  https_port            = "443"
   vpc_name              = "WC-vpc"
   internet_gw_name      = "WC-ig"
   region                = var.region
   environment           = var.environment
-  peer_vpc_id           = data.aws_vpc.jenkins_vpc.id
   cluster_name          = var.cluster_name #tag identifier for ALB ingress controller
 }
 
@@ -79,4 +75,7 @@ module "networks" {
 #   vpc_id                = module.networks.vpc.id
 #   db_username           = local.db_creds.db_username
 #   db_password           = local.db_creds.db_password
+#   ssh_port              = "22"
+#   http_port             = "80"
+#   https_port            = "443"
 # }
