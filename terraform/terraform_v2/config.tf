@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "WC-terraform-state-${var.environment}"
+    bucket = "WC-terraform-state"
     key    = "network/terraform.tfstate"
     region = "us-west-2"
   }
