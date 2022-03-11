@@ -1,13 +1,12 @@
 
 
 data "aws_ami" "amzon_linux" {
-  executable_users = ["self"]
   most_recent      = true
-  owners           = ["amazon"]
+  owners           = ["self"]
 
   filter {
     name   = "name"
-    values = ["Amazon Linux 2 AMI"]
+    values = ["amzn2-ami-kernel*"]
   }
 
   filter {
