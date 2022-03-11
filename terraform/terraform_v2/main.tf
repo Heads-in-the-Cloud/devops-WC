@@ -14,6 +14,9 @@ data "aws_ami" "amzon_linux" {
   }
 }
 
+output "amazon_linux" {
+    value = data.aws_ami.amazon_linux
+}
 
 data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
