@@ -24,13 +24,13 @@
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
-      tags: ['create', 'test']
+      tags: ['create']
       
 
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
-      tags: ['create', 'test']
+      tags: ['create']
 
       ##############################
       ######  Get Subnet IDs  ######
@@ -45,17 +45,17 @@
         - subnet1
         - subnet2
       register: subnets
-      tags: ['create', 'test']
+      tags: ['create']
 
     - name: Setting subnet1 fact
       set_fact:
         SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
-      tags: ['create', 'test']
+      tags: ['create']
 
     - name: Setting subnet2 fact
       set_fact:
         SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
-      tags: ['create', 'test']
+      tags: ['create']
 
       ##############################
       ######  Create Cluster  ######
@@ -65,7 +65,7 @@
       shell: |
         eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
         --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-      tags: ['create', 'test']
+      tags: ['create']
       ##############################
       ######  Set Up Cluster  ######
       ##############################
@@ -154,7 +154,7 @@
 
       args:
         chdir: eks_location
-      tags: ['create', 'update']
+      tags: ['create', 'update', 'kubectl']
 
 
     - name: Scale Prod Resources

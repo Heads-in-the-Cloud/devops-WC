@@ -13,7 +13,7 @@ pipeline {
                                     description: 'Select the tags to use', 
                                     filterLength: 1, 
                                     filterable: false, 
-                                    name: 'action', 
+                                    name: 'tag', 
                                     script: [
                                         $class: 'GroovyScript', 
                                         fallbackScript: [
@@ -73,7 +73,7 @@ pipeline {
                     ansibleTower(
                     towerServer: 'Tower 1',
                     jobTemplate: 'EKS',
-                    jobTags: params.action,
+                    jobTags: params.tag,
                     verbose: true,
                     extraVars: '''---
                     ENVIRONMENT: "$ENVIRONMENT"
