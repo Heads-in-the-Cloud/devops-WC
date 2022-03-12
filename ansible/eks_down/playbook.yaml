@@ -1,5 +1,5 @@
 
-    ---
+---
 - hosts: localhost
   connection: local
   gather_facts: false
@@ -12,7 +12,6 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update', 'kubectl', 'testing']
       
       ##############################
       ##########  Delete  ##########
@@ -28,16 +27,16 @@
         state: absent
         hosted_zone: "{{ HOSTED_ZONE}}"
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
-        ttl: 300
+        ttl: 7200
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
 
       
 
-    - name: Delete load balancer
-      ignore_errors: yes
-      shell: | 
-        kubectl delete ingress utopia-ingress
+    # - name: Delete load balancer
+    #   ignore_errors: yes
+    #   shell: | 
+    #     kubectl delete ingress utopia-ingress
 
 
     - name: Detach IAM Policy
@@ -47,7 +46,6 @@
           # aws iam detach-role-policy \
           # --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
           # --role-name ${PodRole}
-      tags: ['destroy', 'testing']
 
     # - name: Delete EKS cluster
     #   shell: | 
