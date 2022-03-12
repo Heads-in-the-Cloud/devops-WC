@@ -54,7 +54,7 @@
       shell: |
         eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
         --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-      tags: ['create']
+        
       ##############################
       ######  Set Up Cluster  ######
       ##############################
@@ -62,12 +62,12 @@
     - name: Associate Open ID Provider
       shell: |
         eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
-      tags: ['create']
+        
   
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-
+      tags: ['testing']
 
       #####################################
       ##### Set up Ingress controller #####
