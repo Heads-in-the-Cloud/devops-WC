@@ -3,11 +3,8 @@
 - hosts: localhost
   connection: local
   gather_facts: false
-  vars_files:
-    - eks_vars.yaml
-    
   tasks:
-  
+
       ############################
       ##### Update KubeConfig ####
       ############################
@@ -21,11 +18,6 @@
       ##########  Delete  ##########
       ##############################
 
-    - name: Delete load balancer
-      ignore_errors: yes
-      shell: | 
-        kubectl delete ingress utopia-ingress
-      tags: ['destroy']
 
     - name: Delete Route53
       ignore_errors: yes
@@ -46,8 +38,15 @@
               }
             }]
           }'
-      tags: ['destroy']
+
       
+
+    - name: Delete load balancer
+      ignore_errors: yes
+      shell: | 
+        kubectl delete ingress utopia-ingress
+
+
     - name: Detach IAM Policy
       shell: |
           export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
@@ -60,4 +59,3 @@
     - name: Delete EKS cluster
       shell: | 
           eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
-      tags: ['destroy']
