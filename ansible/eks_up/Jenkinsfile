@@ -18,7 +18,7 @@ pipeline {
                 steps {
                     ansibleTower(
                     towerServer: 'Tower 1',
-                    jobTemplate: 'EKS',
+                    jobTemplate: 'EKS-create-cluster',
                     verbose: true,
                     extraVars: '''---
                     ENVIRONMENT: "$ENVIRONMENT"
