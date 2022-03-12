@@ -17,6 +17,7 @@
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
+      tags: ['testing']
 
 
       ##############################
@@ -65,7 +66,7 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-
+      tags: ['testing']
 
       #####################################
       ##### Set up Ingress controller #####
