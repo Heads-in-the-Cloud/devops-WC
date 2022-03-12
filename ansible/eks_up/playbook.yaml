@@ -13,6 +13,7 @@
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
+      tags: ['testing']
 
     - name: Setting vpc_id fact
       set_fact:
