@@ -6,12 +6,6 @@
     - eks_vars.yaml
     
   tasks:
-      ##########################
-      #######  Set Facts  ######
-      ##########################
-    - name: Get Environment
-      set_fact:
-        environment: "{{ ENVIRONMENT }}"
 
       ##########################
       ######  Get VPC ID  ######
@@ -23,8 +17,6 @@
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
       tags: ['create']
-      
-
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
@@ -97,7 +89,7 @@
             | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}/g" \
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
-      tags: ['create']
+
 
       #################################
       #### Create Secrets from SSM ####
@@ -111,7 +103,7 @@
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-      tags: ['create', 'update']
+
 
       ################################
       ### kubectl create resources ###
@@ -123,8 +115,7 @@
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
-      tags: ['create', 'update', 'kubectl']
-      
+
     - name: Set up CloudWatch Logs
       shell: |
         kubectl apply -f namespace.yaml
@@ -142,28 +133,28 @@
         --region "{{ REGION }}" \
         --cluster "{{ CLUSTER_NAME }}" \
         --approve
-
       args:
         chdir: "{{ EKS_LOCATION }}"
-      tags: ['create', 'update', 'kubectl']
 
-
-    - name: Scale Prod Resources
-      shell: |
-        kubectl scale deployment/users-deployment --replicas="{{ USERS_NUM_POD }}"
-        kubectl scale deployment/flights-deployment --replicas="{{ FLIGHTS_NUM_POD }}"
-        kubectl scale deployment/bookings-deployment --replicas="{{ BOOKINGS_NUM_POD }}"
-        kubectl scale deployment/frontend-deployment --replicas="{{ FRONTEND_NUM_POD }}"
-      when: environment == "prod"
-      tags: ['create', 'update', 'kubectl']
 
       ##############################
       #########  Route 53  #########
       ##############################
 
+    - name: Wait for ingress to create
+      shell: |
+        sleep 200
+    
+    - name: Get ingress endpoint 
+      set_fact:
+        dns_hostname: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+    
+    - name:
+      debug:
+        msg: dns_hostname
+
     - name: Set up Route53
       shell: | 
-        sleep 200
         # https://stackoverflow.com/a/70108500
         DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
         aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
@@ -181,50 +172,5 @@
                   }
               }]
               }'
-      tags: ['create', 'kubectl']
 
-      ##############################
-      ##########  Delete  ##########
-      ##############################
-
-    - name: Delete load balancer
-      ignore_errors: yes
-      shell: | 
-        kubectl delete ingress utopia-ingress
-      tags: ['destroy']
-
-    - name: Delete Route53
-      ignore_errors: yes
-      shell: | 
-        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-        {
-            "Comment": "Testing creating a record set"
-            ,"Changes": [{
-              "Action"              : "DELETE"
-              ,"ResourceRecordSet"  : {
-                "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-                ,"Type"             : "CNAME"
-                ,"TTL"              : 120
-                ,"ResourceRecords"  : [{
-                    "Value"         : "'$DNS'"
-                }]
-              }
-            }]
-          }'
-      tags: ['destroy']
-      
-    - name: Detach IAM Policy
-      shell: |
-          export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-          echo $PodRole
-          # aws iam detach-role-policy \
-          # --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
-          # --role-name ${PodRole}
-      tags: ['destroy', 'testing']
-
-    - name: Delete EKS cluster
-      shell: | 
-          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
-      tags: ['destroy']
 

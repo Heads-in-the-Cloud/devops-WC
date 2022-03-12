@@ -1,0 +1,63 @@
+
+    ---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - eks_vars.yaml
+    
+  tasks:
+  
+      ############################
+      ##### Update KubeConfig ####
+      ############################
+
+    - name: Switch Context to Cluster
+      shell: |
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags: ['create', 'destroy', 'update', 'kubectl', 'testing']
+      
+      ##############################
+      ##########  Delete  ##########
+      ##############################
+
+    - name: Delete load balancer
+      ignore_errors: yes
+      shell: | 
+        kubectl delete ingress utopia-ingress
+      tags: ['destroy']
+
+    - name: Delete Route53
+      ignore_errors: yes
+      shell: | 
+        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
+        {
+            "Comment": "Testing creating a record set"
+            ,"Changes": [{
+              "Action"              : "DELETE"
+              ,"ResourceRecordSet"  : {
+                "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
+                ,"Type"             : "CNAME"
+                ,"TTL"              : 120
+                ,"ResourceRecords"  : [{
+                    "Value"         : "'$DNS'"
+                }]
+              }
+            }]
+          }'
+      tags: ['destroy']
+      
+    - name: Detach IAM Policy
+      shell: |
+          export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+          echo $PodRole
+          # aws iam detach-role-policy \
+          # --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+          # --role-name ${PodRole}
+      tags: ['destroy', 'testing']
+
+    - name: Delete EKS cluster
+      shell: | 
+          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+      tags: ['destroy']
