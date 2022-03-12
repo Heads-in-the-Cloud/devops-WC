@@ -13,11 +13,11 @@
         filters:
           "tag:Name": "{{VPC_NAME}}"
       register: vpc
-      tags: ['create']
+
     - name: Setting vpc_id fact
       set_fact:
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
-      tags: ['create']
+
 
       ##############################
       ######  Get Subnet IDs  ######
@@ -32,17 +32,17 @@
         - subnet1
         - subnet2
       register: subnets
-      tags: ['create']
+
 
     - name: Setting subnet1 fact
       set_fact:
         SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
-      tags: ['create']
+
 
     - name: Setting subnet2 fact
       set_fact:
         SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
-      tags: ['create']
+
 
       ##############################
       ######  Create Cluster  ######
@@ -65,7 +65,7 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['create', 'destroy', 'update', 'kubectl', 'testing']
+
 
       #####################################
       ##### Set up Ingress controller #####
@@ -86,7 +86,7 @@
             | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}/g" \
             | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
             | kubectl apply -f -
-
+      tags: ['testing']
 
       #################################
       #### Create Secrets from SSM ####
@@ -100,7 +100,7 @@
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-
+      tags: ['testing']
 
       ################################
       ### kubectl create resources ###
@@ -112,6 +112,7 @@
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
+      tags: ['testing']
 
     - name: Set up CloudWatch Logs
       shell: |
@@ -132,7 +133,7 @@
         --approve
       args:
         chdir: "{{ EKS_LOCATION }}"
-
+      tags: ['testing']
 
       ##############################
       #########  Route 53  #########
@@ -141,14 +142,17 @@
     - name: Wait for ingress to create
       shell: |
         sleep 200
-    
+      tags: ['testing']
+
     - name: Get ingress endpoint 
       set_fact:
         dns_hostname: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-    
+      tags: ['testing']
+  
     - name:
       debug:
         msg: dns_hostname
+      tags: ['testing']
 
     - name: Set up Route53
       shell: | 
@@ -169,5 +173,5 @@
                   }
               }]
               }'
-
+      tags: ['testing']
 
