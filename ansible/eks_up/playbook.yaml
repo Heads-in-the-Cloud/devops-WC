@@ -147,13 +147,13 @@
 
 
     - name: Get ingress endpoint 
-      set_fact:
-        dns_hostname: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: dns_hostname
       tags: ['testing']
   
-    - name:
+    - name: debug
       debug:
-        msg: "{{dns_hostname}}"
+        msg: "{{dns_hostname.stdout}}"
       tags: ['testing']
 
     - name: Set up Route53
