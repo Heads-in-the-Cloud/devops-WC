@@ -155,6 +155,6 @@
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
         ttl: 300
         type: CNAME
-        value: "{{ dns_hostname.stdout }}"
+        value: "9f360000-default-utopiaing-25e8-454784832.us-west-2.elb.amazonaws.com"
 
 
