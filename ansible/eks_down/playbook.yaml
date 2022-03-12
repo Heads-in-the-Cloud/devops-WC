@@ -19,25 +19,18 @@
       ##############################
 
 
+    - name: Get ingress endpoint 
+      shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: dns_hostname
+
     - name: Delete Route53
-      ignore_errors: yes
-      shell: | 
-        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-        {
-            "Comment": "Testing creating a record set"
-            ,"Changes": [{
-              "Action"              : "DELETE"
-              ,"ResourceRecordSet"  : {
-                "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-                ,"Type"             : "CNAME"
-                ,"TTL"              : 120
-                ,"ResourceRecords"  : [{
-                    "Value"         : "'$DNS'"
-                }]
-              }
-            }]
-          }'
+      route53:
+        state: absent
+        hosted_zone: "{{ HOSTED_ZONE}}"
+        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        ttl: 300
+        type: CNAME
+        value: "{{ dns_hostname.stdout }}"
 
       
 
@@ -56,6 +49,6 @@
           # --role-name ${PodRole}
       tags: ['destroy', 'testing']
 
-    - name: Delete EKS cluster
-      shell: | 
-          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+    # - name: Delete EKS cluster
+    #   shell: | 
+    #       eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"

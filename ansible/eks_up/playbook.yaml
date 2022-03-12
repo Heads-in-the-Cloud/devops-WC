@@ -54,7 +54,7 @@
       shell: |
         eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
         --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
-        
+
       ##############################
       ######  Set Up Cluster  ######
       ##############################
@@ -62,12 +62,11 @@
     - name: Associate Open ID Provider
       shell: |
         eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
-        
+
   
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags: ['testing']
 
       #####################################
       ##### Set up Ingress controller #####
@@ -145,35 +144,17 @@
       shell: |
         sleep 200
 
-
     - name: Get ingress endpoint 
       shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
-      tags: ['testing']
-  
-    - name: debug
-      debug:
-        msg: "{{dns_hostname.stdout}}"
-      tags: ['testing']
 
     - name: Set up Route53
-      shell: | 
-        # https://stackoverflow.com/a/70108500
-        DNS=$(kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')        
-        aws route53 change-resource-record-sets --hosted-zone-id "{{ HOSTED_ZONE }}" --change-batch '
-          {
-              "Comment": "Testing creating a record set"
-              ,"Changes": [{
-                  "Action"              : "CREATE"
-                  ,"ResourceRecordSet"  : {
-                  "Name"              : "{{ ENVIRONMENT }}-{{ RECORD_NAME }}"
-                  ,"Type"             : "CNAME"
-                  ,"TTL"              : 120
-                  ,"ResourceRecords"  : [{
-                      "Value"         : "'$DNS'"
-                  }]
-                  }
-              }]
-              }'
+      route53:
+        state: present
+        hosted_zone: "{{ HOSTED_ZONE}}"
+        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        ttl: 300
+        type: CNAME
+        value: "{{ dns_hostname.stdout }}"
 
 
