@@ -25,7 +25,7 @@
     - name: Delete Route53
       route53:
         state: absent
-        hosted_zone: "{{ HOSTED_ZONE}}"
+        hosted_zone_id: "{{ HOSTED_ZONE}}"
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
         ttl: 7200
         type: CNAME

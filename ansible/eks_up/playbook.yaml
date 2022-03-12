@@ -151,7 +151,7 @@
     - name: Set up Route53
       route53:
         state: present
-        hosted_zone: "{{ HOSTED_ZONE}}"
+        hosted_zone_id: "{{ HOSTED_ZONE}}"
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
         ttl: 300
         type: CNAME
