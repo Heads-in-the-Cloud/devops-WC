@@ -19,8 +19,11 @@
           cluster_err: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
           
     - name: Print error to stdout
-      debug:
-        msg: cluster_err.stdout
+      set_stats:
+        data:
+          JENKINS_EXPORT:
+            - value: var_value
+      when: cluster_err is defined
 
     - name: Rollout Restart Deployment
       shell: |

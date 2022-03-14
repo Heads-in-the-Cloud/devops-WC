@@ -12,7 +12,7 @@ pipeline {
             }
             stage('Run Ansible Playbook') {
                 steps {
-                    ansibleTower(
+                    results = ansibleTower(
                     towerServer: 'Tower 1',
                     jobTemplate: 'EKS-delete-cluster',
                     verbose: true,
@@ -24,6 +24,7 @@ pipeline {
                     HOSTED_ZONE: "$HOSTED_ZONE"
                     ROUTE_53_TTL: "300"
                     ''')
+                    print(results.value)
                 }
             }
         }
