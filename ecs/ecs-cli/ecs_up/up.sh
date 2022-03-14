@@ -28,12 +28,12 @@ done
 
 #Use sed to insert environment variables metadata
 sed -e 's/$SERVICE/'"${1}:"' \
-    '"$ARGS"' /g' compose-template.yaml > temp-docker-compose.yaml
+    '"$ARGS"' /g' ../definitions_files/compose-template.yaml > temp-docker-compose.yaml
 
 
 # Inject environment variables in definition files
-envsubst < "ecs-template.yaml" > "ecs-params.yaml"
-envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
+envsubst < "../definitions_files/ecs-template.yaml" > "ecs-params.yaml"
+envsubst < "../definitions_files/temp-docker-compose.yaml" > "docker-compose.yaml"
 
 
 # Remove temporary files
@@ -50,3 +50,6 @@ ecs-cli compose --file docker-compose.yaml --project-name ${1} \
 
 #Scale the service to the desired count
 ecs-cli compose --project-name ${1} --file docker-compose.yaml service scale ${DESIRED_COUNT}
+
+rm ecs-params.yaml
+rm docker-compose.yaml
