@@ -9,7 +9,6 @@
     ########################
 
     - name: Switch Context to Cluster
-      ignore_errors: yes
       block:
       - name: Try updating kubeconfig
         shell: |
@@ -21,7 +20,7 @@
           
     - name: Print error to stdout
       debug:
-        msg: cluster_err
+        msg: cluster_err.stdout
 
     - name: Rollout Restart Deployment
       shell: |
