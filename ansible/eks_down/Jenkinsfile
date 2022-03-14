@@ -18,7 +18,7 @@ pipeline {
                     verbose: true,
                     extraVars: '''---
                     ENVIRONMENT: "$ENVIRONMENT"
-                    REGION: "us-west-2"
+                    REGION: "$region"
                     CLUSTER_NAME: "$CLUSTER_NAME_WC"
                     RECORD_NAME: "wc-eks-utopia.hitwc.link"
                     HOSTED_ZONE: "$HOSTED_ZONE"
