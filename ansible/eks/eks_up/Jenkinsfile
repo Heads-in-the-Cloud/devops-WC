@@ -16,29 +16,31 @@ pipeline {
             }
             stage('Run Ansible Playbook') {
                 steps {
-                    ansibleTower(
-                    towerServer: 'Tower 1',
-                    jobTemplate: 'EKS-create-cluster',
-                    verbose: true,
-                    extraVars: '''---
-                    ENVIRONMENT: "$ENVIRONMENT"
-                    VPC_NAME: "Jenkins-VPC"
-                    REGION: "$region"
-                    DB_HOST: "$DB_HOST"
-                    SECRET_KEY: "$SECRET_KEY"
-                    DB_USER: "$DB_USER"
-                    DB_USER_PASSWORD: "$DB_USER_PASSWORD"
-                    CLUSTER_NAME: "$CLUSTER_NAME_WC"
-                    AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
-                    RECORD_NAME: "wc-eks-utopia.hitwc.link"
-                    HOSTED_ZONE: "$HOSTED_ZONE"
-                    EKS_LOCATION: "../../kubernetes/eks"
-                    ROUTE_53_TTL: "300"
-                    USERS_NUM_POD: "1"
-                    FLIGHTS_NUM_POD: "1"
-                    BOOKINGS_NUM_POD: "1"
-                    FRONTEND_NUM_POD: "1"
-                    ''')
+                    script {
+                        results=ansibleTower(
+                            towerServer: 'Tower 1',
+                            jobTemplate: 'EKS-create-cluster',
+                            verbose: true,
+                            extraVars: '''---
+                            ENVIRONMENT: "$ENVIRONMENT"
+                            VPC_NAME: "Jenkins-VPC"
+                            REGION: "$region"
+                            DB_HOST: "$DB_HOST"
+                            SECRET_KEY: "$SECRET_KEY"
+                            DB_USER: "$DB_USER"
+                            DB_USER_PASSWORD: "$DB_USER_PASSWORD"
+                            CLUSTER_NAME: "$CLUSTER_NAME_WC"
+                            AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
+                            RECORD_NAME: "wc-eks-utopia.hitwc.link"
+                            HOSTED_ZONE: "$HOSTED_ZONE"
+                            EKS_LOCATION: "../../kubernetes/eks"
+                            ROUTE_53_TTL: "300"
+                            USERS_NUM_POD: "1"
+                            FLIGHTS_NUM_POD: "1"
+                            BOOKINGS_NUM_POD: "1"
+                            FRONTEND_NUM_POD: "1"
+                            ''')
+                    }
                 }
             }
         }
