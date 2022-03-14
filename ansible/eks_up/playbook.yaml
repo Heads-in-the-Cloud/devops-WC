@@ -155,6 +155,6 @@
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
         ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
-        value: dns_hostname.stdout
+        value: "{{ dns_hostname.stdout }}"
 
 
