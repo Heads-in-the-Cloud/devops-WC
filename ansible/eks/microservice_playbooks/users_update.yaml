@@ -11,12 +11,11 @@
     - name: Switch Context to Cluster
       block:
       - name: Try updating kubeconfig
-        shell: |
-          aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+        shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
       rescue:
       - name: Catch cluster does not exist
-        set_fact:
-          cluster_err: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+        shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+        register: cluster_err 
           
     - name: Print error to stdout
       set_stats:
