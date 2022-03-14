@@ -22,7 +22,7 @@
       set_stats:
         data:
           JENKINS_EXPORT:
-            - value: var_value
+            - value: "{{ cluster_err.stdout }}"
       when: cluster_err is defined
 
     - name: Rollout Restart Deployment
