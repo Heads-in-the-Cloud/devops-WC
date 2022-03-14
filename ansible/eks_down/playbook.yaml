@@ -27,7 +27,7 @@
         state: absent
         hosted_zone_id: "{{ HOSTED_ZONE}}"
         record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
-        ttl: 120
+        ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
 

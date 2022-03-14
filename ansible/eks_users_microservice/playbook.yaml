@@ -6,3 +6,11 @@
 
     - name: test
       shell: echo "hello world"
+
+    - name: Switch Context to Cluster
+      shell: |
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+
+    - name: Rollout Restart Deployment
+      shell: |
+        kubectl rollout restart deployments/users-deployment

@@ -23,7 +23,7 @@ pipeline {
                     extraVars: '''---
                     ENVIRONMENT: "$ENVIRONMENT"
                     VPC_NAME: "Jenkins-VPC"
-                    REGION: "us-west-2"
+                    REGION: "$region"
                     DB_HOST: "$DB_HOST"
                     SECRET_KEY: "$SECRET_KEY"
                     DB_USER: "$DB_USER"
@@ -33,6 +33,7 @@ pipeline {
                     RECORD_NAME: "wc-eks-utopia.hitwc.link"
                     HOSTED_ZONE: "$HOSTED_ZONE"
                     EKS_LOCATION: "../../kubernetes/eks"
+                    ROUTE_53_TTL: "300"
                     USERS_NUM_POD: "1"
                     FLIGHTS_NUM_POD: "1"
                     BOOKINGS_NUM_POD: "1"
