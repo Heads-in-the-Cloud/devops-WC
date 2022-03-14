@@ -12,20 +12,16 @@
       block:
       - name: Try updating kubeconfig
         shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+        register: cluster_err 
+      - name: Rollout Restart Deployment
+        shell: |
+          kubectl rollout restart deployments/users-deployment
       rescue:
       - name: Catch cluster does not exist
-        shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-        register: cluster_err 
-          
-    - name: Print error to stdout
-      set_stats:
-        data:
-          JENKINS_EXPORT:
-            - value: "{{ cluster_err.stdout }}"
-      when: cluster_err is defined
+        set_stats:
+          data:
+            JENKINS_EXPORT:
+              - value: "{{ cluster_err.stdout }}"
 
-    - name: Rollout Restart Deployment
-      shell: |
-        kubectl rollout restart deployments/users-deployment
-      when: cluster_err is undefined
+
     
