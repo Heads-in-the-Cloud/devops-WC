@@ -20,7 +20,10 @@
         ignore_errors: yes
         shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
         register: cluster_err
-        
+
+    - name: print error
+      debug:
+        msg: "{{ cluster_err.stdout }}"
     - name: Print error to stdout
       set_stats:
         data:
