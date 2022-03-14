@@ -18,20 +18,12 @@
           kubectl rollout restart deployments/users-deployment
       rescue:
       - name: Catch cluster does not exist
-        debug:
-          msg: "{{ cluster_err.stderr }}"
-        # ignore_errors: yes
-        # shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-        # register: cluster_err
+        set_stats:
+          data:
+            JENKINS_EXPORT:
+              - exception: "{{ cluster_err.stdout }}"
 
-    # - name: print error
-    #   debug:
-    #     msg: "{{ cluster_err.stdout }}"
-    # - name: Print error to stdout
-    #   set_stats:
-    #     data:
-    #       JENKINS_EXPORT:
-    #         - value: "{{ cluster_err.stdout }}"
+
 
 
     
