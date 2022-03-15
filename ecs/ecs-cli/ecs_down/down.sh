@@ -5,7 +5,7 @@ sed -e 's/$SERVICE/'"${1}"':/g' definition_files/compose-template.yaml > temp-do
 
 
 # Inject environment variables into definition file
-envsubst < "definition_files/temp-docker-compose.yaml" > "docker-compose.yaml"
+envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
 
 rm temp-docker-compose.yaml
 

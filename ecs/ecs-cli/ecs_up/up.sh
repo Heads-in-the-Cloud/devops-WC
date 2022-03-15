@@ -26,7 +26,6 @@ do
     fi
 done
 
-ls
 
 #Use sed to insert environment variables metadata
 sed -e 's/$SERVICE/'"${1}:"' \
@@ -39,7 +38,6 @@ envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
 
 
 # Remove temporary files
-rm temp.yaml
 rm temp-docker-compose.yaml
 
 
