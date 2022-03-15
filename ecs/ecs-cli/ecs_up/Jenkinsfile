@@ -25,7 +25,7 @@ pipeline {
                                             classpath: [], 
                                             sandbox: false, 
                                             script: 
-                                                "return['create','delete','update']"
+                                                "return['create','update']"
                                         ]
                                     ]
                                 ],
@@ -89,18 +89,19 @@ pipeline {
             steps{
                 script{
                     env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
-                    env.AWS_REGION          = "us-west-2"
+                    env.AWS_REGION          = "$region"
+                    env.ENVIRONMENT         = "dev"
 
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
                     env.CLUSTER_NAME        = "ECS-Cluster-WC"
 
-                    env.STACK_NAME          = "WC-ecs-alb-stack-${params.environment}"
-                    env.USERS_SERVICE       = "WC-ecs-users-${params.environment}"
-                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${params.environment}"
-                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${params.environment}"
-                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${params.environment}"
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${ENVIRONMENT}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${ENVIRONMENT}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENVIRONMENT}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENVIRONMENT}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENVIRONMENT}"
                     env.PORT                = 5000
                     env.USERS_CONTAINER     = "${USER_REPO_WC}"
                     env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
@@ -328,6 +329,16 @@ pipeline {
                 }
             }
         }
+        stage('Update Microservices'){
+            when {                    
+                expression { 
+                        return params.action == 'update'
+                    }
+                }
+            steps{
+                echo 'updating microservices'
+            }
+        }
         stage('Update users'){
             when {                    
                 expression { 
@@ -424,117 +435,6 @@ pipeline {
                             echo err.getMessage()
                         }
                     }
-                }
-            }
-        }                
-        stage('Docker Compose Down Users'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
-
-                        sh 'chmod +x down.sh'
-                        try {
-                            sh "./down.sh $USERS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Compose Down Flights'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
-
-                        sh 'chmod +x down.sh'
-                        try {
-                            sh "./down.sh $FLIGHTS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Compose Down Bookings'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
-
-                        sh 'chmod +x down.sh'
-                        try {
-                            sh "./down.sh $BOOKINGS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Compose Down Frontend'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
-
-                        sh 'chmod +x down.sh'
-                        try {
-                            sh "./down.sh $FRONTEND_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Delete Cluster'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script{
-                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
-                }
-            }
-        }
-        stage('Delete Cloudformation Stack'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                script{
-                    
-                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
-                    //wait for cloudformation stack to delete
-                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                 }
             }
         }
