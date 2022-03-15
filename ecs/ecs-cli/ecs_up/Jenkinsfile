@@ -244,6 +244,7 @@ pipeline {
             }
             steps{
                 script{
+                    sh "echo $STOP"
                     env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $ECS_SG \
