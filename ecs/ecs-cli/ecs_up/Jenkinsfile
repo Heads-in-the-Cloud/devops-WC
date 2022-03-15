@@ -234,7 +234,7 @@ pipeline {
             when { 
                 anyOf {
                     environment name: params.action, value: 'create'
-                    environment name: 'STOP', value: false
+                    environment name: 'STOP', value: 'false'
                 }
             }
             steps{
