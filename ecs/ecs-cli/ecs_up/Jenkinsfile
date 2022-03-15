@@ -184,7 +184,7 @@ pipeline {
             steps{
                 script {
                     env.clusters=sh ( script: 'aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters', returnStdout: true).trim()
-                    echo "${cluster}"
+                    echo "${clusters}"
                     if ("${clusters}" == '[]'){
                         sh "echo asdlkfj"
                     }
