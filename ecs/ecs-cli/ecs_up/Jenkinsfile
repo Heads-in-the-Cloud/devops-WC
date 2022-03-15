@@ -186,6 +186,7 @@ pipeline {
                     env.clusters=sh ( script: 'aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters', returnStdout: true).trim()
                     sh "echo ${MEM_USERS}"
                     sh "echo $clusters"
+                    sh "echo FASLKFJASFK"
                     // if (env.clusters == '[]'){
                     sh "echo 'Skipping update of services. ECS cluster is not up currently'"
                         // currentBuild.result = 'SUCCESS'
