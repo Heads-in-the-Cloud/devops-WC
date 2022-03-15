@@ -141,14 +141,14 @@ pipeline {
 
                     env.STOP                    = false
 
-                    env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
-                    env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
-                    env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
-                    env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
 
-                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.VPC_ID              =sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.SUBNET1             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.SUBNET2             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         }
@@ -193,51 +193,54 @@ pipeline {
                 }
             }
         }
-        stage('Create Cloudformation Stack') {
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
+        stage('abs'){
             steps{
                 script{
-                    dir('ecs/ecs-cli'){
-
-                        sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
-                        VpcId=${VPC_ID} \
-                        Subnet1=${SUBNET1} \
-                        Subnet2=${SUBNET2} \
-                        Environment=${params.environment} \
-                        FlightsPath=/airline/* \
-                        BookingsPath=/booking/* \
-                        FrontendPath=/lms/* \
-                        UsersHealthCheck=/health \
-                        FlightsHealthCheck=/airline/read/airport \
-                        BookingsHealthCheck=/health \
-                        FrontendHealthCheck=/health \
-                        TGNameUsers=${TG_NAME_USERS} \
-                        TGNameFlights=${TG_NAME_FLIGHTS} \
-                        TGNameBookings=${TG_NAME_BOOKINGS} \
-                        TGNameFrontend=${TG_NAME_FRONTEND} \
-                        HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
-
-                        //wait for cloudformation to finish for outputs then get output ID's
-                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-                    }
+                    echo "$params.action"
+                    echo "$STOP"
                 }
             }
         }
+        // stage('Create Cloudformation Stack') {
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             dir('ecs/ecs-cli'){
+
+        //                 sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
+        //                 VpcId=${VPC_ID} \
+        //                 Subnet1=${SUBNET1} \
+        //                 Subnet2=${SUBNET2} \
+        //                 Environment=${params.environment} \
+        //                 FlightsPath=/airline/* \
+        //                 BookingsPath=/booking/* \
+        //                 FrontendPath=/lms/* \
+        //                 UsersHealthCheck=/health \
+        //                 FlightsHealthCheck=/airline/read/airport \
+        //                 BookingsHealthCheck=/health \
+        //                 FrontendHealthCheck=/health \
+        //                 TGNameUsers=${TG_NAME_USERS} \
+        //                 TGNameFlights=${TG_NAME_FLIGHTS} \
+        //                 TGNameBookings=${TG_NAME_BOOKINGS} \
+        //                 TGNameFrontend=${TG_NAME_FRONTEND} \
+        //                 HostedZoneId=${HOSTED_ZONE} \
+        //                 RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+
+        //                 //wait for cloudformation to finish for outputs then get output ID's
+        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+        //             }
+        //         }
+        //     }
+        // }
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
-                allOf {
-                    anyOf {
-                        expression { 
-                        return params.action == 'create'
-                        }
-                        expression { 
-                        return params.action == 'update'
-                        }
+                anyOf {
+                    expression { 
+                    return params.action == 'create'
                     }
                     expression { 
                     return env.STOP == false
@@ -246,7 +249,6 @@ pipeline {
             }
             steps{
                 script{
-                    sh "echo $STOP"
                     env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id $ECS_SG \
@@ -288,26 +290,26 @@ pipeline {
                 }
             }
         }
-        stage('Create Cluster'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
+        // stage('Create Cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
 
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-                    --capability-iam --cluster-config ${CLUSTER_NAME} \
-                    --subnets ${SUBNET1},${SUBNET2}"
-            }
-            post {
-                success {
-                    script {
-                        CLUSTER_CREATED = true
-                    }
-                }
-            }
-        }
+        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+        //             --capability-iam --cluster-config ${CLUSTER_NAME} \
+        //             --subnets ${SUBNET1},${SUBNET2}"
+        //     }
+        //     post {
+        //         success {
+        //             script {
+        //                 CLUSTER_CREATED = true
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Docker Compose Up'){
             when {                    
