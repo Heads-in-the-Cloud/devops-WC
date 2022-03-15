@@ -185,11 +185,13 @@ pipeline {
                 }
             steps{
                 script {
-                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster ECS-Cluster-WC  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
                     if ("${cluster}" == "INACTIVE"){
                         sh "echo 'Skipping update of services. ECS cluster is not up currently'"
                         env.STOP=true
                     }
+                    echo "$STOP"
+                    echo params.container
                 }
             }
         }
@@ -207,7 +209,7 @@ pipeline {
                         VpcId=${VPC_ID} \
                         Subnet1=${SUBNET1} \
                         Subnet2=${SUBNET2} \
-                        Environment=${params.environment} \
+                        Environment=${ENVIRONMENT} \
                         FlightsPath=/airline/* \
                         BookingsPath=/booking/* \
                         FrontendPath=/lms/* \
@@ -348,12 +350,14 @@ pipeline {
             }
         }
         stage('Update users'){
-            when {                    
-                expression { 
-                    return params.container == 'users'
-                    }
-                expression { 
-                    return env.STOP == false
+            when {
+                allOf{          
+                    expression { 
+                        return params.container == 'users'
+                        }
+                    expression { 
+                        return env.STOP == false
+                        }
                     }
                 }
             steps{
@@ -376,14 +380,16 @@ pipeline {
             }
         }
         stage('Update flights'){
-            when {                    
-                expression { 
+            when {               
+                allOf{      
+                    expression { 
                         return params.container == 'flights'
                     }
-                expression { 
-                    return env.STOP == false
+                    expression { 
+                        return env.STOP == false
                     }
                 }
+            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
@@ -405,12 +411,14 @@ pipeline {
             }
         }
         stage('Update bookings'){
-            when {                    
-                expression { 
+            when {             
+                allOf{        
+                    expression { 
                         return params.container == 'bookings'
-                    }
-                expression { 
-                    return env.STOP == false
+                        }
+                    expression { 
+                        return env.STOP == false
+                        }
                     }
                 }
             steps{
@@ -434,14 +442,16 @@ pipeline {
             }
         }
         stage('Update frontend'){
-            when {                    
-                expression { 
+            when {       
+                allOf{              
+                    expression { 
                         return params.container == 'frontend'
-                    }
-                expression { 
-                    return env.STOP == false
-                    }
+                        }
+                    expression { 
+                        return env.STOP == false
+                        }
                 }
+            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
