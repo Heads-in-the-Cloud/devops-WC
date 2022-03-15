@@ -188,7 +188,7 @@ pipeline {
                     if ("${cluster}" == "INACTIVE"){
                         sh "echo 'Skipping update of services. ECS cluster is not up currently'"
                         currentBuild.result = 'SUCCESS'
-                        sh 'exit 0'
+                        return 0
                     }
                     // sh "echo ${MEM_USERS}"
                     // sh "echo $clusters"
