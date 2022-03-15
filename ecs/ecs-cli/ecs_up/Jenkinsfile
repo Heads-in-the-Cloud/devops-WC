@@ -182,11 +182,13 @@ pipeline {
                     }
                 }
             steps{
-                clusters=sh ( script: 'aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters', returnStdout: true).trim()
-                if (clusters == '[]'){
-                    echo 'Skipping update of services. ECS cluster is not up currently'
-                    currentBuild.result = 'SUCCESS'
-                    return
+                script {
+                    clusters=sh ( script: 'aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters', returnStdout: true).trim()
+                    if (clusters == '[]'){
+                        echo 'Skipping update of services. ECS cluster is not up currently'
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
                 }
             }
         }
