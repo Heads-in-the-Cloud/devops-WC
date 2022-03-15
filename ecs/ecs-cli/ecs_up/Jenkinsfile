@@ -187,6 +187,7 @@ pipeline {
                     echo "${clusters}"
                     if ("${clusters}" == "INACTIVE"){
                         sh "echo asdlkfj"
+                        currentBuild.result = 'SUCCESS'
                         return
                     }
                     // sh "echo ${MEM_USERS}"
