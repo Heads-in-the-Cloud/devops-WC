@@ -349,7 +349,7 @@ pipeline {
         stage('Update users'){
             when {
                 allOf{          
-                    environment name: params.container, value: 'users'
+                    environment name: "${params.container}", value: 'users'
                     environment name: 'STOP', value: 'false'
                     }
                 }
