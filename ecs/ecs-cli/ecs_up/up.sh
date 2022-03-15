@@ -28,12 +28,12 @@ done
 
 #Use sed to insert environment variables metadata
 sed -e 's/$SERVICE/'"${1}:"' \
-    '"$ARGS"' /g' ../definitions_files/compose-template.yaml > temp-docker-compose.yaml
+    '"$ARGS"' /g' definitions_files/compose-template.yaml > temp-docker-compose.yaml
 
 
 # Inject environment variables in definition files
-envsubst < "../definitions_files/ecs-template.yaml" > "ecs-params.yaml"
-envsubst < "../definitions_files/temp-docker-compose.yaml" > "docker-compose.yaml"
+envsubst < "definitions_files/ecs-template.yaml" > "ecs-params.yaml"
+envsubst < "definitions_files/temp-docker-compose.yaml" > "docker-compose.yaml"
 
 
 # Remove temporary files

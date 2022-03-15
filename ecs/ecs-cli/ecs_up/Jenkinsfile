@@ -175,41 +175,41 @@ pipeline {
                 }
             }
         }
-        stage('Create Cloudformation Stack') {
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
-                script{
-                    dir('ecs/ecs-cli'){
+        // stage('Create Cloudformation Stack') {
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             dir('ecs/ecs-cli'){
 
-                        sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
-                        VpcId=${VPC_ID} \
-                        Subnet1=${SUBNET1} \
-                        Subnet2=${SUBNET2} \
-                        Environment=${params.environment} \
-                        FlightsPath=/airline/* \
-                        BookingsPath=/booking/* \
-                        FrontendPath=/lms/* \
-                        UsersHealthCheck=/health \
-                        FlightsHealthCheck=/airline/read/airport \
-                        BookingsHealthCheck=/health \
-                        FrontendHealthCheck=/health \
-                        TGNameUsers=${TG_NAME_USERS} \
-                        TGNameFlights=${TG_NAME_FLIGHTS} \
-                        TGNameBookings=${TG_NAME_BOOKINGS} \
-                        TGNameFrontend=${TG_NAME_FRONTEND} \
-                        HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+        //                 sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
+        //                 VpcId=${VPC_ID} \
+        //                 Subnet1=${SUBNET1} \
+        //                 Subnet2=${SUBNET2} \
+        //                 Environment=${params.environment} \
+        //                 FlightsPath=/airline/* \
+        //                 BookingsPath=/booking/* \
+        //                 FrontendPath=/lms/* \
+        //                 UsersHealthCheck=/health \
+        //                 FlightsHealthCheck=/airline/read/airport \
+        //                 BookingsHealthCheck=/health \
+        //                 FrontendHealthCheck=/health \
+        //                 TGNameUsers=${TG_NAME_USERS} \
+        //                 TGNameFlights=${TG_NAME_FLIGHTS} \
+        //                 TGNameBookings=${TG_NAME_BOOKINGS} \
+        //                 TGNameFrontend=${TG_NAME_FRONTEND} \
+        //                 HostedZoneId=${HOSTED_ZONE} \
+        //                 RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-                        //wait for cloudformation to finish for outputs then get output ID's
-                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-                    }
-                }
-            }
-        }
+        //                 //wait for cloudformation to finish for outputs then get output ID's
+        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+        //             }
+        //         }
+        //     }
+        // }
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
                 anyOf {
@@ -264,26 +264,26 @@ pipeline {
                 }
             }
         }
-        stage('Create Cluster'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
+        // stage('Create Cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
 
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
-                    --capability-iam --cluster-config ${CLUSTER_NAME} \
-                    --subnets ${SUBNET1},${SUBNET2}"
-            }
-            post {
-                success {
-                    script {
-                        CLUSTER_CREATED = true
-                    }
-                }
-            }
-        }
+        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+        //             --capability-iam --cluster-config ${CLUSTER_NAME} \
+        //             --subnets ${SUBNET1},${SUBNET2}"
+        //     }
+        //     post {
+        //         success {
+        //             script {
+        //                 CLUSTER_CREATED = true
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Docker Compose Up'){
             when {                    
