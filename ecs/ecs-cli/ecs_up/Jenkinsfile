@@ -233,12 +233,8 @@ pipeline {
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
                 anyOf {
-                    expression { 
-                    return params.action == 'create'
-                    }
-                    expression { 
-                    return env.STOP == false
-                    }
+                    environment name: params.action, value: create
+                    environment name: 'STOP', value: false
                 }
             }
             steps{
