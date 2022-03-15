@@ -348,12 +348,8 @@ pipeline {
         stage('Update users'){
             when {
                 allOf{          
-                    expression { 
-                        return params.container == 'users'
-                        }
-                    // expression { 
-                    //     return env.STOP == false
-                    //     }
+                    environment name: params.container, value: 'users'
+                    environment name: 'STOP', value: 'false'
                     }
                 }
             steps{
@@ -376,16 +372,12 @@ pipeline {
             }
         }
         stage('Update flights'){
-            when {               
-                allOf{      
-                    expression { 
-                        return params.container == 'flights'
-                    }
-                    expression { 
-                        return env.STOP == false
+            when {
+                allOf{          
+                    environment name: params.container, value: 'flights'
+                    environment name: 'STOP', value: 'false'
                     }
                 }
-            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
@@ -407,14 +399,10 @@ pipeline {
             }
         }
         stage('Update bookings'){
-            when {             
-                allOf{        
-                    expression { 
-                        return params.container == 'bookings'
-                        }
-                    expression { 
-                        return env.STOP == false
-                        }
+            when {
+                allOf{          
+                    environment name: params.container, value: 'bookings'
+                    environment name: 'STOP', value: 'false'
                     }
                 }
             steps{
@@ -438,16 +426,12 @@ pipeline {
             }
         }
         stage('Update frontend'){
-            when {       
-                allOf{              
-                    expression { 
-                        return params.container == 'frontend'
-                        }
-                    expression { 
-                        return env.STOP == false
-                        }
+            when {
+                allOf{          
+                    environment name: params.container, value: 'frontend'
+                    environment name: 'STOP', value: 'false'
+                    }
                 }
-            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
