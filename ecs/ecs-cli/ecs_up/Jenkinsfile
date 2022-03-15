@@ -147,6 +147,8 @@ pipeline {
                     env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                     env.SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster ECS-Cluster-WC  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
+
                 }
             }
         }
@@ -182,9 +184,8 @@ pipeline {
                     }
                 }
             steps{
-                script {
-                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster ECS-Cluster-WC  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
-                }
+                // script {
+                // }
                 if ("${cluster}" == "INACTIVE"){
                     sh "echo 'Skipping update of services. ECS cluster is not up currently'"
                     currentBuild.result = 'SUCCESS'
