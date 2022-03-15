@@ -232,12 +232,9 @@ pipeline {
         }
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
-                anyOf {
+                allOf {
                     expression { 
                     return params.action == 'create'
-                    }
-                    expression { 
-                    return params.action == 'update'
                     }
                     expression { 
                     return env.STOP == false
