@@ -186,23 +186,23 @@ pipeline {
                     dir('ecs/ecs-cli'){
 
                         sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
-                        ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                        ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
-                        ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
-                        ParameterKey=Environment,ParameterValue=${params.environment} \
-                        ParameterKey=FlightsPath,ParameterValue=/airline/* \
-                        ParameterKey=BookingsPath,ParameterValue=/booking/* \
-                        ParameterKey=FrontendPath,ParameterValue=/lms/* \
-                        ParameterKey=UsersHealthCheck,ParameterValue=/health \
-                        ParameterKey=FlightsHealthCheck,ParameterValue=/airline/read/airport \
-                        ParameterKey=BookingsHealthCheck,ParameterValue=/health \
-                        ParameterKey=FrontendHealthCheck,ParameterValue=/health \
-                        ParameterKey=TGNameUsers,ParameterValue=${TG_NAME_USERS} \
-                        ParameterKey=TGNameFlights,ParameterValue=${TG_NAME_FLIGHTS} \
-                        ParameterKey=TGNameBookings,ParameterValue=${TG_NAME_BOOKINGS} \
-                        ParameterKey=TGNameFrontend,ParameterValue=${TG_NAME_FRONTEND} \
-                        ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-                        ParameterKey=RecordName,ParameterValue=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        VpcId=${VPC_ID} \
+                        Subnet1=${SUBNET1} \
+                        Subnet2=${SUBNET2} \
+                        Environment=${params.environment} \
+                        FlightsPath=/airline/* \
+                        BookingsPath=/booking/* \
+                        FrontendPath=/lms/* \
+                        UsersHealthCheck=/health \
+                        FlightsHealthCheck=/airline/read/airport \
+                        BookingsHealthCheck=/health \
+                        FrontendHealthCheck=/health \
+                        TGNameUsers=${TG_NAME_USERS} \
+                        TGNameFlights=${TG_NAME_FLIGHTS} \
+                        TGNameBookings=${TG_NAME_BOOKINGS} \
+                        TGNameFrontend=${TG_NAME_FRONTEND} \
+                        HostedZoneId=${HOSTED_ZONE} \
+                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
                         //wait for cloudformation to finish for outputs then get output ID's
                         sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
