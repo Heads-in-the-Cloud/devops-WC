@@ -185,7 +185,7 @@ pipeline {
                 script{
                     dir('ecs/ecs-cli'){
 
-                        sh "aws cloudformation create-stack --stack-name ${STACK_NAME} --template-body file://../definition_files/alb-cf.yaml --parameters \
+                        sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-body /../definition_files/alb-cf.yaml --parameters \
                         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                         ParameterKey=Subnet1,ParameterValue=${SUBNET1} \
                         ParameterKey=Subnet2,ParameterValue=${SUBNET2} \
