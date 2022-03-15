@@ -193,14 +193,6 @@ pipeline {
                 }
             }
         }
-        stage('abs'){
-            steps{
-                script{
-                    echo "$params.action"
-                    echo "$STOP"
-                }
-            }
-        }
         stage('Create Cloudformation Stack') {
             when {
                 expression { 
