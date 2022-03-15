@@ -32,8 +32,8 @@ sed -e 's/$SERVICE/'"${1}:"' \
 
 
 # Inject environment variables in definition files
-envsubst < "definitions_files/ecs-template.yaml" > "ecs-params.yaml"
-envsubst < "definitions_files/temp-docker-compose.yaml" > "docker-compose.yaml"
+envsubst < "ecs-template.yaml" > "ecs-params.yaml"
+envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
 
 
 # Remove temporary files
