@@ -188,8 +188,8 @@ pipeline {
                     sh "echo $clusters"
                     if (env.clusters == '[]'){
                         // sh "echo 'Skipping update of services. ECS cluster is not up currently'"
-                        // currentBuild.result = 'SUCCESS'
-                        return
+                        currentBuild.result = 'SUCCESS'
+                        // return
                     }
                 }
             }
