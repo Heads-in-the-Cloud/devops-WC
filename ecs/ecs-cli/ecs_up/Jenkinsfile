@@ -185,7 +185,7 @@ pipeline {
                 script {
                     env.clusters=sh ( script: "aws ecs describe-clusters --cluster ECS-Cluster-WC  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim()
                     echo "${clusters}"
-                    if ("${clusters}" == 'INACTIVE'){
+                    if ("${clusters}" == "INACTIVE"){
                         sh "echo asdlkfj"
                     }
                     // sh "echo ${MEM_USERS}"
