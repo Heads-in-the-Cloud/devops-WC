@@ -345,6 +345,9 @@ pipeline {
                         return params.container == 'users'
                     }
                 }
+            options {
+                timeout(time: 10, unit: "SECONDS")
+            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
@@ -356,8 +359,8 @@ pipeline {
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
                             sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
                         }
-                        catch (err) {
-                            echo err.getMessage()
+                        catch (Throwable e) {
+                            echo 'Failed to update ECS service. Check if the cluster is up'
                         }
                     }
                 }
@@ -383,6 +386,8 @@ pipeline {
                         }
                         catch (err) {
                             echo err.getMessage()
+                            echo 'Failed to update ECS service. Check if the cluster is up'
+
                         }
                     }
                 }
@@ -408,6 +413,8 @@ pipeline {
                         }
                         catch (err) {
                             echo err.getMessage()
+                            echo 'Failed to update ECS service. Check if the cluster is up'
+
                         }
                     }
                 }
@@ -433,6 +440,7 @@ pipeline {
                         }
                         catch (err) {
                             echo err.getMessage()
+                            echo 'Failed to update ECS service. Check if the cluster is up'
                         }
                     }
                 }
