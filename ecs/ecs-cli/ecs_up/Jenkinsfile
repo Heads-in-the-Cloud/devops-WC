@@ -375,7 +375,7 @@ pipeline {
         stage('Update flights'){
             when {
                 allOf{          
-                    environment name: params.container, value: 'flights'
+                    environment name: 'PARAM_CONTAINER', value: 'flights'
                     environment name: 'STOP', value: 'false'
                     }
                 }
@@ -402,7 +402,7 @@ pipeline {
         stage('Update bookings'){
             when {
                 allOf{          
-                    environment name: params.container, value: 'bookings'
+                    environment name: 'PARAM_CONTAINER', value: 'bookings'
                     environment name: 'STOP', value: 'false'
                     }
                 }
@@ -429,7 +429,7 @@ pipeline {
         stage('Update frontend'){
             when {
                 allOf{          
-                    environment name: params.container, value: 'frontend'
+                    environment name: 'PARAM_CONTAINER', value: 'frontend'
                     environment name: 'STOP', value: 'false'
                     }
                 }
