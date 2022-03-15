@@ -143,22 +143,6 @@ pipeline {
                  }
             }
         }
-        // stage('create cluster'){
-        //     when {
-        //         expression { 
-        //            return params.action == 'up'
-        //         }
-        //     }
-        //     steps {
-        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-        //             dir("cloud/kubernetes") {
-        //                 sh 'chmod +x up.sh'
-        //                 sh './up.sh'
-        //             }
-        //         }
-        //     }
-        // }
         stage('delete cluster'){
             when {
                 expression { 
@@ -166,13 +150,10 @@ pipeline {
                 }
             }
             steps {
-                // withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-                    dir("cloud/kubernetes") {
-                        sh 'chmod +x down.sh'
-                        sh './down.sh'
-                    }
-                // }
+                dir("cloud/kubernetes") {
+                    sh 'chmod +x down.sh'
+                    sh './down.sh'
+                }
             }
         }
     }
