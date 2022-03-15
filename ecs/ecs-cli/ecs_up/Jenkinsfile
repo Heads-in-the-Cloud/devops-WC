@@ -234,7 +234,7 @@ pipeline {
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
                 anyOf {
-                    environment name: params.action, value: 'create'
+                    environment name: 'PARAM_ACTION', value: 'create'
                     environment name: 'STOP', value: 'false'
                 }
             }
@@ -349,7 +349,7 @@ pipeline {
         stage('Update users'){
             when {
                 allOf{          
-                    environment name: "${params.container}", value: 'users'
+                    environment name: 'PARAM_CONTAINER', value: 'users'
                     environment name: 'STOP', value: 'false'
                     }
                 }
