@@ -355,9 +355,9 @@ pipeline {
                     expression { 
                         return params.container == 'users'
                         }
-                    expression { 
-                        return env.STOP == false
-                        }
+                    // expression { 
+                    //     return env.STOP == false
+                    //     }
                     }
                 }
             steps{
