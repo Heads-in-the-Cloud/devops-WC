@@ -185,13 +185,11 @@ pipeline {
                 }
             steps{
                 script {
-                    echo "$STOP"
                     env.cluster=sh ( script: "aws ecs describe-clusters --cluster ECS-Cluster-WC  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
                     if ("${cluster}" == "INACTIVE"){
                         sh "echo 'Skipping update of services. ECS cluster is not up currently'"
                         env.STOP=true
                     }
-                    echo "$STOP"
                 }
             }
         }
@@ -233,8 +231,13 @@ pipeline {
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
                 allOf {
-                    expression { 
-                    return params.action == 'create'
+                    anyOf {
+                        expression { 
+                        return params.action == 'create'
+                        }
+                        expression { 
+                        return params.action == 'update'
+                        }
                     }
                     expression { 
                     return env.STOP == false
