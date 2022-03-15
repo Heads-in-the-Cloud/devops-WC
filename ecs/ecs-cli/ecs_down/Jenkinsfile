@@ -15,7 +15,6 @@ pipeline {
                     env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENVIRONMENT}"
                     env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENVIRONMENT}"
                     env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENVIRONMENT}"
-
                 }
             }
         }
@@ -24,9 +23,9 @@ pipeline {
                 script {
                     dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x down.sh'
+                        sh 'chmod +x ecs_down/down.sh'
                         try {
-                            sh "./down.sh $USERS_SERVICE"
+                            sh "./ecs_down/down.sh $USERS_SERVICE"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -40,9 +39,9 @@ pipeline {
                 script {
                     dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x down.sh'
+                        sh 'chmod +x ecs_down/down.sh'
                         try {
-                            sh "./down.sh $FLIGHTS_SERVICE"
+                            sh "./ecs_down/down.sh $FLIGHTS_SERVICE"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -56,9 +55,9 @@ pipeline {
                 script {
                     dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x down.sh'
+                        sh 'chmod +x ecs_down/down.sh'
                         try {
-                            sh "./down.sh $BOOKINGS_SERVICE"
+                            sh "./ecs_down/down.sh $BOOKINGS_SERVICE"
                         }
                         catch (err) {
                             echo err.getMessage()
@@ -72,9 +71,9 @@ pipeline {
                 script {
                     dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x down.sh'
+                        sh 'chmod +x ecs_down/down.sh'
                         try {
-                            sh "./down.sh $FRONTEND_SERVICE"
+                            sh "./ecs_down/down.sh $FRONTEND_SERVICE"
                         }
                         catch (err) {
                             echo err.getMessage()
