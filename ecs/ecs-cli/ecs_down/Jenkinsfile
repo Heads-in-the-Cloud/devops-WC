@@ -8,6 +8,8 @@ pipeline {
                     env.AWS_REGION          = "$region"
                     env.ENVIRONMENT         = "dev"
 
+                    env.PORT                = 5000
+
                     env.CLUSTER_NAME        = "ECS-Cluster-WC"
 
                     env.STACK_NAME          = "WC-ecs-alb-stack-${ENVIRONMENT}"
