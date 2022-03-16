@@ -11,7 +11,3 @@ output "public-subnet-ids" {
   value = [ aws_subnet.public_1.id, aws_subnet.public_2.id ]
 
 }
-
-output "peering_vpc_subnets" {
-  value = data.aws_subnet.peering_private_subnet
-}
