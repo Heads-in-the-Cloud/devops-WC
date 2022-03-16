@@ -1,5 +1,5 @@
 
-resource "aws_secretsmanager_secret" "secrets" {
+data "aws_secretsmanager_secret" "secrets" {
   name                            = var.ssm_path
   force_overwrite_replica_secret  = true
 }
