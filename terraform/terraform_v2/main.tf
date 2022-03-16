@@ -72,6 +72,8 @@ module "rds" {
   db_engine             = "mysql"
   db_engine_version     = "8.0"
   instance_type         = "t2.micro"
+  key_name              = var.key_name
+  environment           = var.environment
   secrets_data          = { "db_user" = var.db_username
                             "db_password" = random_password.password }
   ssm_path              = var.ssm_path
