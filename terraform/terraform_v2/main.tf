@@ -15,6 +15,11 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
 
 data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
@@ -67,6 +72,8 @@ module "rds" {
   db_engine             = "mysql"
   db_engine_version     = "8.0"
   instance_type         = "t2.micro"
+  secrets_data          = { "db_user" = var.db_username
+                            "db_password" = random_password.password }
   ssm_path              = var.ssm_path
   ami_id                = data.aws_ami.amazon_linux
   subnet_group_id       = module.networks.subnet_group_id

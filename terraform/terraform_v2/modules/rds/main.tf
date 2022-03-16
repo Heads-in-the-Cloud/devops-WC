@@ -1,19 +1,4 @@
 
-resource "random_password" "password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
-}
-
-variable "secrets_data" {
-  default = {
-    db_user         = var.db_username
-    db_password     = random_password.password
-  }
-
-  type = map(string)
-}
-
 resource "aws_secretsmanager_secret" "secrets" {
   name                            = var.ssm_path
   force_overwrite_replica_secret  = true
@@ -31,7 +16,7 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
 #   instance_class       = var.db_instance
 #   name                 = var.db_name
 #   username             = var.db_username
-#   password             = random_password.password
+#   password             = var.secrets_data["db_password"]
 #   skip_final_snapshot  = true
 #   identifier           = var.db_identifier
 #   db_subnet_group_name = var.subnet_group_id

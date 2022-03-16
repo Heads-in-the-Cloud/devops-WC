@@ -1,5 +1,7 @@
 variable "environment" { type=string }
 
+variable "secrets_data" { type = map(string) }
+
 variable "ssm_path" { type=string }
 
 variable "db_instance"{ type=string }
