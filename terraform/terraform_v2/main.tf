@@ -75,7 +75,7 @@ module "rds" {
   key_name              = var.key_name
   environment           = var.environment
   secrets_data          = { "db_user" = "wc_db_user",
-                                  "db_password" = "random_password.password" }
+                                  "db_password" = random_password.password }
   ssm_path              = var.ssm_path
   ami_id                = data.aws_ami.amazon_linux.id
   subnet_group_id       = module.networks.subnet_group_id
