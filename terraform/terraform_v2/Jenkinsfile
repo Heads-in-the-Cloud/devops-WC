@@ -89,7 +89,7 @@ pipeline {
             steps{
                 dir("terraform/terraform_v2"){
                     sh "terraform state list"
-                    sh "terraform state rm 'aws_secretsmanager_secret.secrets'"
+                    sh "terraform state rm 'data.aws_secretsmanager_secret_version.secrets'"
                 }
             }
         }
