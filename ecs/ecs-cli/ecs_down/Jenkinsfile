@@ -21,16 +21,21 @@ pipeline {
             }
         }
         stage('Docker Compose Down Users'){
+            options {
+                timeout(time: 60, unit: 'SECONDS') 
+            }
             steps{
-                script {
-                    dir("ecs/ecs-cli"){
+                catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+                    script {
+                        dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x ecs_down/down.sh'
-                        try {
-                            sh "./ecs_down/down.sh $USERS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
+                            sh 'chmod +x ecs_down/down.sh'
+                            try {
+                                sh "./ecs_down/down.sh $USERS_SERVICE"
+                            }
+                            catch (err) {
+                                echo err.getMessage()
+                            }
                         }
                     }
                 }
