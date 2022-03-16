@@ -3,9 +3,21 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+
+data "aws_vpc" "vpc_peering" {
+    filter {
+      name   = "tag:Name"
+      values = [ var.peering_vpc_name ]
+    }
+}
+
+data "aws_subnets" "peering_private_subnet" {
+  vpc_id     = aws_vpc.vpc_peering.id
+}
+
 resource "aws_vpc" "my_vpc" {
-  cidr_block       = var.vpc_cidr_block
-  enable_dns_hostnames = true
+  cidr_block            = var.vpc_cidr_block
+  enable_dns_hostnames  = true
   tags = {
     Name = "${var.vpc_name}-${var.environment}"
   }
@@ -73,6 +85,16 @@ resource "aws_internet_gateway" "default" {
   }
 }
 
+resource "aws_vpc_peering_connection" "pc" {
+  peer_owner_id = var.aws_account_id
+  peer_vpc_id   = aws_vpc.vpc_peering.id
+  vpc_id        = aws_vpc.my_vpc.id
+  auto_accept   = true
+  tags = {
+    Name = "${var.pc_name}"
+  }
+}
+
 resource "aws_eip" "nat" {
   vpc        = true
   depends_on = [aws_internet_gateway.default]
@@ -111,7 +133,10 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.my_vpc.id
 
-  route = []
+  route = {
+    cidr_block                = "rtb-06fdfec5ce88085dd"
+    vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
+  }
 
   tags = {
     Name = "wc_private_rt"

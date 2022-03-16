@@ -66,6 +66,7 @@ pipeline {
                     env.TF_VAR_cluster_name="${CLUSTER_NAME_WC}"
                     env.TF_VAR_bastion_host_type="db.t2.micro"
                     env.TF_VAR_vpc_name="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name = "Jenkins-VPC"
                     
                     env.TF_VAR_ssm_path="dev/WC/utopia-secrets"
                     env.TF_VAR_key_name="GroupKey"

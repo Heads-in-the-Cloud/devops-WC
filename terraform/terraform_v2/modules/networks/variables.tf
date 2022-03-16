@@ -19,3 +19,7 @@ variable "vpc_name" { type = string }
 variable "internet_gw_name" { type = string }
 
 variable "cluster_name" { type = string }
+
+variable "peering_vpc_name" { type = string }
+
+variable "aws_account_id" { type = string }
