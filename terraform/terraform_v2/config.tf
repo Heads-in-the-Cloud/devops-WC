@@ -3,7 +3,7 @@ terraform {
     bucket = "utopia-bucket-wc"
     key    = "network/terraform.tfstate"
     region = "us-west-2"
-    # dynamodb_table = "WC_terraform_state"
+    dynamodb_table = "WC_terraform_state"
   }
 
   required_providers {
