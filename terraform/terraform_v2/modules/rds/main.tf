@@ -26,38 +26,40 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
 
 
 
-# resource "aws_security_group" "db_sg" {
-#   name        = "db_sg_WC_${var.environment}"
-#   description = "Allow HTTP from any IPv4"
-#   vpc_id      = var.vpc_id
+resource "aws_security_group" "db_sg" {
+  name        = "db_sg_WC_${var.environment}"
+  description = "Security group for rds instance"
+  vpc_id      = var.vpc_id
 
-#   ingress {
-#     description      = "Allow HTTP from any IPv4"
-#     from_port        = 80
-#     to_port          = 80
-#     protocol         = "tcp"
-#     cidr_blocks      = ["0.0.0.0/0"]
+  ingress     = var.rds_ingress
 
-#   }
+  # ingress {
+  #   description      = "Allow HTTP from any IPv4"
+  #   from_port        = 80
+  #   to_port          = 80
+  #   protocol         = "tcp"
+  #   cidr_blocks      = ["0.0.0.0/0"]
 
-#   ingress {
-#     description      = "Allow connection to MYSQL"
-#     from_port        = var.mysql_port
-#     to_port          = var.mysql_port
-#     protocol         = "tcp"
-#     cidr_blocks      = ["0.0.0.0/0"]
-#   }
+  # }
 
-#   egress {
-#     from_port        = 0
-#     to_port          = 0
-#     protocol         = "-1"
-#     cidr_blocks      = ["0.0.0.0/0"]
-#     ipv6_cidr_blocks = ["::/0"]
-#   }
+  # ingress {
+  #   description      = "Allow connection to MYSQL"
+  #   from_port        = var.mysql_port
+  #   to_port          = var.mysql_port
+  #   protocol         = "tcp"
+  #   cidr_blocks      = ["0.0.0.0/0"]
+  # }
 
-#   tags = {
-#     Name = "db_sg_WC_${var.environment}"
-#   }
+  # egress {
+  #   from_port        = 0
+  #   to_port          = 0
+  #   protocol         = "-1"
+  #   cidr_blocks      = ["0.0.0.0/0"]
+  #   ipv6_cidr_blocks = ["::/0"]
+  # }
 
-# }
+  tags = {
+    Name = "db_sg_WC_${var.environment}"
+  }
+
+}
