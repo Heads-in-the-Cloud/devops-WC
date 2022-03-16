@@ -58,23 +58,23 @@ module "networks" {
   cluster_name          = var.cluster_name #tag identifier for ALB ingress controller
 }
 
-# module "rds" {
+module "rds" {
 
-#   source                = "./modules/rds"
-#   db_instance           = "db.t2.micro"
-#   db_identifier         = "database-wc"
-#   db_name               = "utopia"
-#   db_engine             = "mysql"
-#   db_engine_version     = "8.0"
-#   instance_type         = "t2.micro"
-#   ami_id                = data.aws_ami.amazon_linux
-#   subnet_group_id       = module.networks.subnet_group_id
-#   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
-#   vpc_id                = module.networks.vpc.id
-#   db_username           = local.db_creds.db_username
-#   db_password           = local.db_creds.db_password
-#   ssh_port              = "22"
-#   http_port             = "80"
-#   https_port            = "443"
-#   mysql_port            = "3306"
-# }
+  source                = "./modules/rds"
+  db_instance           = "db.t2.micro"
+  db_identifier         = "database-wc"
+  db_name               = "utopia"
+  db_engine             = "mysql"
+  db_engine_version     = "8.0"
+  instance_type         = "t2.micro"
+  ssm_path              = var.ssm_path
+  ami_id                = data.aws_ami.amazon_linux
+  subnet_group_id       = module.networks.subnet_group_id
+  public_subnet_id      = element(module.networks.public-subnet-ids, 0)
+  vpc_id                = module.networks.vpc.id
+  db_username           = "wc_db_user"
+  ssh_port              = "22"
+  http_port             = "80"
+  https_port            = "443"
+  mysql_port            = "3306"
+}

@@ -67,7 +67,7 @@ pipeline {
                     env.TF_VAR_bastion_host_type="db.t2.micro"
                     env.TF_VAR_vpc_name="${WC_vpc_name}"
                     
-                    env.TF_VAR_ssm_path="prod/Walter/secrets"
+                    env.TF_VAR_ssm_path="dev/WC/secrets"
 
                     env.TF_VAR_users_repo="${USER_REPO_WC}"
                     env.TF_VAR_flights_repo="${FLIGHT_REPO_WC}"

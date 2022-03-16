@@ -1,5 +1,7 @@
 variable "environment" { type=string }
 
+variable "ssm_path" { type=string }
+
 variable "db_instance"{ type=string }
 
 variable "db_name"{ type=string }
@@ -15,8 +17,6 @@ variable "subnet_group_id"{ type=string }
 variable "vpc_id"{ type=string }
 
 variable "db_username"{ type=string }
-
-variable "db_password"{ type=string }
 
 variable "ami_id" { type=string }
 
