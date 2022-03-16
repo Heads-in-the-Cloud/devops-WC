@@ -77,7 +77,7 @@ module "rds" {
   secrets_data          = { "db_user" = "wc_db_user",
                             "db_password" = random_password.password }
   ssm_path              = var.ssm_path
-  # ami_id                = data.aws_ami.amazon_linux.id
+  ami_id                = data.aws_ami.amazon_linux.id
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
   vpc_id                = module.networks.vpc.id
