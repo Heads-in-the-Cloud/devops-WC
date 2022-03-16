@@ -74,14 +74,13 @@ module "rds" {
   instance_type         = "t2.micro"
   key_name              = var.key_name
   environment           = var.environment
-  secrets_data          = { "db_user" = var.db_username
+  secrets_data          = { "db_user" = "wc_db_user"
                             "db_password" = random_password.password }
   ssm_path              = var.ssm_path
   ami_id                = data.aws_ami.amazon_linux
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
   vpc_id                = module.networks.vpc.id
-  db_username           = "wc_db_user"
   ssh_port              = "22"
   http_port             = "80"
   https_port            = "443"

@@ -1,3 +1,3 @@
-output "db_instance" {
-  value = aws_db_instance.rds
-}
+# output "db_instance" {
+#   value = aws_db_instance.rds
+# }
