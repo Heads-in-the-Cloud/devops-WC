@@ -5,7 +5,7 @@ data "aws_secretsmanager_secret" "secrets" {
 }
 
 resource "aws_secretsmanager_secret_version" "secret_string" {
-  secret_id     = aws_secretsmanager_secret.secrets.id
+  secret_id     = data.aws_secretsmanager_secret.secrets.id
   secret_string = jsonencode(merge(var.secrets_data, {"db_host" = "hello_world"}))
 }
 
