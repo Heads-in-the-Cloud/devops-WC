@@ -53,7 +53,6 @@ module "rds" {
                             ipv6_cidr_blocks = ["::/0"]
                           }]
   ssm_path              = var.ssm_path
-  ami_id                = data.aws_ami.amazon_linux.id
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
   vpc_id                = module.networks.vpc.id
