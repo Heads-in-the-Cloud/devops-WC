@@ -87,8 +87,8 @@ module "rds" {
                           },
                           {
                             description      = "Allow connection to MYSQL"
-                            from_port        = var.mysql_port
-                            to_port          = var.mysql_port
+                            from_port        = 3306
+                            to_port          = 3306
                             protocol         = "tcp"
                             cidr_blocks      = ["0.0.0.0/0"]           
                           }
