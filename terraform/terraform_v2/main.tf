@@ -21,31 +21,6 @@ resource "random_password" "password" {
   override_special = "_%@"
 }
 
-data "aws_secretsmanager_secret_version" "secrets" {
-  secret_id = var.ssm_path
-}
-
-data "aws_ecr_repository" "user-container" {
-    name = var.users_repo
-}
-
-data "aws_ecr_repository" "flight-container" {
-    name = var.flights_repo
-}
-
-data "aws_ecr_repository" "booking-container" {
-    name = var.bookings_repo
-}
-
-data "aws_ecr_repository" "frontend-container" {
-    name = var.frontend_repo
-}
-
-locals {
-  db_creds = jsondecode(
-    data.aws_secretsmanager_secret_version.secrets.secret_string
-  )
-}
 
 module "networks" {
 
