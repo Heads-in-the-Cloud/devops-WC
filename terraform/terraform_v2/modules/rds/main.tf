@@ -25,6 +25,8 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
 # }
 
 resource "aws_security_group_rule" "ingress_rules" {
+  count = length(var.rds_ingress)
+
   type              = "ingress"
   from_port         = var.rds_ingress[count.index].from_port
   to_port           = var.rds_ingress[count.index].to_port
@@ -36,6 +38,8 @@ resource "aws_security_group_rule" "ingress_rules" {
 }
 
 resource "aws_security_group_rule" "egress_rules" {
+  count = length(var.rds_egress)
+
   type              = "egress"
   from_port         = var.rds_egress[count.index].from_port
   to_port           = var.rds_egress[count.index].to_port
