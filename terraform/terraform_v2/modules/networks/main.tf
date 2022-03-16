@@ -11,7 +11,7 @@ data "aws_vpc" "vpc_peering" {
     }
 }
 
-data "aws_subnets" "peering_private_subnet" {
+data "aws_subnet" "peering_private_subnet" {
   vpc_id     = data.aws_vpc.vpc_peering.id
 }
 

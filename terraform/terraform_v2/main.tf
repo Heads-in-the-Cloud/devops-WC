@@ -10,6 +10,7 @@ module "networks" {
   subnet4_cidr_block    = "10.10.4.0/24"
   anywhere_ipv4         = "0.0.0.0/0"
   vpc_name              = "WC-vpc"
+  pc_name               = "WC-Jenkins-pc"
   internet_gw_name      = "WC-ig"
   peering_vpc_name      = var.peering_vpc_name
   aws_account_id        = var.aws_account_id

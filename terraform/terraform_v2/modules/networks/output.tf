@@ -13,5 +13,5 @@ output "public-subnet-ids" {
 }
 
 output "peering_vpc_subnets" {
-  value = data.aws_subnets.peering_private_subnet
+  value = data.aws_subnet.peering_private_subnet
 }
