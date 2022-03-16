@@ -11,9 +11,13 @@ data "aws_vpc" "vpc_peering" {
     }
 }
 
-data "aws_subnet" "peering_private_subnet" {
-  vpc_id     = data.aws_vpc.vpc_peering.id
+data "aws_route_table" "peering_vpc_rt" {
+    filter {
+      name   = "tag:Name"
+      values = [ var.peering_rt_name ]
+    }
 }
+
 
 resource "aws_vpc" "my_vpc" {
   cidr_block            = var.vpc_cidr_block
@@ -95,6 +99,13 @@ resource "aws_vpc_peering_connection" "pc" {
   }
 }
 
+resource "aws_route" "peering_vpc_route" {
+  route_table_id            = aws_route_table.peering_vpc_rt.id
+  destination_cidr_block    = aws_vpc.my_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
+
+}
+
 resource "aws_eip" "nat" {
   vpc        = true
   depends_on = [aws_internet_gateway.default]
@@ -134,7 +145,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.my_vpc.id
 
   route {
-    cidr_block                = "rtb-06fdfec5ce88085dd"
+    cidr_block                = data.aws_vpc.vpc_peering.cidr_block
     vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
   }
 

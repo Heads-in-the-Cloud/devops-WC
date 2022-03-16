@@ -11,6 +11,7 @@ module "networks" {
   anywhere_ipv4         = "0.0.0.0/0"
   vpc_name              = "WC-vpc"
   pc_name               = "WC-Jenkins-pc"
+  peering_rt_name       = "JenkinsPrivate"
   internet_gw_name      = "WC-ig"
   peering_vpc_name      = var.peering_vpc_name
   aws_account_id        = var.aws_account_id
