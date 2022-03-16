@@ -85,28 +85,20 @@ pipeline {
                 }
             }
         }
-        stage('Terraform re'){
-            steps{
-                dir("terraform/terraform_v2"){
-                    sh "terraform state list"
-                    sh "terraform state rm 'data.aws_secretsmanager_secret_version.secrets'"
-                }
+        stage('Terraform plan') {
+
+            steps {
+                dir("terraform/terraform_v2") {
+                    sh 'terraform plan'                
+                    }
             }
         }
-        // stage('Terraform plan') {
-
-        //     steps {
-        //         dir("terraform/terraform_v2") {
-        //             sh 'terraform plan'                
-        //             }
-        //     }
-        // }
-        // stage('Terraform action') {
-        //     steps {
-        //         dir("terraform/terraform_v2") {
-        //             sh "terraform ${action} -auto-approve"
-        //         }
-        //     } 
-        // }
+        stage('Terraform action') {
+            steps {
+                dir("terraform/terraform_v2") {
+                    sh "terraform ${action} -auto-approve"
+                }
+            } 
+        }
     }
 }
