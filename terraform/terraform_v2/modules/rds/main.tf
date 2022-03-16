@@ -24,14 +24,32 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
 
 # }
 
+resource "aws_security_group_rule" "ingress_rules" {
+  type              = "ingress"
+  from_port         = var.rds_ingress[count.index].from_port
+  to_port           = var.rds_ingress[count.index].to_port
+  protocol          = var.rds_ingress[count.index].protocol
+  cidr_blocks       = var.rds_ingress[count.index].cidr_blocks
+  description       = var.rds_ingress[count.index].description
+  security_group_id = aws_security_group.db_sg.id
 
+}
+
+resource "aws_security_group_rule" "egress_rules" {
+  type              = "egress"
+  from_port         = var.rds_egress[count.index].from_port
+  to_port           = var.rds_egress[count.index].to_port
+  protocol          = var.rds_egress[count.index].protocol
+  cidr_blocks       = var.rds_egress[count.index].cidr_blocks
+  ipv6_cidr_blocks  = var.rds_egress[count.index].ipv6.cidrblocks
+  description       = var.rds_egress[count.index].description
+  security_group_id = aws_security_group.db_sg.id
+
+}
 
 resource "aws_security_group" "db_sg" {
   name        = "db_sg_WC_${var.environment}"
   description = "Security group for rds instance"
-  vpc_id      = var.vpc_id
-
-  ingress     = var.rds_ingress
 
   # ingress {
   #   description      = "Allow HTTP from any IPv4"
