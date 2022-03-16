@@ -15,12 +15,6 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "random_password" "password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
-}
-
 
 module "networks" {
 
@@ -49,9 +43,7 @@ module "rds" {
   instance_type         = "t2.micro"
   key_name              = var.key_name
   environment           = var.environment
-  secrets_data          = { "db_user" = "wc_db_user",
-                            "db_password" = random_password.password.result,
-                            "secret_key" = var.secret_key }
+  db_user               = "wc_db_admin"
   rds_ingress           = [
                           {
                             description      = "Allow HTTP from any IPv4",
@@ -81,9 +73,4 @@ module "rds" {
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
   vpc_id                = module.networks.vpc.id
-
-  ssh_port              = "22"
-  http_port             = "80"
-  https_port            = "443"
-  mysql_port            = "3306"
 }

@@ -3,9 +3,23 @@ data "aws_secretsmanager_secret" "secrets" {
   name                            = var.ssm_path
 }
 
+resource "random_password" "db_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
+resource "random_password" "secret_key" {
+  length           = 16
+  special          = false
+}
+
 resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_id     = data.aws_secretsmanager_secret.secrets.id
-  secret_string = jsonencode(merge(var.secrets_data, {"db_host" = "hello_world"}))
+  secret_string = jsonencode(merge({"db_password" = random_password.db_password},
+                                   {"db_host"     = aws_db_instance.rds.address},
+                                   {"secret_key"  = random_password.secret_key},
+                                   {"db_user"     = var.db_user}))
 }
 
 # resource "aws_db_instance" "rds" {

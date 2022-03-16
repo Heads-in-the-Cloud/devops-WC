@@ -1,6 +1,6 @@
 variable "environment" { type=string }
 
-variable "secrets_data" { type = map(string) }
+variable "db_user" { type=string }
 
 variable "ssm_path" { type=string }
 
@@ -25,14 +25,6 @@ variable "instance_type" { type=string }
 variable "key_name" { type=string }
 
 variable "public_subnet_id" { type=string }
-
-variable "ssh_port" { type=number }
-
-variable "http_port" { type=number }
-
-variable "https_port" { type=number }
-
-variable "mysql_port" { type=number }
 
 variable "rds_ingress" { 
     type = list(object({
