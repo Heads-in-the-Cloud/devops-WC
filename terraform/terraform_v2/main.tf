@@ -74,7 +74,7 @@ module "rds" {
   instance_type         = "t2.micro"
   key_name              = var.key_name
   environment           = var.environment
-  secrets_data          = tomap({ db_user = "wc_db_user"
+  secrets_data          = tomap({ db_user = "wc_db_user",
                                   db_password = random_password.password })
   ssm_path              = var.ssm_path
   ami_id                = data.aws_ami.amazon_linux.id
