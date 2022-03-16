@@ -1,5 +1,18 @@
 
+data "aws_ami" "amazon_linux" {
+  most_recent      = true
+  owners           = ["amazon"]
 
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
 
 # resource "aws_instance" "bastion_host" {
 #   ami                       = var.ami_id
@@ -24,6 +37,10 @@
 #   name        = "ssh_sg_WC"
 #   description = "Allow all SSH from any IPv4"
 #   vpc_id      = var.vpc_id
+
+
+
+
 
 #   ingress {
 #     from_port   = var.ssh_port

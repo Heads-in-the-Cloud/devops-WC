@@ -67,7 +67,7 @@ resource "aws_security_group_rule" "egress_rules" {
 resource "aws_security_group" "db_sg" {
   name        = "db_sg_WC_${var.environment}"
   description = "Security group for rds instance"
-
+  vpc_id      = var.vpc_id
   # ingress {
   #   description      = "Allow HTTP from any IPv4"
   #   from_port        = 80
