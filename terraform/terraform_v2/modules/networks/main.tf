@@ -12,7 +12,7 @@ data "aws_vpc" "vpc_peering" {
 }
 
 data "aws_subnets" "peering_private_subnet" {
-  vpc_id     = aws_vpc.vpc_peering.id
+  vpc_id     = data.aws_vpc.vpc_peering.id
 }
 
 resource "aws_vpc" "my_vpc" {
@@ -87,7 +87,7 @@ resource "aws_internet_gateway" "default" {
 
 resource "aws_vpc_peering_connection" "pc" {
   peer_owner_id = var.aws_account_id
-  peer_vpc_id   = aws_vpc.vpc_peering.id
+  peer_vpc_id   = data.aws_vpc.vpc_peering.id
   vpc_id        = aws_vpc.my_vpc.id
   auto_accept   = true
   tags = {
