@@ -44,3 +44,24 @@ variable "rds_egress" {
         ipv6_cidr_blocks= list(string)
     }))
 }
+
+variable "ec2_ingress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+    }))
+}
+
+variable "ec2_egress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
+    }))
+}

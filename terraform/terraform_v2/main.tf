@@ -52,6 +52,21 @@ module "rds" {
                             cidr_blocks      = ["0.0.0.0/0"],
                             ipv6_cidr_blocks = ["::/0"]
                           }]
+  ec2_ingress           = [{
+                            description      = "Allow SSH from anywhere",
+                            from_port        = 22,
+                            to_port          = 22,
+                            protocol         = "tcp",
+                            cidr_blocks      = ["0.0.0.0/0"], 
+                          }]
+  ec2_egress            = [{
+                          description      = "Allow egress to anywhere ipv4/ipv6",
+                          from_port        = 0,
+                          to_port          = 0,
+                          protocol         = "-1",
+                          cidr_blocks      = ["0.0.0.0/0"],
+                          ipv6_cidr_blocks = ["::/0"]
+                          }]
   ssm_path              = var.ssm_path
   subnet_group_id       = module.networks.subnet_group_id
   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
