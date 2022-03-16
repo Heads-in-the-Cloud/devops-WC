@@ -15,10 +15,10 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_instance" "bastion_host" {
-  ami                       = aws_ami.amazon_linux.id
+  ami                       = data.aws_ami.amazon_linux.id
   instance_type             = var.instance_type
   key_name                  = var.key_name
-  vpc_security_group_ids    = [ aws_security_group.ssh_sg.id ]
+  vpc_security_group_ids    = [ aws_security_group.ec2_sg.id ]
   subnet_id                 = var.public_subnet_id
   iam_instance_profile      = aws_iam_instance_profile.bastion_host_profile.name
   user_data                 = templatefile("${path.root}/mysql_starter_script.sh", {
