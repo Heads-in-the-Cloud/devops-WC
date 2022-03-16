@@ -44,13 +44,13 @@ variable "rds_ingress" {
     }))
 }
 
-# variable "rds_egress" { 
-#     type = list(map(object({
-#         description     = string
-#         from_port       = number        
-#         to_port         = number
-#         protocol        = string
-#         cidr_blocks     = list(string)
-#         ipv6_cidr_blocks= list(string)
-#     })))
-# }
+variable "rds_egress" { 
+    type = list(map(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
+    })))
+}
