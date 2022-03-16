@@ -45,7 +45,7 @@ resource "aws_security_group_rule" "egress_rules" {
   to_port           = var.rds_egress[count.index].to_port
   protocol          = var.rds_egress[count.index].protocol
   cidr_blocks       = var.rds_egress[count.index].cidr_blocks
-  ipv6_cidr_blocks  = var.rds_egress[count.index].ipv6.cidrblocks
+  ipv6_cidr_blocks  = var.rds_egress[count.index].ipv6_cidr_blocks
   description       = var.rds_egress[count.index].description
   security_group_id = aws_security_group.db_sg.id
 
