@@ -11,7 +11,7 @@ module "networks" {
   anywhere_ipv4         = "0.0.0.0/0"
   vpc_name              = "WC-vpc"
   internet_gw_name      = "WC-ig"
-  vpc_peering_name      = var.peering_vpc_name
+  peering_vpc_name      = var.peering_vpc_name
   region                = var.region
   environment           = var.environment
   cluster_name          = var.cluster_name #tag identifier for ALB ingress controller
