@@ -11,6 +11,7 @@ module "networks" {
   anywhere_ipv4         = "0.0.0.0/0"
   vpc_name              = "WC-vpc"
   internet_gw_name      = "WC-ig"
+  vpc_peering_name      = var.peering_vpc_name
   region                = var.region
   environment           = var.environment
   cluster_name          = var.cluster_name #tag identifier for ALB ingress controller
@@ -28,7 +29,6 @@ module "networks" {
 #   key_name              = var.key_name
 #   environment           = var.environment
 #   db_user               = "wc_db_admin"
-#   vpc_peering_name      = var.peering_vpc_name
 #   rds_ingress           = [
 #                           {
 #                             description      = "Allow HTTP from any IPv4",
