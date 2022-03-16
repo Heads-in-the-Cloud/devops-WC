@@ -68,14 +68,14 @@ module "rds" {
                             cidr_blocks      = ["0.0.0.0/0"],           
                           }
                           ]
-  # rds_egress            = [{
-  #                           description      = "Allow egress to anywhere ipv4/ipv6",
-  #                           from_port        = 0,
-  #                           to_port          = 0,
-  #                           protocol         = "-1",
-  #                           cidr_blocks      = ["0.0.0.0/0"],
-  #                           ipv6_cidr_blocks = ["::/0"]
-  #                         }]
+  rds_egress            = [{
+                            description      = "Allow egress to anywhere ipv4/ipv6",
+                            from_port        = 0,
+                            to_port          = 0,
+                            protocol         = "-1",
+                            cidr_blocks      = ["0.0.0.0/0"],
+                            ipv6_cidr_blocks = ["::/0"]
+                          }]
   ssm_path              = var.ssm_path
   ami_id                = data.aws_ami.amazon_linux.id
   subnet_group_id       = module.networks.subnet_group_id
