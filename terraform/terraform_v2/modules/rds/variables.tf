@@ -51,5 +51,6 @@ variable "rds_egress" {
         to_port         = number
         protocol        = string
         cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
     })))
 }
