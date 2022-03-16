@@ -16,9 +16,9 @@ resource "random_password" "secret_key" {
 
 resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_id     = data.aws_secretsmanager_secret.secrets.id
-  secret_string = jsonencode(merge({"db_password" = random_password.db_password},
+  secret_string = jsonencode(merge({"db_password" = random_password.db_password.result},
                                    {"db_host"     = aws_db_instance.rds.address},
-                                   {"secret_key"  = random_password.secret_key},
+                                   {"secret_key"  = random_password.secret_key.result},
                                    {"db_user"     = var.db_user}))
 }
 
@@ -28,8 +28,8 @@ resource "aws_db_instance" "rds" {
   engine_version       = var.db_engine_version
   instance_class       = var.db_instance
   name                 = var.db_name
-  username             = var.db_username
-  password             = var.secrets_data["db_password"]
+  username             = var.db_user
+  password             = random_password.db_password.result
   skip_final_snapshot  = true
   identifier           = var.db_identifier
   db_subnet_group_name = var.subnet_group_id
