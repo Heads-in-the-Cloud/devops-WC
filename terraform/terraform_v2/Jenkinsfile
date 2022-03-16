@@ -85,12 +85,20 @@ pipeline {
                 }
             }
         }
+        stage('Terraform re'){
+            steps{
+                dir("terraform/terraform_v2"){
+                    sh "terraform state rm 'aws_secretsmanager_secret.secrets'"
+                }
+            }
+        }
         stage('Terraform plan') {
 
             steps {
                 dir("terraform/terraform_v2") {
-                    sh 'terraform plan'                }
-                }
+                    sh 'terraform plan'                
+                    }
+            }
         }
         stage('Terraform action') {
             steps {
