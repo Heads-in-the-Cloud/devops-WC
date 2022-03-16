@@ -133,7 +133,7 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.my_vpc.id
 
-  route = {
+  route {
     cidr_block                = "rtb-06fdfec5ce88085dd"
     vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
   }
