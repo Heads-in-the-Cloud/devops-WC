@@ -35,7 +35,7 @@ variable "https_port" { type=number }
 variable "mysql_port" { type=number }
 
 variable "rds_ingress" { 
-    type = map(object({
+    type = list(object({
         description     = string
         from_port       = number        
         to_port         = number
