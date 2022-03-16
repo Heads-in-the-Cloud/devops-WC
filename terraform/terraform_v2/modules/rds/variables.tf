@@ -33,3 +33,7 @@ variable "http_port" { type=number }
 variable "https_port" { type=number }
 
 variable "mysql_port" { type=number }
+
+variable "rds_ingress" { type=list(map)}
+
+variable "rds_egress" { type=list(map)}

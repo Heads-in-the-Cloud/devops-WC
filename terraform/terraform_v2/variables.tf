@@ -20,3 +20,5 @@ variable "frontend_repo" { type = string }
 
 variable "key_name" { type = string }
 
+variable "secret_key" { type = string }
+
