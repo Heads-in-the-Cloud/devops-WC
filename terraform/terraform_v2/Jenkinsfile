@@ -80,7 +80,7 @@ pipeline {
 
             steps {
                 dir("terraform/terraform_v2") {
-                    sh 'terraform init -migrate-state'
+                    sh 'terraform init'
                 }
             }
         }
