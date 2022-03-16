@@ -67,7 +67,7 @@ pipeline {
                     env.TF_VAR_bastion_host_type="db.t2.micro"
                     env.TF_VAR_vpc_name="${WC_vpc_name}"
                     
-                    env.TF_VAR_ssm_path="dev/WC/secrets"
+                    env.TF_VAR_ssm_path="dev/WalterC/secrets"
                     env.TF_VAR_key_name="GroupKey.pem"
                     env.TF_VAR_secret_key="${JWT_SECRET_KEY_WC}"
                     env.TF_VAR_users_repo="${USER_REPO_WC}"
