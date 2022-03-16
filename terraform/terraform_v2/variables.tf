@@ -21,3 +21,5 @@ variable "frontend_repo" { type = string }
 variable "key_name" { type = string }
 
 variable "peering_vpc_name" { type = string }
+
+variable "aws_account_id" { type = string }

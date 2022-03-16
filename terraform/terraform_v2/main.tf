@@ -12,6 +12,7 @@ module "networks" {
   vpc_name              = "WC-vpc"
   internet_gw_name      = "WC-ig"
   peering_vpc_name      = var.peering_vpc_name
+  aws_account_id        = var.aws_account_id
   region                = var.region
   environment           = var.environment
   cluster_name          = var.cluster_name #tag identifier for ALB ingress controller
