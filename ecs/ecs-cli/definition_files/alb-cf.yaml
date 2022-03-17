@@ -26,12 +26,7 @@ Parameters:
     Type: String
   FrontendPath:
     Type: String
-  # ECSALB:
-  #   Type: String
-  #   Description: Logical ID of the ALB
-  # EcsSecurityGroup:
-  #   Type: String
-  #   Description: Logical ID of the security group
+
     
   #Target Group Parameters
   UsersHealthCheck:
@@ -51,15 +46,6 @@ Parameters:
     Type: String
   TGNameFrontend:
     Type: String
-  # UsersTG:
-  #   Type: String
-  #   Description: Logical ID of target group
-  # FlightsTG:
-  #   Type: String
-  # BookingsTG:
-  #   Type: String
-  # FrontendTG:
-  #   Type: String
   
   #Route53 Parameters
   HostedZoneId:

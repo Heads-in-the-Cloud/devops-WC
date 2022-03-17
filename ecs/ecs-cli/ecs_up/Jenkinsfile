@@ -459,10 +459,10 @@ pipeline {
             script {
                 dir("ecs/ecs-cli"){
 
-                    if(CLUSTER_CREATED == 'true') {
+                    if(CLUSTER_CREATED == true) {
                         sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
                     }
-                    if(CF_STACK_CREATED == 'true') {
+                    if(CF_STACK_CREATED == true) {
                         sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                     }
