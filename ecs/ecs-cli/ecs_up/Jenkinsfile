@@ -137,7 +137,7 @@ pipeline {
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
-                    env.ALB_CREATED             = false
+                    env.CF_STACK_CREATED        = false
                     env.CLUSTER_CREATED         = false
 
                     env.STOP                    = false
@@ -231,6 +231,13 @@ pipeline {
                     }
                 }
             }
+            post {
+                success {
+                    script {
+                        CF_STACK_CREATED = true
+                    }
+                }
+            }
         }
         stage('Get Cloudformation Stack Resource IDs'){
             when { 
@@ -272,13 +279,6 @@ pipeline {
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
 
                     env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
-                }
-            }
-            post {
-                success {
-                    script {
-                        ALB_CREATED = true
-                    }
                 }
             }
         }
@@ -462,7 +462,7 @@ pipeline {
                     if(CLUSTER_CREATED == 'true') {
                         sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
                     }
-                    if(ALB_CREATED == 'true') {
+                    if(CF_STACK_CREATED == 'true') {
                         sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                     }
