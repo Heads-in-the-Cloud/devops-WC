@@ -232,8 +232,10 @@ pipeline {
                 }
             }
             post {
-                script {
-                    CF_STACK_CREATED = true
+                always{
+                    script {
+                        CF_STACK_CREATED = true
+                    }
                 }
             }
         }
