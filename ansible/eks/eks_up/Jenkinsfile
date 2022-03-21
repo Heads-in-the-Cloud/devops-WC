@@ -33,7 +33,7 @@ pipeline {
                             AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
                             RECORD_NAME: "wc-eks-utopia.hitwc.link"
                             HOSTED_ZONE: "$HOSTED_ZONE"
-                            EKS_LOCATION: "../../kubernetes/eks"
+                            EKS_LOCATION: "../../../kubernetes/eks"
                             ROUTE_53_TTL: "300"
                             USERS_NUM_POD: "1"
                             FLIGHTS_NUM_POD: "1"
