@@ -68,7 +68,8 @@
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
       tags:
-        - test
+       - test
+
 
       #####################################
       ##### Set up Ingress controller #####
@@ -103,7 +104,8 @@
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-
+      tags:
+       - test
 
       ################################
       ### kubectl create resources ###
@@ -115,8 +117,7 @@
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
-      tags:
-        - test
+
 
 
 
@@ -148,14 +149,12 @@
     - name: Wait for ingress to create
       shell: |
         sleep 200
-      tags:
-        - test
+
 
     - name: Get ingress endpoint 
       shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
-      tags:
-        - test
+
 
     - name: Set up Route53
       route53:
@@ -165,7 +164,6 @@
         ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
-      tags:
-        - test
+
 
 
