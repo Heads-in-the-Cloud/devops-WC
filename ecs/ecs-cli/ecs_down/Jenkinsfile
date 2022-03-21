@@ -89,26 +89,20 @@ pipeline {
                 }
             }
         }
-        // stage('Delete Cluster'){
-
-        //     steps{
-        //         script{
-        //     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-        //             sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
-        //         }
-        //     }
-        //     }
-        // }
+        stage('Delete Cluster'){
+            steps{
+                script{
+                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
+                }
+            }
+        }
         stage('Delete Cloudformation Stack'){
             steps{
                 script{
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
+                    
                     sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
                     //wait for cloudformation stack to delete
                     sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-            }
                 }
             }
         }
