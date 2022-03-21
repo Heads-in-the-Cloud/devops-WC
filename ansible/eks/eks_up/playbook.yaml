@@ -67,8 +67,7 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags:
-       - test
+
 
 
       #####################################
@@ -104,8 +103,7 @@
           --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
         kubectl create secret generic jwt-secret \
           --from-literal=secret_key="{{ SECRET_KEY }}"
-      tags:
-       - test
+
 
       ################################
       ### kubectl create resources ###
