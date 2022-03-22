@@ -29,6 +29,28 @@ pipeline {
                                         ]
                                     ]
                                 ],
+                                [$class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the environment in which to deploy', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'environment', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load environment']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['staging', 'dev', 'prod']"
+                                        ]
+                                    ]
+                                ],
                                 [$class: 'CascadeChoiceParameter', 
                                     choiceType: 'PT_SINGLE_SELECT', 
                                     description: 'Select the container to update',
@@ -66,33 +88,55 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
-                    env.PARAM_ACTION = params.action
-                    env.PARAM_CONTAINER = params.container
+                    env.PARAM_ACTION        = params.action
+                    env.PARAM_CONTAINER     = params.container
+
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${params.environment}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${params.environment}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${params.environment}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${params.environment}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${params.environment}"
+                    env.PORT                = 5000
+                    env.USERS_REPO          = "${USER_REPO_WC}"
+                    env.FLIGHTS_REPO        = "${FLIGHT_REPO_WC}"
+                    env.BOOKINGS_REPO       = "${BOOKING_REPO_WC}"
+                    env.FRONTEND_REPO       = "${FRONTEND_REPO_WC}"
+                    env.USERS_CONTAINER     = "USERS"
+                    env.FLIGHTS_CONTAINER   = "FLIGHTS"
+                    env.BOOKINGS_CONTAINER  = "BOOKINGS"
+                    env.FRONTEND_CONTAINER  = "FRONTEND"
 
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
-                    env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()
-                    env.STACK_NAME = "WC-ecs-alb-stack"
-                    env.USERS_SERVICE = "WC-ecs-users"
-                    env.FLIGHTS_SERVICE = "WC-ecs-flights"
-                    env.BOOKINGS_SERVICE = "WC-ecs-bookings"
-                    env.FRONTEND_SERVICE = "WC-ecs-frontend"
-                    env.PORT = 5000
-                    env.USERS_REPO = "${USER_REPO_WC}"
-                    env.FLIGHTS_REPO = "${FLIGHT_REPO_WC}"
-                    env.BOOKINGS_REPO = "${BOOKING_REPO_WC}"
-                    env.FRONTEND_REPO = "${FRONTEND_REPO_WC}"
-                    env.USERS_CONTAINER = "users"
-                    env.FLIGHTS_CONTAINER = "flights"
-                    env.BOOKINGS_CONTAINER = "bookings"
-                    env.FRONTEND_CONTAINER = "frontend"
-                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
-                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
+                    env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+
+                    env.VPC_ID=sh (script : "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.PUBLIC_SUBNET1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
-        } 
+        }
+        stage('Set up conditionals'){
+            when {                    
+                expression { 
+                    return params.environment == 'prod'
+                }
+            }
+            steps{
+                script{
+                    env.CPU_USERS           = "512"
+                    env.CPU_FLIGHTS         = "1024"
+                    env.CPU_BOOKINGS        = "1024"
+                    env.CPU_FRONTEND        = "1024"
+
+                    env.MEM_USERS           = "4GB"
+                    env.MEM_FLIGHTS         = "4GB"
+                    env.MEM_BOOKINGS        = "4GB"
+                    env.MEM_FRONTEND        = "4GB"
+                }
+            }
+        }
         stage('Create ALB') {
             when {
                 expression { 
@@ -107,6 +151,7 @@ pipeline {
                         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                         ParameterKey=Subnet1,ParameterValue=${PUBLIC_SUBNET1} \
                         ParameterKey=Subnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                        ParameterKey=Environment,ParameterValue=${params.environment} \
                         ParameterKey=FlightsPath,ParameterValue=/airline/* \
                         ParameterKey=BookingsPath,ParameterValue=/booking/* \
                         ParameterKey=FrontendPath,ParameterValue=/lms/* \
@@ -161,10 +206,12 @@ pipeline {
                                         --logical-resource-id FrontendTG \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
                     
-                    env.HOST_DOMAIN= sh ( script: "aws cloudformation describe-stack-resource \
+                    env.LOAD_BALANCER_ARN= sh ( script: "aws cloudformation describe-stack-resource \
                                         --stack-name $STACK_NAME \
                                         --logical-resource-id ECSALB \
                                         --query StackResourceDetail.PhysicalResourceId", returnStdout: true).trim().replaceAll("\"", "")
+
+                    env.HOST_DOMAIN = sh ( script: "aws elbv2 describe-load-balancers --load-balancer-arns ${LOAD_BALANCER_ARN} --query LoadBalancers[0].DNSName", returnStdout: true).trim().replaceAll("\"", "")
                 }
             }
         }
@@ -176,10 +223,6 @@ pipeline {
             }
             steps{
 
-                // sh "ecs-cli configure --cluster ECS-Cluster-WC \
-                // --region ${region} --default-launch-type FARGATE \
-                // --config-name ECS-Cluster-WC"
-
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
                     --capability-iam --cluster-config ECS-Cluster-WC \
                     --subnets ${PUBLIC_SUBNET1},${PUBLIC_SUBNET2}"
@@ -187,21 +230,112 @@ pipeline {
         }
 
         stage('Docker Compose Up'){
-            when {
-                anyOf {
-                    expression { 
+            when {                    
+                expression { 
                         return params.action == 'create'
                     }
-                    expression { 
-                        return params.action == 'update'
-                    }
                 }
-            }
             steps{
                 script{
                     dir("ecs/ecs-cli"){
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
+                        try {                   
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+                            ${CPU_USERS} ${MEM_USERS} http://${HOST_DOMAIN}"
+                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+                            ${CPU_FLIGHTS} ${MEM_FLIGHTS} http://${HOST_DOMAIN}"
+                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+                            ${CPU_BOOKINGS} ${MEM_BOOKINGS} http://${HOST_DOMAIN}"
+                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+                            ${CPU_FRONTEND} ${MEM_FRONTEND} http://${HOST_DOMAIN}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update users'){
+            when {                    
+                expression { 
+                        return params.action == 'users'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${USERS_REPO} ${USERS_CONTAINER} ${USERS_SERVICE} ${USERS_TG} \
+                            ${CPU_USERS} ${MEM_USERS}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update flights'){
+            when {                    
+                expression { 
+                        return params.action == 'flights'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${FLIGHTS_REPO} ${FLIGHTS_CONTAINER} ${FLIGHTS_SERVICE} ${FLIGHTS_TG} \
+                            ${CPU_FLIGHTS} ${MEM_FLIGHTS}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update bookings'){
+            when {                    
+                expression { 
+                        return params.action == 'bookings'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${BOOKINGS_REPO} ${BOOKINGS_CONTAINER} ${BOOKINGS_SERVICE} ${BOOKINGS_TG} \
+                            ${CPU_BOOKINGS} ${MEM_BOOKINGS}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update frontend'){
+            when {                    
+                expression { 
+                        return params.action == 'frontend'
+                    }
+                }
+            steps{
+                script{
+                    dir("ecs/ecs-cli"){
+                        try {
+                            sh 'chmod +x up.sh'
+                            sh "./up.sh ${FRONTEND_REPO} ${FRONTEND_CONTAINER} ${FRONTEND_SERVICE} ${FRONTEND_TG} \
+                            ${CPU_FRONTEND} ${MEM_FRONTEND}"
+                        }
+                        catch (err) {
+                            echo err.getMessage()
+                        }
                     }
                 }
             }
@@ -220,6 +354,15 @@ pipeline {
                     //wait for cloudformation stack to delete
                     sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                 }
+                
+            }
+        }
+    }
+    post {
+        failure {
+            dir("ecs/ecs-cli"){
+                sh 'chmod +x down.sh'
+                sh './down.sh'
             }
         }
     }

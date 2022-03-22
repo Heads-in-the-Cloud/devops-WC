@@ -1,0 +1,179 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+      ##########################
+      ######  Get VPC ID  ######
+      ##########################
+    - name: Getting VPC info
+      ec2_vpc_net_info:
+        region: "{{ REGION }}"
+        filters:
+          "tag:Name": "{{VPC_NAME}}"
+      register: vpc
+
+
+    - name: Setting vpc_id fact
+      set_fact:
+        VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
+
+
+
+      ##############################
+      ######  Get Subnet IDs  ######
+      ##############################
+    - name: Getting private subnets info
+      ec2_vpc_subnet_info:
+        region: "{{ REGION }}"
+        filters:
+          vpc-id: "{{ VPC_ID }}"
+          "tag:kubernetes.io/role/internal-elb": "1"
+      loop:
+        - subnet1
+        - subnet2
+      register: subnets
+
+
+    - name: Setting subnet1 fact
+      set_fact:
+        SUBNET1: "{{ subnets.results[0].subnets[0].id }}"
+
+
+    - name: Setting subnet2 fact
+      set_fact:
+        SUBNET2: "{{ subnets.results[0].subnets[1].id }}"
+
+
+      ##############################
+      ######  Create Cluster  ######
+      ##############################
+     
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+
+      ##############################
+      ######  Set Up Cluster  ######
+      ##############################
+
+    - name: Associate Open ID Provider
+      shell: |
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+
+  
+    - name: Switch Context to Cluster
+      shell: |
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      # tags:
+      #   - test
+
+
+
+      #####################################
+      ##### Set up Ingress controller #####
+      #####################################
+    - name: Create ALB Ingress Controller
+      shell: |
+        kubectl apply -f "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+        eksctl create iamserviceaccount \
+          --name=alb-ingress-controller \
+          --namespace=kube-system \
+          --cluster="{{ CLUSTER_NAME }}" \
+          --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
+          --override-existing-serviceaccounts \
+          --approve
+
+        curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/alb-ingress-controller.yaml" \
+            | sed "s/# - --cluster-name=devCluster/- --cluster-name={{ CLUSTER_NAME }}/g" \
+            | sed "s/# - --aws-vpc-id=vpc-xxxxxx/- --aws-vpc-id={{ VPC_ID }}/g" \
+            | sed "s/# - --aws-region=us-west-1/- --aws-region={{ REGION }}/g" \
+            | kubectl apply -f -
+
+
+      #################################
+      #### Create Secrets from SSM ####
+      #################################
+
+    - name: Extract Secrets from SSM and create Kubernetes Secrets
+      shell: | 
+        kubectl create secret generic db-info -n kube-system \
+          --from-literal=db_user="{{ DB_USER }}" \
+          --from-literal=db_host="{{ DB_HOST}}" \
+          --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
+
+        kubectl create secret generic jwt-secret -n kube-system\
+          --from-literal=secret_key="{{ SECRET_KEY }}"
+
+
+
+      ################################
+      ### kubectl create resources ###
+      ################################
+
+    - name: Create Kubernetes Resources
+      shell: |
+        kubectl apply -f service.yaml -f ingress.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+
+    - name: TEST
+      shell: |
+        aws --version
+        which aws
+      tags:
+        - test
+
+
+    - name: Set up CloudWatch Logs
+      shell: |
+        # kubectl apply -f namespace.yaml
+        # sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+        aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default
+        # export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        # echo $PodRole
+
+        # aws iam attach-role-policy \
+        #   --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+        #   --role-name ${PodRole}
+
+        # curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+        # aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+        # eksctl utils update-cluster-logging \
+        # --enable-types all \
+        # --region "{{ REGION }}" \
+        # --cluster "{{ CLUSTER_NAME }}" \
+        # --approve
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+      tags:
+        - test
+
+      ##############################
+      #########  Route 53  #########
+      ##############################
+
+    - name: Wait for ingress to create
+      shell: |
+        sleep 200
+
+
+    - name: Get ingress endpoint 
+      shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: dns_hostname
+
+
+    - name: Set up Route53
+      route53:
+        state: present
+        hosted_zone_id: "{{ HOSTED_ZONE}}"
+        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        ttl: "{{ ROUTE_53_TTL }}"
+        type: CNAME
+        value: "{{ dns_hostname.stdout }}"
+
+
+

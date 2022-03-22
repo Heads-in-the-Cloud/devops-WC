@@ -1,0 +1,48 @@
+pipeline {
+
+    agent any
+
+    stages{
+            stage('Set up Environment Variables'){
+                steps{
+                    script {
+                        env.ENVIRONMENT = "dev"
+                        env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                        env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                        env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                        env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()                
+                    }
+                }
+            }
+            stage('Run Ansible Playbook') {
+                steps {
+                    script {
+                        results=ansibleTower(
+                            towerServer: 'Tower 1',
+                            jobTemplate: 'EKS-create-cluster',
+                            jobTags: 'test',
+                            verbose: true,
+                            extraVars: '''---
+                            ENVIRONMENT: "$ENVIRONMENT"
+                            VPC_NAME: "WC-vpc-$ENVIRONMENT"
+                            REGION: "$region"
+                            DB_HOST: "$DB_HOST"
+                            SECRET_KEY: "$SECRET_KEY"
+                            DB_USER: "$DB_USER"
+                            DB_USER_PASSWORD: "$DB_USER_PASSWORD"
+                            CLUSTER_NAME: "$CLUSTER_NAME_WC"
+                            AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
+                            RECORD_NAME: "wc-eks-utopia.hitwc.link"
+                            HOSTED_ZONE: "$HOSTED_ZONE"
+                            EKS_LOCATION: "../../../kubernetes/eks"
+                            ROUTE_53_TTL: "300"
+                            USERS_NUM_POD: "1"
+                            FLIGHTS_NUM_POD: "1"
+                            BOOKINGS_NUM_POD: "1"
+                            FRONTEND_NUM_POD: "1"
+                            ''')
+                    }
+                }
+            }
+        }
+}
