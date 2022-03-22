@@ -123,6 +123,7 @@
     - name: TEST
       shell: |
         aws --version
+        which aws
       tags:
         - test
 
@@ -150,7 +151,6 @@
         chdir: "{{ EKS_LOCATION }}"
       tags:
         - test
-
 
       ##############################
       #########  Route 53  #########
