@@ -31,12 +31,17 @@
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
 
-      
+    - name: Delete Resources
+      # ignore_errors: yes
+      shell: |
+        kubectl delete -f ingress.yaml -f service.yaml -f deployment.yaml -f cloudwatch.yaml -f namespace.yaml
+      args:
+        chdir: "{{ EKS_LOCATION }}"
 
-    - name: Delete load balancer
-      ignore_errors: yes
-      shell: | 
-        kubectl delete ingress utopia-ingress -n kube-system
+    # - name: Delete load balancer
+    #   ignore_errors: yes
+    #   shell: | 
+    #     kubectl delete ingress utopia-ingress -n kube-system
 
 
     - name: Detach IAM Policy
