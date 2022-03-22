@@ -123,8 +123,8 @@
 
     - name: Set up CloudWatch Logs
       shell: |
-        kubectl apply -f namespace.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+        # kubectl apply -f namespace.yaml
+        # sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
         aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default
         # export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
         # echo $PodRole
@@ -140,8 +140,8 @@
         # --region "{{ REGION }}" \
         # --cluster "{{ CLUSTER_NAME }}" \
         # --approve
-      args:
-        chdir: "{{ EKS_LOCATION }}"
+      # args:
+      #   chdir: "{{ EKS_LOCATION }}"
       tags:
         - test
 
