@@ -32,3 +32,5 @@ services:
         awslogs-group: "ecs_wc"
         awslogs-region: ${AWS_REGION}
         awslogs-stream-prefix: "users"
+    firelens:
+      type: fluentbit
