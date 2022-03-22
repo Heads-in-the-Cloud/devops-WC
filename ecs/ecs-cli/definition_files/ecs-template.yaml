@@ -30,6 +30,8 @@ task_definition:
       essential: true
     log_router:
       essential: true
+      firelens_configuration:
+        type: fluentbit
 run_params:
   network_configuration:
     awsvpc_configuration:
