@@ -123,7 +123,9 @@
     - name: TEST
       shell: |
         aws --version
-        
+      tags:
+        - test
+
 
     - name: Set up CloudWatch Logs
       shell: |
@@ -144,8 +146,8 @@
         # --region "{{ REGION }}" \
         # --cluster "{{ CLUSTER_NAME }}" \
         # --approve
-      # args:
-      #   chdir: "{{ EKS_LOCATION }}"
+      args:
+        chdir: "{{ EKS_LOCATION }}"
       tags:
         - test
 
