@@ -19,7 +19,7 @@
 
 
     - name: Get ingress endpoint 
-      shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
 
     - name: Delete Route53
@@ -36,7 +36,7 @@
     - name: Delete load balancer
       ignore_errors: yes
       shell: | 
-        kubectl delete ingress utopia-ingress
+        kubectl delete ingress utopia-ingress -n kube-system
 
 
     - name: Detach IAM Policy
