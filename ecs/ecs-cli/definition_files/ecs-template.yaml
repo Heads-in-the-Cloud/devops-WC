@@ -1,3 +1,23 @@
+# version: 1
+# task_definition:
+#   task_execution_role: ecsTaskExecutionRole
+#   ecs_network_mode: awsvpc
+#   task_size:
+#     cpu_limit: $CPU_LIMIT
+#     mem_limit: $MEM_LIMIT
+#   services:
+#     $SERVICE:
+#       essential: true
+# run_params:
+#   network_configuration:
+#     awsvpc_configuration:
+#       subnets:
+#         - $SUBNET1
+#         - $SUBNET2
+#       security_groups:
+#         - $SECURITY_GROUP
+#       assign_public_ip: ENABLED
+
 version: 1
 task_definition:
   task_execution_role: ecsTaskExecutionRole
@@ -8,6 +28,12 @@ task_definition:
   services:
     $SERVICE:
       essential: true
+    log_router:
+      essential: true
+      firelensConfiguration:
+        type: fluentbit
+        options:
+          enable-ecs-log-metadata: true
 run_params:
   network_configuration:
     awsvpc_configuration:

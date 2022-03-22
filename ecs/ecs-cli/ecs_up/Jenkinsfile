@@ -321,23 +321,23 @@ pipeline {
                             env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
                             sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
 
-                            env.CPU_LIMIT       = "$CPU_FLIGHTS"
-                            env.MEM_LIMIT       = "$MEM_FLIGHTS"
-                            env.SERVICE         = "$FLIGHTS_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-                            sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
+                            // env.CPU_LIMIT       = "$CPU_FLIGHTS"
+                            // env.MEM_LIMIT       = "$MEM_FLIGHTS"
+                            // env.SERVICE         = "$FLIGHTS_CONTAINER"
+                            // env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
+                            // sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
                             
-                            env.CPU_LIMIT       = "$CPU_BOOKINGS"
-                            env.MEM_LIMIT       = "$MEM_BOOKINGS"
-                            env.SERVICE         = "$BOOKINGS_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-                            sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
+                            // env.CPU_LIMIT       = "$CPU_BOOKINGS"
+                            // env.MEM_LIMIT       = "$MEM_BOOKINGS"
+                            // env.SERVICE         = "$BOOKINGS_CONTAINER"
+                            // env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
+                            // sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
 
-                            env.CPU_LIMIT       = "$CPU_FRONTEND"
-                            env.MEM_LIMIT       =" $MEM_FRONTEND"
-                            env.SERVICE         = "$FRONTEND_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                            sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+                            // env.CPU_LIMIT       = "$CPU_FRONTEND"
+                            // env.MEM_LIMIT       =" $MEM_FRONTEND"
+                            // env.SERVICE         = "$FRONTEND_CONTAINER"
+                            // env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
+                            // sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
                         }
                         catch (err) {

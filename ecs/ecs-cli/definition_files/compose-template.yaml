@@ -1,12 +1,35 @@
+# version: '3'
+# services:
+#   $SERVICE
+#     image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:latest"
+#     ports:
+#       - "${PORT}:${PORT}"
+#     logging:
+#       driver: awslogs
+#       options:
+#         awslogs-group: ecs_wc
+#         awslogs-region: ${AWS_REGION}
+#         awslogs-stream-prefix: ${SERVICE}
+
 version: '3'
 services:
-  $SERVICE
-    image: "${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/${SERVICE}:latest"
+  users:
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:latest"
     ports:
       - "${PORT}:${PORT}"
     logging:
+      driver: awsfirelens
+      options:
+        Name: es
+        Host: elk-docker-compose.hitwc.link
+        Port: "5601"
+        Index: users
+  log_router:
+    image: "docker.io/amazon/aws-for-fluent-bit:latest"
+    logging:
       driver: awslogs
       options:
+        awslogs-create-group: es
         awslogs-group: ecs_wc
-        awslogs-region: ${AWS_REGION}
-        awslogs-stream-prefix: ${SERVICE}
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: users
