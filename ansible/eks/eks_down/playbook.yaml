@@ -32,7 +32,7 @@
         value: "{{ dns_hostname.stdout }}"
 
     - name: Delete Resources
-      # ignore_errors: yes
+      ignore_errors: yes
       shell: |
         kubectl delete -f ingress.yaml -f service.yaml -f deployment.yaml -f cloudwatch.yaml -f namespace.yaml
       args:
@@ -44,14 +44,14 @@
     #     kubectl delete ingress utopia-ingress -n kube-system
 
 
-    - name: Detach IAM Policy
-      shell: |
-          export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-          echo $PodRole
-          aws iam detach-role-policy \
-          --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
-          --role-name ${PodRole}
+    # - name: Detach IAM Policy
+    #   shell: |
+    #       export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+    #       echo $PodRole
+    #       aws iam detach-role-policy \
+    #       --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+    #       --role-name ${PodRole}
 
-    - name: Delete EKS cluster
-      shell: | 
-          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
+    # - name: Delete EKS cluster
+    #   shell: | 
+    #       eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"
