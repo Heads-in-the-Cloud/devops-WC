@@ -9,9 +9,9 @@
       ##### Update KubeConfig ####
       ############################
 
-    - name: Switch Context to Cluster
-      shell: |
-        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+    # - name: Switch Context to Cluster
+    #   shell: |
+    #     aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
       
       ##############################
       ##########  Delete  ##########
