@@ -20,7 +20,6 @@
         VPC_ID: "{{ vpc.vpcs[0].vpc_id }}"
 
 
-
       ##############################
       ######  Get Subnet IDs  ######
       ##############################
@@ -67,8 +66,8 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      # tags:
-      #   - test
+      tags:
+        - test
 
 
 
@@ -120,25 +119,17 @@
       args:
         chdir: "{{ EKS_LOCATION }}"
 
-    - name: TEST
-      shell: |
-        aws --version
-        which aws
-      tags:
-        - test
-
 
     - name: Set up CloudWatch Logs
       shell: |
-        # kubectl apply -f namespace.yaml
-        # sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-        aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default
-        # export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-        # echo $PodRole
+        kubectl apply -f namespace.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
+        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        echo $PodRole
 
-        # aws iam attach-role-policy \
-        #   --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
-        #   --role-name ${PodRole}
+        aws iam attach-role-policy \
+          --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+          --role-name ${PodRole}
 
         # curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
         # aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
