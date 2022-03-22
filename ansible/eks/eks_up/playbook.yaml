@@ -124,21 +124,19 @@
       tags:
         - test
 
-
-
-
     - name: Set up CloudWatch Logs
       shell: |
         kubectl apply -f namespace.yaml
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-        # curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
-        # aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+
         export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
         aws iam attach-role-policy \
           --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
           --role-name ${PodRole}
         echo $PodRole
 
+        # curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+        # aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
         # eksctl utils update-cluster-logging \
         # --enable-types all \
         # --region "{{ REGION }}" \
