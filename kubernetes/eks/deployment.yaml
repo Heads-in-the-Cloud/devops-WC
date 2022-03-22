@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flights-deployment
-  namespace: default
+  namespace: kube-system
   labels:
     app: flights-microservice
 spec:
@@ -61,7 +61,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bookings-deployment
-  namespace: default
+  namespace: kube-system
   labels:
     app: bookings-microservice
 spec:
@@ -120,7 +120,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: users-deployment
-  namespace: default
+  namespace: kube-system
   labels:
     app: users-microservice
 spec:
@@ -177,7 +177,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
-  namespace: default
+  namespace: kube-system
   labels:
     app: frontend-microservice
 spec:
