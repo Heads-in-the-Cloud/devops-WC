@@ -67,8 +67,8 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags:
-        - test
+      # tags:
+      #   - test
 
 
 
@@ -162,7 +162,7 @@
 
 
     - name: Get ingress endpoint 
-      shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
 
 
