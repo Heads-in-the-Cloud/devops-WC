@@ -26,7 +26,6 @@ pipeline {
                             ROUTE_53_TTL: "300"
                             AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
                             ''')
-                        echo $results
                     }
                 }
             }
