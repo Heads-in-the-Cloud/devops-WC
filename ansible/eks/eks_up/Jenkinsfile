@@ -20,6 +20,7 @@ pipeline {
                         results=ansibleTower(
                             towerServer: 'Tower 1',
                             jobTemplate: 'EKS-create-cluster',
+                            jobTags: 'test',
                             verbose: true,
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
