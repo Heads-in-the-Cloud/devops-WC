@@ -40,6 +40,8 @@ envsubst < "temp-docker-compose.yaml" > "docker-compose.yaml"
 # Remove temporary files
 rm temp-docker-compose.yaml
 
+cat docker-compose.yaml
+cat ecs-params.yaml
 
 
 #Docker-Compose Up with target-group 
