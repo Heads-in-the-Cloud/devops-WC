@@ -23,7 +23,7 @@ pipeline {
                             verbose: true,
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
-                            VPC_NAME: "WC-vpc"
+                            VPC_NAME: "WC-vpc-$ENVIRONMENT"
                             REGION: "$region"
                             DB_HOST: "$DB_HOST"
                             SECRET_KEY: "$SECRET_KEY"
