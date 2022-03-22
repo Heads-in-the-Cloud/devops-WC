@@ -28,7 +28,7 @@ services:
     logging:
       driver: awslogs
       options:
-        awslogs-create-group: es
+        awslogs-create-group: true
         awslogs-group: ecs_wc
         awslogs-region: us-west-2
         awslogs-stream-prefix: users
