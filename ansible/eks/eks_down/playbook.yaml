@@ -9,34 +9,34 @@
       ##### Update KubeConfig ####
       ############################
 
-    # - name: Switch Context to Cluster
-    #   shell: |
-    #     aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+    - name: Switch Context to Cluster
+      shell: |
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
       
-      ##############################
-      ##########  Delete  ##########
-      ##############################
+      #############################
+      #########  Delete  ##########
+      #############################
 
 
-    # - name: Get ingress endpoint 
-    #   shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-    #   register: dns_hostname
+    - name: Get ingress endpoint 
+      shell: kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: dns_hostname
 
-    # - name: Delete Route53
-    #   route53:
-    #     state: absent
-    #     hosted_zone_id: "{{ HOSTED_ZONE}}"
-    #     record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
-    #     ttl: "{{ ROUTE_53_TTL }}"
-    #     type: CNAME
-    #     value: "{{ dns_hostname.stdout }}"
+    - name: Delete Route53
+      route53:
+        state: absent
+        hosted_zone_id: "{{ HOSTED_ZONE}}"
+        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        ttl: "{{ ROUTE_53_TTL }}"
+        type: CNAME
+        value: "{{ dns_hostname.stdout }}"
 
       
 
-    # - name: Delete load balancer
-    #   ignore_errors: yes
-    #   shell: | 
-    #     kubectl delete ingress utopia-ingress
+    - name: Delete load balancer
+      ignore_errors: yes
+      shell: | 
+        kubectl delete ingress utopia-ingress
 
 
     - name: Detach IAM Policy
