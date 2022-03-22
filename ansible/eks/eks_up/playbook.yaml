@@ -125,9 +125,9 @@
       shell: |
         kubectl apply -f namespace.yaml
         sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-
-        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
-        echo $PodRole
+        aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default
+        # export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        # echo $PodRole
 
         # aws iam attach-role-policy \
         #   --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
