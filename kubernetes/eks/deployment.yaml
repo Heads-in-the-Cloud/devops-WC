@@ -29,6 +29,10 @@ spec:
       - name: flights-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
         env:
           - name: FLIGHTS_PORT
             value: "5000"
