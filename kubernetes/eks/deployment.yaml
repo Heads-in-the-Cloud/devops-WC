@@ -33,6 +33,8 @@ spec:
           httpGet:
             path: /health
             port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 30
         env:
           - name: FLIGHTS_PORT
             value: "5000"
