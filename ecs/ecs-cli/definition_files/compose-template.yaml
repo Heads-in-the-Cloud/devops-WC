@@ -20,7 +20,7 @@ services:
       driver: awsfirelens
       options:
         Name: es
-        Host: http://elk-docker-compose.hitwc.link
+        Host: "34.216.151.159"
         Port: "5000"
         Index: ${SERVICE}
   log_router:
