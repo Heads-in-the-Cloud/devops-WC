@@ -94,17 +94,10 @@
 
         kubectl create secret generic jwt-secret -n kube-system\
           --from-literal=secret_key="{{ SECRET_KEY }}"
-
-      ################################
-      ### kubectl create resources ###
-      ################################
-
-    - name: Create Kubernetes Resources
-      shell: |
-        kubectl apply -f service.yaml -f ingress.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
-      args:
-        chdir: "{{ EKS_LOCATION }}"
+          
+      ########################
+      #### Set Up Logging ####
+      ########################
 
     - name: Set up CloudWatch Logs
       shell: |
@@ -124,6 +117,17 @@
         # --region "{{ REGION }}" \
         # --cluster "{{ CLUSTER_NAME }}" \
         # --approve
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+
+      ################################
+      ### kubectl create resources ###
+      ################################
+
+    - name: Create Kubernetes Resources
+      shell: |
+        kubectl apply -f service.yaml -f ingress.yaml
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
 
