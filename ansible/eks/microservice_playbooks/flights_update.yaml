@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+    ########################
+    #### Switch Context ####
+    ########################
+
+    - name: Switch Context to Cluster
+      block:
+      - name: Try updating kubeconfig
+        shell: aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+        register: cluster_err
+      - name: Rollout Restart Deployment
+        shell: |
+          kubectl rollout restart deployments/flights-deployment -n kube-system
+      rescue:
+      - name: Catch cluster does not exist
+        set_stats:
+          data:
+            JENKINS_EXPORT:
+              - exception: "{{ cluster_err.stderr }}"
+
