@@ -21,7 +21,7 @@ services:
       options:
         Name: es
         Host: http://elk-docker-compose.hitwc.link
-        Port: "5601"
+        Port: "5000"
         Index: ${SERVICE}
   log_router:
     image: "docker.io/amazon/aws-for-fluent-bit:latest"
