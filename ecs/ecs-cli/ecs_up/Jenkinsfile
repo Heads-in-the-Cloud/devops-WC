@@ -312,11 +312,11 @@ pipeline {
                         try {                   
                             sh 'chmod +x ecs_up/up.sh'
 
-                            // env.CPU_LIMIT       = "$CPU_USERS"
-                            // env.MEM_LIMIT       = "$MEM_USERS"
-                            // env.SERVICE         = "$USERS_CONTAINER"
-                            // env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
-                            // sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
+                            env.CPU_LIMIT       = "$CPU_USERS"
+                            env.MEM_LIMIT       = "$MEM_USERS"
+                            env.SERVICE         = "$USERS_CONTAINER"
+                            env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
+                            sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
 
                             env.CPU_LIMIT       = "$CPU_FLIGHTS"
                             env.MEM_LIMIT       = "$MEM_FLIGHTS"
