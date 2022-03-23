@@ -59,6 +59,8 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags:
+        - test
 
       #####################################
       ##### Set up Ingress controller #####
@@ -94,7 +96,7 @@
 
         kubectl create secret generic jwt-secret -n kube-system\
           --from-literal=secret_key="{{ SECRET_KEY }}"
-          
+
       ########################
       #### Set Up Logging ####
       ########################
@@ -126,10 +128,20 @@
 
     - name: Create Kubernetes Resources
       shell: |
-        kubectl apply -f service.yaml -f ingress.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' deployment.yaml | kubectl apply -f -
+
+        sed -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' service.yaml | kubectl apply -f -
+
+        sed -e 's/$USERS_PREFIX/'"{{USERS_PREFIX}}"'/g' -e 's/$FLIGHTS_PREFIX/'"{{FLIGHTS_PREFIX}}"'/g' \
+        -e 's/$BOOKINGS_PREFIX/'"{{BOOKINGS_PREFIX}}"'/g' -e 's/$FRONTEND_PREFIX/'"{{FRONTEND_PREFIX}}"'/g' \
+        -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' ingress.yaml | kubectl apply -f -
+
+        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' -e 's/$AWS_ACCOUNT_ID/'"{{AWS_ACCOUNT_ID}}"'/g' \
+        -e 's/$RECORD_NAME/'"http:\/\/{{ ENVIRONMENT }}-{{RECORD_NAME}}"'/g' -e 's/$HEALTH_CHECK/'"{{HEALTH_CHECK}}"'/g' \
+        -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
+      tags:
+        - test
 
       ##############################
       #########  Route 53  #########

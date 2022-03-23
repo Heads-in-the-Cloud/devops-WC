@@ -31,13 +31,13 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /health
-            port: 5000
+            path: /$HEALTH_CHECK
+            port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
         env:
           - name: FLIGHTS_PORT
-            value: "5000"
+            value: "$CONTAINER_PORT"
           - name: DB_HOST
             valueFrom:
               secretKeyRef:
@@ -59,7 +59,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: 5000
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -94,6 +94,12 @@ spec:
       - name: bookings-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-bookings-api:latest
         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /$HEALTH_CHECK
+            port: $CONTAINER_PORT
+          initialDelaySeconds: 15
+          periodSeconds: 30
         env:
           - name: DB_HOST
             valueFrom:
@@ -116,9 +122,9 @@ spec:
                 key: secret_key
                 name: jwt-secret
           - name: BOOKINGS_PORT
-            value: "5000"
+            value: "$CONTAINER_PORT"
         ports:
-          - containerPort: 5000
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -153,6 +159,12 @@ spec:
       - name: users-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /$HEALTH_CHECK
+            port: $CONTAINER_PORT
+          initialDelaySeconds: 15
+          periodSeconds: 30
         env:
           - name: DB_HOST
             valueFrom:
@@ -175,7 +187,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: 5000
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -210,6 +222,12 @@ spec:
       - name: frontend-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-frontend:latest
         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /$HEALTH_CHECK
+            port: $CONTAINER_PORT
+          initialDelaySeconds: 15
+          periodSeconds: 30
         env:
           - name: DB_HOST
             valueFrom:
@@ -232,8 +250,8 @@ spec:
                 key: secret_key
                 name: jwt-secret
           - name: FRONTEND_PORT
-            value: "5000"
+            value: "$CONTAINER_PORT"
           - name: HOST_DOMAIN
             value: $RECORD_NAME
         ports:
-          - containerPort: 5000
+          - containerPort: $CONTAINER_PORT
