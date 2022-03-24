@@ -42,6 +42,9 @@ pipeline {
             }
         }
         stage('Docker Compose Down Flights'){
+            options {
+                timeout(time: 60, unit: 'SECONDS') 
+            }
             steps{
                 script {
                     dir("ecs/ecs-cli"){
@@ -58,6 +61,9 @@ pipeline {
             }
         }
         stage('Docker Compose Down Bookings'){
+            options {
+                timeout(time: 60, unit: 'SECONDS') 
+            }
             steps{
                 script {
                     dir("ecs/ecs-cli"){
