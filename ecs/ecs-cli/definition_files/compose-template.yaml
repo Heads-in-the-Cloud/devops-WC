@@ -17,6 +17,6 @@ services:
       driver: awslogs
       options:
         awslogs-create-group: "true"
-        awslogs-group: WC-ecs-logs-${ENVIRONMENT}
+        awslogs-group: ecs/wc-logs/${ENV}
         awslogs-region: ${AWS_REGION}
         awslogs-stream-prefix: ${SERVICE}
