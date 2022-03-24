@@ -39,18 +39,18 @@ envsubst < "${1}-temp-docker-compose.yaml" > "${1}-docker-compose.yaml"
 # Remove temporary files
 rm ${1}-temp-docker-compose.yaml
 
-cat "${1}"-docker-compose.yaml
-cat "${1}"-ecs-params.yaml
+cat "${1}-docker-compose.yaml"
+cat "${1}-ecs-params.yaml"
 
 
 #Docker-Compose Up with target-group 
-ecs-cli compose --file ${1}-docker-compose.yaml --project-name ${1} \
---ecs-params ${1}-ecs-params.yaml service up \
+ecs-cli compose --file "${1}-docker-compose.yaml" --project-name ${1} \
+--ecs-params "${1}-ecs-params.yaml" service up \
 --force-deployment \
 --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
 
 #Scale the service to the desired count
-ecs-cli compose --project-name ${1} --file ${1}-docker-compose.yaml service scale ${DESIRED_COUNT}
+ecs-cli compose --project-name ${1} --file "${1}-docker-compose.yaml" service scale ${DESIRED_COUNT}
 
 rm ecs-params.yaml
 rm docker-compose.yaml
