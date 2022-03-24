@@ -7,6 +7,8 @@ metadata:
     app: users-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $USERS_PREFIX
+    alb.ingress.kubernetes.io/successCodes: "200"
 spec:
   selector:
     app: users-microservice
@@ -26,6 +28,8 @@ metadata:
     app: flights-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $FLIGHTS_PREFIX
+    alb.ingress.kubernetes.io/successCodes: "200"
 spec:
   selector:
     app: flights-microservice
@@ -45,6 +49,8 @@ metadata:
     app: bookings-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $BOOKINGS_PREFIX
+    alb.ingress.kubernetes.io/successCodes: "200"
 spec:
   selector:
     app: bookings-microservice
@@ -64,6 +70,8 @@ metadata:
     app: frontend-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $FRONTEND_PREFIX
+    alb.ingress.kubernetes.io/successCodes: "200"
 spec:
   selector:
     app: frontend-microservice
