@@ -5,7 +5,7 @@ services:
     ports:
       - "${PORT}:${PORT}"
     logging:
-      driver: awslogs
+      driver: awsfirelens
       options:
         Name: es
         Host: "elk-docker-compose.hitwc.link"
