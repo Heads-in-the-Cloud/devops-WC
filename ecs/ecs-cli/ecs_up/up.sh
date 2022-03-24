@@ -52,5 +52,5 @@ ecs-cli compose --file "${1}-docker-compose.yaml" --project-name ${1} \
 #Scale the service to the desired count
 ecs-cli compose --project-name ${1} --file "${1}-docker-compose.yaml" service scale ${DESIRED_COUNT}
 
-rm ecs-params.yaml
-rm docker-compose.yaml
+rm "${1}-ecs-params.yaml"
+rm "${1}-docker-compose.yaml"
