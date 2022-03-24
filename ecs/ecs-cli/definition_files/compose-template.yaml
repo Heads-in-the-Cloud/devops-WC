@@ -1,15 +1,3 @@
-# version: '3'
-# services:
-#     image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:latest"
-#     ports:
-#       - "${PORT}:${PORT}"
-#     logging:
-#       driver: awslogs
-#       options:
-#         awslogs-group: ecs_wc
-#         awslogs-region: ${AWS_REGION}
-#         awslogs-stream-prefix: ${SERVICE}
-
 version: '3'
 services:
   $SERVICE
@@ -23,12 +11,12 @@ services:
         Host: "elk-docker-compose.hitwc.link"
         Port: "5000"
         Index: ${SERVICE}
-  log_router:
-    image: "docker.io/amazon/aws-for-fluent-bit:latest"
-    logging:
-      driver: awslogs
-      options:
-        awslogs-create-group: "true"
-        awslogs-group: "ecs_wc"
-        awslogs-region: ${AWS_REGION}
-        awslogs-stream-prefix: ${SERVICE}
+  # log_router:
+  #   image: "docker.io/amazon/aws-for-fluent-bit:latest"
+  #   logging:
+  #     driver: awslogs
+  #     options:
+  #       awslogs-create-group: "true"
+  #       awslogs-group: "ecs_wc"
+  #       awslogs-region: ${AWS_REGION}
+  #       awslogs-stream-prefix: ${SERVICE}
