@@ -8,7 +8,7 @@ services:
       driver: awsfirelens
       options:
         Name: es
-        Host: "elk-docker-compose.hitwc.link"
+        Host: "${ELK_URL}"
         Port: "${PORT}"
         Index: ${SERVICE}
   log_router:
@@ -17,6 +17,6 @@ services:
       driver: awslogs
       options:
         awslogs-create-group: "true"
-        awslogs-group: WC-ecs-logs
+        awslogs-group: WC-ecs-logs-${ENVIRONMENT}
         awslogs-region: ${AWS_REGION}
         awslogs-stream-prefix: ${SERVICE}
