@@ -20,18 +20,33 @@ pipeline {
                 }
             }
         }
-        stage('Docker Compose Down Users'){
-            options {
-                timeout(time: 60, unit: 'SECONDS') 
+        parallel {
+            stage('Docker Compose Down Users'){
+                steps{
+                    catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+                        script {
+                            dir("ecs/ecs-cli"){
+
+                                sh 'chmod +x ecs_down/down.sh'
+                                try {
+                                    sh "./ecs_down/down.sh $USERS_SERVICE"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            steps{
-                catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {
+            stage('Docker Compose Down Flights'){
+                steps{
                     script {
                         dir("ecs/ecs-cli"){
 
                             sh 'chmod +x ecs_down/down.sh'
                             try {
-                                sh "./ecs_down/down.sh $USERS_SERVICE"
+                                sh "./ecs_down/down.sh $FLIGHTS_SERVICE"
                             }
                             catch (err) {
                                 echo err.getMessage()
@@ -40,56 +55,34 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('Docker Compose Down Flights'){
-            options {
-                timeout(time: 60, unit: 'SECONDS') 
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
+            stage('Docker Compose Down Bookings'){
+                steps{
+                    script {
+                        dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x ecs_down/down.sh'
-                        try {
-                            sh "./ecs_down/down.sh $FLIGHTS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
+                            sh 'chmod +x ecs_down/down.sh'
+                            try {
+                                sh "./ecs_down/down.sh $BOOKINGS_SERVICE"
+                            }
+                            catch (err) {
+                                echo err.getMessage()
+                            }
                         }
                     }
                 }
             }
-        }
-        stage('Docker Compose Down Bookings'){
-            options {
-                timeout(time: 60, unit: 'SECONDS') 
-            }
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
+            stage('Docker Compose Down Frontend'){
+                steps{
+                    script {
+                        dir("ecs/ecs-cli"){
 
-                        sh 'chmod +x ecs_down/down.sh'
-                        try {
-                            sh "./ecs_down/down.sh $BOOKINGS_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Compose Down Frontend'){
-            steps{
-                script {
-                    dir("ecs/ecs-cli"){
-
-                        sh 'chmod +x ecs_down/down.sh'
-                        try {
-                            sh "./ecs_down/down.sh $FRONTEND_SERVICE"
-                        }
-                        catch (err) {
-                            echo err.getMessage()
+                            sh 'chmod +x ecs_down/down.sh'
+                            try {
+                                sh "./ecs_down/down.sh $FRONTEND_SERVICE"
+                            }
+                            catch (err) {
+                                echo err.getMessage()
+                            }
                         }
                     }
                 }
