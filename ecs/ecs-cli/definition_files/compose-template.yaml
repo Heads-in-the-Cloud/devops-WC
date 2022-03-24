@@ -11,7 +11,6 @@ services:
         # Host: "elk-docker-compose.hitwc.link"
         # Port: "5000"
         # Index: ${SERVICE}
-        awslogs-create-group: "true"
         awslogs-group: "ecs_wc"
         awslogs-region: ${AWS_REGION}
         awslogs-stream-prefix: ${SERVICE}
