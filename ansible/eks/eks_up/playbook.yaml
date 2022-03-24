@@ -126,7 +126,9 @@
 
     - name: Create Kubernetes Resources
       shell: |
-        sed -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' service.yaml | kubectl apply -f -
+        sed -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' -e 's/$USERS_PREFIX/'"{{USERS_PREFIX}}\/*"'/g' \
+        -e 's/$FLIGHTS_PREFIX/'"{{FLIGHTS_PREFIX}}\/*"'/g' -e 's/$BOOKINGS_PREFIX/'"{{BOOKINGS_PREFIX}}\/*"'/g' \
+        -e 's/$FRONTEND_PREFIX/'"{{FRONTEND_PREFIX}}\/*"'/g' service.yaml | kubectl apply -f -
 
         sed -e 's/$USERS_PREFIX/'"{{USERS_PREFIX}}\/*"'/g' -e 's/$FLIGHTS_PREFIX/'"\/{{FLIGHTS_PREFIX}}\/*"'/g' \
         -e 's/$BOOKINGS_PREFIX/'"\/{{BOOKINGS_PREFIX}}\/*"'/g' -e 's/$FRONTEND_PREFIX/'"\/{{FRONTEND_PREFIX}}\/*"'/g' \
