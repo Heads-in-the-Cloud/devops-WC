@@ -7,7 +7,7 @@ services:
     logging:
       driver: awslogs
       options:
-        Name: es
+        # Name: es
         # Host: "elk-docker-compose.hitwc.link"
         # Port: "5000"
         # Index: ${SERVICE}
