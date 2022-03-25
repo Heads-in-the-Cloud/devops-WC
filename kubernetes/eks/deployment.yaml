@@ -29,10 +29,6 @@ spec:
       - name: flights-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-flights-api:latest
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: $HEALTH_CHECK
-            port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
         env:
@@ -94,10 +90,6 @@ spec:
       - name: bookings-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-bookings-api:latest
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: $HEALTH_CHECK
-            port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
         env:
@@ -159,10 +151,6 @@ spec:
       - name: users-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-users-api:latest
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: $HEALTH_CHECK
-            port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
         env:
@@ -222,10 +210,6 @@ spec:
       - name: frontend-microservice
         image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/wc-frontend:latest
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: $HEALTH_CHECK
-            port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
         env:

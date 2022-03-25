@@ -22,7 +22,7 @@ pipeline {
                             REGION: "$region"
                             EKS_LOCATION: "../../../kubernetes/eks"
                             CLUSTER_NAME: "$CLUSTER_NAME_WC"
-                            RECORD_NAME: "wc-eks-utopia.hitwc.link"
+                            RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"
                             HOSTED_ZONE: "$HOSTED_ZONE"
                             ROUTE_53_TTL: "300"
                             AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"

@@ -21,7 +21,6 @@ pipeline {
                             towerServer: 'Tower 1',
                             jobTemplate: 'EKS-create-cluster',
                             verbose: true,
-                            jobTags: 'test',
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
                             VPC_NAME: "WC-vpc-$ENVIRONMENT"
@@ -32,7 +31,7 @@ pipeline {
                             DB_USER_PASSWORD: "$DB_USER_PASSWORD"
                             CLUSTER_NAME: "$CLUSTER_NAME_WC"
                             AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
-                            RECORD_NAME: "http://$ENVIRONMENT-wc-eks-utopia.hitwc.link"
+                            RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"
                             HOSTED_ZONE: "$HOSTED_ZONE"
                             EKS_LOCATION: "../../../kubernetes/eks"
                             HEALTH_CHECK: "health"
