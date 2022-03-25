@@ -59,7 +59,8 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-
+      tags:
+        - test
       #####################################
       ##### Set up Ingress controller #####
       #####################################
@@ -134,6 +135,8 @@
         deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
+      tags:
+        - test
 
       ##############################
       #########  Route 53  #########
