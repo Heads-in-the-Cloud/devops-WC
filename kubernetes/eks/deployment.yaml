@@ -53,7 +53,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: "$CONTAINER_PORT"
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -112,7 +112,7 @@ spec:
           - name: BOOKINGS_PORT
             value: "$CONTAINER_PORT"
         ports:
-          - containerPort: "$CONTAINER_PORT"
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -169,7 +169,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: "$CONTAINER_PORT"
+          - containerPort: $CONTAINER_PORT
 
 ---
 
@@ -210,4 +210,4 @@ spec:
           - name: HOST_DOMAIN
             value: $RECORD_NAME
         ports:
-          - containerPort: "$CONTAINER_PORT"
+          - containerPort: $CONTAINER_PORT
