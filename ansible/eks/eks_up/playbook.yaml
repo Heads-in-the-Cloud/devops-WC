@@ -59,6 +59,8 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+      tags:
+        -  test
 
       #####################################
       ##### Set up Ingress controller #####
@@ -110,13 +112,6 @@
           --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
           --role-name ${PodRole}
 
-        # curl -o permissions.json https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
-        # aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
-        # eksctl utils update-cluster-logging \
-        # --enable-types all \
-        # --region "{{ REGION }}" \
-        # --cluster "{{ CLUSTER_NAME }}" \
-        # --approve
       args:
         chdir: "{{ EKS_LOCATION }}"
 
@@ -139,6 +134,8 @@
         -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
+      tags:
+        -  test
 
       ##############################
       #########  Route 53  #########

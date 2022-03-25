@@ -21,6 +21,7 @@ pipeline {
                             towerServer: 'Tower 1',
                             jobTemplate: 'EKS-create-cluster',
                             verbose: true,
+                            jobTags: 'test',
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
                             VPC_NAME: "WC-vpc-$ENVIRONMENT"
