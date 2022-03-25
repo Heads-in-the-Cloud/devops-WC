@@ -229,26 +229,6 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 30
         env:
-          - name: DB_HOST
-            valueFrom:
-              secretKeyRef:
-                key: db_host
-                name: db-info
-          - name: DB_USER
-            valueFrom:
-              secretKeyRef:
-                key: db_user
-                name: db-info
-          - name: DB_USER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: db_user_password
-                name: db-info
-          - name: SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                key: secret_key
-                name: jwt-secret
           - name: FRONTEND_PORT
             value: "$CONTAINER_PORT"
           - name: HOST_DOMAIN
