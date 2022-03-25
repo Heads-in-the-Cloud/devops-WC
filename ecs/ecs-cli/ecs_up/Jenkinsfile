@@ -140,7 +140,7 @@ pipeline {
                 script {
                     env.cluster=sh ( script: "aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
                     if ("${cluster}" == "INACTIVE"){
-                        sh "echo 'Skipping update of services. ECS cluster is not up currently'"
+                        sh "echo 'ECS cluster is not up currently. Creating the cluster and cf stack now.'"
                         env.PARAM_ACTION='create'
                     }
                 }
