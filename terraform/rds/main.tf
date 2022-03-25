@@ -1,13 +1,23 @@
 
+
 data "aws_secretsmanager_secret" "secrets" {
   name                            = var.ssm_path
 }
 
+
+locals {
+  secrets = jsondecode(
+    data.aws_secretsmanager_secret_version.secrets.secret_string
+  )
+}
+
+#local.secrets.subnet_id_1
 resource "random_password" "db_password" {
   length           = 16
   special          = true
   override_special = "_%@"
 }
+
 
 resource "random_password" "secret_key" {
   length           = 16
