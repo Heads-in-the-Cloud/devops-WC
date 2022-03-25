@@ -125,9 +125,13 @@
         -e 's#$FLIGHTS_HEALTH#'"{{FLIGHTS_HEALTH}}"'#g' -e 's#$BOOKINGS_HEALTH#'"{{BOOKINGS_HEALTH}}"'#g' \
         -e 's#$FRONTEND_HEALTH#'"{{FRONTEND_HEALTH}}"'#g' service.yaml | kubectl apply -f -
 
-        sed -e 's#$USERS_PREFIX#'"{{USERS_PREFIX}}"'#g' -e 's#$FLIGHTS_PREFIX#'"{{FLIGHTS_PREFIX}}"'#g' \
-        -e 's#$BOOKINGS_PREFIX#'"{{BOOKINGS_PREFIX}}"'#g' -e 's#$FRONTEND_PREFIX#'"{{FRONTEND_PREFIX}}"'#g' \
-        -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' ingress.yaml | kubectl apply -f -
+        # sed -e 's#$USERS_PREFIX#'"{{USERS_PREFIX}}"'#g' -e 's#$FLIGHTS_PREFIX#'"{{FLIGHTS_PREFIX}}"'#g' \
+        # -e 's#$BOOKINGS_PREFIX#'"{{BOOKINGS_PREFIX}}"'#g' -e 's#$FRONTEND_PREFIX#'"{{FRONTEND_PREFIX}}"'#g' \
+        # -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' ingress.yaml | kubectl apply -f -
+
+        sed -e 's/$USERS_PREFIX/'"{{USERS_PREFIX}}\/*"'/g' -e 's/$FLIGHTS_PREFIX/'"\/{{FLIGHTS_PREFIX}}\/*"'/g' \
+        -e 's/$BOOKINGS_PREFIX/'"\/{{BOOKINGS_PREFIX}}\/*"'/g' -e 's/$FRONTEND_PREFIX/'"\/{{FRONTEND_PREFIX}}\/*"'/g' \
+        -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' ingress.yaml | kubectl apply -f -
 
         sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$AWS_ACCOUNT_ID#'"{{AWS_ACCOUNT_ID}}"'#g' \
         -e 's#$RECORD_NAME#'"{{ ENVIRONMENT }}-{{RECORD_NAME}}"'#g' -e 's#$HEALTH_CHECK#'"{{HEALTH_CHECK}}"'#g' \
