@@ -136,7 +136,7 @@
         -e 's/$CONTAINER_PORT/'"{{CONTAINER_PORT}}"'/g' ingress.yaml | kubectl apply -f -
 
         sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$AWS_ACCOUNT_ID#'"{{AWS_ACCOUNT_ID}}"'#g' \
-        -e 's#$RECORD_NAME#'"{{ ENVIRONMENT }}-{{RECORD_NAME}}"'#g' -e 's#$HEALTH_CHECK#'"{{HEALTH_CHECK}}"'#g' \
+        -e 's#$RECORD_NAME#'"{{RECORD_NAME}}"'#g' -e 's#$HEALTH_CHECK#'"{{HEALTH_CHECK}}"'#g' \
         -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
