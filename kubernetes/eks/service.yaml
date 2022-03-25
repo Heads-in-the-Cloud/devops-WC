@@ -29,8 +29,8 @@ metadata:
     app: flights-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/healthcheck-path: "airline/read/airport"
-    alb.ingress.kubernetes.io/healthcheck-port: '5000'
+    alb.ingress.kubernetes.io/healthcheck-path: "/airline/read/airport"
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
     # alb.ingress.kubernetes.io/successCodes: "200"
     # alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
 spec:
@@ -39,7 +39,6 @@ spec:
   ports:
     - protocol: TCP
       port: $CONTAINER_PORT
-      targetPort: 5000
       name: http
 
 ---
