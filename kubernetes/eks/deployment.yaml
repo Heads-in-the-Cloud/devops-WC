@@ -216,6 +216,6 @@ spec:
           - name: FRONTEND_PORT
             value: "$CONTAINER_PORT"
           - name: HOST_DOMAIN
-            value: $RECORD_NAME
+            value: "$RECORD_NAME"
         ports:
           - containerPort: $CONTAINER_PORT
