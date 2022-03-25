@@ -20,7 +20,6 @@ pipeline {
                         results=ansibleTower(
                             towerServer: 'Tower 1',
                             jobTemplate: 'EKS-create-cluster',
-                            jobTags: 'test',
                             verbose: true,
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
@@ -32,10 +31,20 @@ pipeline {
                             DB_USER_PASSWORD: "$DB_USER_PASSWORD"
                             CLUSTER_NAME: "$CLUSTER_NAME_WC"
                             AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
-                            RECORD_NAME: "wc-eks-utopia.hitwc.link"
+                            RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"
                             HOSTED_ZONE: "$HOSTED_ZONE"
                             EKS_LOCATION: "../../../kubernetes/eks"
+                            HEALTH_CHECK: "health"
+                            CONTAINER_PORT: "5000"
                             ROUTE_53_TTL: "300"
+                            USERS_PREFIX: ""
+                            FLIGHTS_PREFIX: "airline"
+                            BOOKINGS_PREFIX: "booking"
+                            FRONTEND_PREFIX: "lms"
+                            USERS_HEALTH: "/health"
+                            BOOKINGS_HEALTH: "/booking/health"
+                            FLIGHTS_HEALTH: "/airline/read/airport"
+                            FRONTEND_HEALTH: "/lms/health"
                             USERS_NUM_POD: "1"
                             FLIGHTS_NUM_POD: "1"
                             BOOKINGS_NUM_POD: "1"

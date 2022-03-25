@@ -12,31 +12,31 @@ spec:
   rules:
   - http:
       paths:
-        - path: /airline/*
+        - path: $FLIGHTS_PREFIX
           pathType: Prefix
           backend:
             service:
               name: flights-service
               port:
-                number: 5000
-        - path: /booking/*
+                number: $CONTAINER_PORT
+        - path: $BOOKINGS_PREFIX
           pathType: Prefix
           backend:
             service:
               name: bookings-service
               port:
-                number: 5000
-        - path: /lms/*
+                number: $CONTAINER_PORT
+        - path: $FRONTEND_PREFIX
           pathType: Prefix
           backend:
             service:
               name: frontend-service
               port:
-                number: 5000
-        - path: /*
+                number: $CONTAINER_PORT
+        - path: $USERS_PREFIX
           pathType: Prefix
           backend:
             service:
               name: users-service
               port:
-                number: 5000
+                number: $CONTAINER_PORT

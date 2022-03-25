@@ -15,7 +15,7 @@
         register: cluster_err
       - name: Rollout Restart Deployment
         shell: |
-          kubectl rollout restart deployments/users-deployment -n kube-system
+          kubectl rollout restart deployments/frontend-deployment -n kube-system
       rescue:
       - name: Catch cluster does not exist
         set_stats:
