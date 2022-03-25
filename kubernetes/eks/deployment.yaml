@@ -31,7 +31,7 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /$HEALTH_CHECK
+            path: $HEALTH_CHECK
             port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
@@ -96,7 +96,7 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /$HEALTH_CHECK
+            path: $HEALTH_CHECK
             port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
@@ -161,7 +161,7 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /$HEALTH_CHECK
+            path: $HEALTH_CHECK
             port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
@@ -224,7 +224,7 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
-            path: /$HEALTH_CHECK
+            path: $HEALTH_CHECK
             port: $CONTAINER_PORT
           initialDelaySeconds: 15
           periodSeconds: 30
