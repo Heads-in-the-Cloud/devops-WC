@@ -31,7 +31,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: FLIGHTS_PORT
-            value: $CONTAINER_PORT
+            value: "$CONTAINER_PORT"
           - name: DB_HOST
             valueFrom:
               secretKeyRef:
@@ -53,7 +53,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: $CONTAINER_PORT
+          - containerPort: "$CONTAINER_PORT"
 
 ---
 
@@ -110,9 +110,9 @@ spec:
                 key: secret_key
                 name: jwt-secret
           - name: BOOKINGS_PORT
-            value: $CONTAINER_PORT
+            value: "$CONTAINER_PORT"
         ports:
-          - containerPort: $CONTAINER_PORT
+          - containerPort: "$CONTAINER_PORT"
 
 ---
 
@@ -169,7 +169,7 @@ spec:
                 key: secret_key
                 name: jwt-secret
         ports:
-          - containerPort: $CONTAINER_PORT
+          - containerPort: "$CONTAINER_PORT"
 
 ---
 
@@ -206,8 +206,8 @@ spec:
         imagePullPolicy: Always
         env:
           - name: FRONTEND_PORT
-            value: $CONTAINER_PORT
+            value: "$CONTAINER_PORT"
           - name: HOST_DOMAIN
             value: $RECORD_NAME
         ports:
-          - containerPort: $CONTAINER_PORT
+          - containerPort: "$CONTAINER_PORT"
