@@ -134,7 +134,7 @@
         -e 's#$RECORD_NAME#'"http://{{RECORD_NAME}}"'#g' -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' \
         deployment.yaml
 
-        
+
         sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$AWS_ACCOUNT_ID#'"{{AWS_ACCOUNT_ID}}"'#g' \
         -e 's#$RECORD_NAME#'"http://{{RECORD_NAME}}"'#g' -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' \
         deployment.yaml | kubectl apply -f -
@@ -154,6 +154,8 @@
     - name: Get ingress endpoint 
       shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
+      tags:
+        - test
 
     - name: Set up Route53
       route53:
@@ -163,6 +165,8 @@
         ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
+      tags:
+        - test
 
 
 
