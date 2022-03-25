@@ -39,6 +39,7 @@ spec:
   ports:
     - protocol: TCP
       port: $CONTAINER_PORT
+      targetPort: '80'
       name: http
 
 ---
