@@ -59,8 +59,7 @@
     - name: Switch Context to Cluster
       shell: |
         aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
-      tags:
-        - test
+
       #####################################
       ##### Set up Ingress controller #####
       #####################################
@@ -140,8 +139,7 @@
         deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
-      tags:
-        - test
+
 
       ##############################
       #########  Route 53  #########
@@ -154,19 +152,17 @@
     - name: Get ingress endpoint 
       shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
-      tags:
-        - test
+
 
     - name: Set up Route53
       route53:
         state: present
         hosted_zone_id: "{{ HOSTED_ZONE}}"
-        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        record: "{{ RECORD_NAME }}"
         ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
-      tags:
-        - test
+
 
 
 
