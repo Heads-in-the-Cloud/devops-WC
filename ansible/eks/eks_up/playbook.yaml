@@ -133,10 +133,6 @@
         -e 's#$RECORD_NAME#'"http://{{RECORD_NAME}}"'#g' -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' \
         deployment.yaml
 
-
-        sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$AWS_ACCOUNT_ID#'"{{AWS_ACCOUNT_ID}}"'#g' \
-        -e 's#$RECORD_NAME#'"http://{{RECORD_NAME}}"'#g' -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' \
-        deployment.yaml | kubectl apply -f -
       args:
         chdir: "{{ EKS_LOCATION }}"
 
