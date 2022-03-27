@@ -187,9 +187,6 @@ pipeline {
             }
         }
         stage('Get Cloudformation Stack Resource IDs'){
-            when { 
-                environment name: 'PARAM_ACTION', value: 'create'
-            }
             steps{
                 script{
                     env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
