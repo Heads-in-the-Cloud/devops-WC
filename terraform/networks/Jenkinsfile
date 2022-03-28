@@ -5,34 +5,33 @@ pipeline {
     stages {
         stage('Setup parameters') {
             steps {
-                    script {
-                    properties([
-                                [$class: 'ChoiceParameter', 
-                                    choiceType: 'PT_SINGLE_SELECT', 
-                                    description: 'Select the action', 
-                                    filterLength: 1, 
-                                    filterable: false, 
-                                    name: 'action', 
-                                    script: [
-                                        $class: 'GroovyScript', 
-                                        fallbackScript: [
-                                            classpath: [], 
-                                            sandbox: false, 
-                                            script: 
-                                                "return['Could not load actions']"
-                                        ], 
-                                        script: [
-                                            classpath: [], 
-                                            sandbox: false, 
-                                            script: 
-                                                "return['apply','destroy']"
-                                        ]
-                                    ]
+                script {
+                    properties(
+                        [$class: 'ChoiceParameter', 
+                            choiceType: 'PT_SINGLE_SELECT', 
+                            description: 'Select the action', 
+                            filterLength: 1, 
+                            filterable: false, 
+                            name: 'action', 
+                            script: [
+                                $class: 'GroovyScript', 
+                                fallbackScript: [
+                                    classpath: [], 
+                                    sandbox: false, 
+                                    script: 
+                                        "return['Could not load actions']"
+                                ], 
+                                script: [
+                                    classpath: [], 
+                                    sandbox: false, 
+                                    script: 
+                                        "return['apply','destroy']"
                                 ]
-                            ])
-                        ])
-                    }
+                            ]
+                        ]
+                    ])
                 }
+            }
         }
         stage('Set up environment'){
             steps{
