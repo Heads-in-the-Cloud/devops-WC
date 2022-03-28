@@ -44,7 +44,7 @@ resource "aws_db_instance" "rds" {
   password             = random_password.db_password.result
   skip_final_snapshot  = true
   identifier           = var.db_identifier
-  db_subnet_group_name = var.subnet_group_id
+  db_subnet_group_name = local.secrets.private_subnet_group_id
   vpc_security_group_ids = [ aws_security_group.db_sg.id ]
 
 }
@@ -79,7 +79,7 @@ resource "aws_security_group_rule" "egress_rules" {
 resource "aws_security_group" "db_sg" {
   name        = "db_sg_WC_${var.environment}"
   description = "Security group for rds instance"
-  vpc_id      = var.vpc_id
+  vpc_id      = local.secrets.vpc_id
 
   tags = {
     Name = "db_sg_WC_${var.environment}"
@@ -107,7 +107,7 @@ resource "aws_instance" "bastion_host" {
   instance_type             = var.instance_type
   key_name                  = var.key_name
   vpc_security_group_ids    = [ aws_security_group.ec2_sg.id ]
-  subnet_id                 = var.public_subnet_id
+  subnet_id                 = local.secret.public_subnet_id
   iam_instance_profile      = aws_iam_instance_profile.bastion_host_profile.name
   user_data                 = templatefile("${path.root}/mysql_starter_script.sh", {
     RDS_MYSQL_ENDPOINT      = aws_db_instance.rds.address
@@ -151,7 +151,7 @@ resource "aws_security_group_rule" "ec2_egress_rules" {
 resource "aws_security_group" "ec2_sg" {
   name        = "ssh_sg_WC"
   description = "Allow all SSH from any IPv4"
-  vpc_id      = var.vpc_id
+  vpc_id      = local.secrets.vpc_id
 
   tags = {
     Name = "ssh_sg_${var.environment}"

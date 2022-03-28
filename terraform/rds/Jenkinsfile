@@ -57,7 +57,7 @@ pipeline {
         stage('Terraform init') {
 
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/rds") {
                     sh 'terraform init'
                 }
             }
@@ -65,14 +65,14 @@ pipeline {
         stage('Terraform plan') {
 
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/rds") {
                     sh 'terraform plan'                
                     }
             }
         }
         stage('Terraform action') {
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/rds") {
                     sh "terraform ${params.action} -auto-approve"
                 }
             } 
