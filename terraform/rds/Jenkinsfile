@@ -3,24 +3,54 @@ pipeline {
     agent any
 
     stages {
+        stage('Setup parameters') {
+            steps {
+                    script {
+                    properties([
+                            parameters([
+                                [$class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the action', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'action', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load actions']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['apply','destroy']"
+                                        ]
+                                    ]
+                                ]
+                            ])
+                        ])
+                    }
+                }
+        }
         stage('Set up environment'){
             steps{
                 script{
-                    env.ENVIRONMENT=params.environment
-                    env.TF_VAR_environment="${ENVIRONMENT}"
-                    env.TF_VAR_region="${REGION_WC}"
-                    env.TF_VAR_cluster_name="${CLUSTER_NAME_WC}"
-                    env.TF_VAR_vpc_name="${WC_vpc_name}"
-                    env.TF_VAR_db_driver="mysql"
-                    env.TF_VAR_peering_vpc_name = "Jenkins-VPC"
-                    env.TF_VAR_aws_account_id = "${ORG_ACCOUNT_NUM}"
-
-                    env.TF_VAR_ssm_path="${WC_SECRETS_PATH_DEV}"
-                    env.TF_VAR_key_name="GroupKey"
-                    env.TF_VAR_users_repo="${USER_REPO_WC}"
-                    env.TF_VAR_flights_repo="${FLIGHT_REPO_WC}"
-                    env.TF_VAR_bookings_repo="${BOOKING_REPO_WC}"
-                    env.TF_VAR_frontend_repo="${FRONTEND_REPO_WC}"
+                    env.TF_VAR_db_engine            ="mysql"
+                    env.TF_VAR_environment          ="dev"
+                    env.TF_VAR_region               ="${REGION_WC}"
+                    env.TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
+                    env.TF_VAR_vpc_name             ="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name     = "${JENKINS_VPC}"
+                    env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
+                    env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
+                    env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+                    env.TF_VAR_users_repo           ="${USER_REPO_WC}"
+                    env.TF_VAR_flights_repo         ="${FLIGHT_REPO_WC}"
+                    env.TF_VAR_bookings_repo        ="${BOOKING_REPO_WC}"
+                    env.TF_VAR_frontend_repo        ="${FRONTEND_REPO_WC}"
                 }
             }
         }
@@ -43,7 +73,7 @@ pipeline {
         stage('Terraform action') {
             steps {
                 dir("terraform/terraform_v2") {
-                    sh "terraform ${action} -auto-approve"
+                    sh "terraform ${params.action} -auto-approve"
                 }
             } 
         }
