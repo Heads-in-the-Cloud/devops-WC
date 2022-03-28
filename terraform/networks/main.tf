@@ -18,6 +18,17 @@ data "aws_route_table" "peering_vpc_rt" {
     }
 }
 
+data "aws_secretsmanager_secret" "secrets" {
+  name                            = var.ssm_path
+}
+
+
+resource "aws_secretsmanager_secret_version" "secret_string" {
+  secret_id     = data.aws_secretsmanager_secret.secrets.id
+  secret_string = jsonencode(merge({"private_subnet_group_id" = aws_db_subnet_group.private-subnet-group.id},
+                                   {"vpc_id"                  = aws_vpc.my_vpc},
+                                   {"public_subnet_id"        = aws_subnet.public_1.id}))
+}
 
 resource "aws_vpc" "my_vpc" {
   cidr_block            = var.vpc_cidr_block
