@@ -4,6 +4,9 @@ data "aws_secretsmanager_secret" "secrets" {
   name                            = var.ssm_path
 }
 
+locals {
+  database_ingress_port = var.db_driver == "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}"
+}
 
 variable "rds_ingress" {
     type = list(object({
@@ -24,8 +27,8 @@ variable "rds_ingress" {
                           },
                           {
                             description      = "Allow connection to MYSQL",
-                            from_port        = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
-                            to_port          = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
+                            from_port        = local.database_ingress_port,
+                            to_port          = local.database_ingress_port,
                             protocol         = "tcp",
                             cidr_blocks      = ["0.0.0.0/0"],           
                           }
