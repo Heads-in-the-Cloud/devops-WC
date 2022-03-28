@@ -5,45 +5,45 @@ pipeline {
     stages {
         stage('Setup parameters') {
             steps {
-                    script {
+                script {
                     properties([
-                            parameters([
-                                [$class: 'ChoiceParameter', 
-                                    choiceType: 'PT_SINGLE_SELECT', 
-                                    description: 'Select the action', 
-                                    filterLength: 1, 
-                                    filterable: false, 
-                                    name: 'action', 
+                        parameters([
+                            [$class: 'ChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the action', 
+                                filterLength: 1, 
+                                filterable: false, 
+                                name: 'action', 
+                                script: [
+                                    $class: 'GroovyScript', 
+                                    fallbackScript: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['Could not load actions']"
+                                    ], 
                                     script: [
-                                        $class: 'GroovyScript', 
-                                        fallbackScript: [
-                                            classpath: [], 
-                                            sandbox: false, 
-                                            script: 
-                                                "return['Could not load actions']"
-                                        ], 
-                                        script: [
-                                            classpath: [], 
-                                            sandbox: false, 
-                                            script: 
-                                                "return['apply','destroy']"
-                                        ]
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['apply','destroy']"
                                     ]
                                 ]
-                            ])
+                            ]
                         ])
-                    }
+                    ])
                 }
+            }
         }
         stage('Set up environment'){
             steps{
                 script{
-                    env.TF_VAR_environment="dev"
-                    env.TF_VAR_region="${REGION_WC}"
-                    env.TF_VAR_cluster_name="${CLUSTER_NAME_WC}"
-                    env.TF_VAR_vpc_name="${WC_vpc_name}"
-                    env.TF_VAR_peering_vpc_name = "${JENKINS_VPC}"
-                    env.TF_VAR_aws_account_id = "${ORG_ACCOUNT_NUM}"
+                    env.TF_VAR_environment           ="dev"
+                    env.TF_VAR_region                ="${REGION_WC}"
+                    env.TF_VAR_cluster_name          ="${CLUSTER_NAME_WC}"
+                    env.TF_VAR_vpc_name              ="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name      = "${JENKINS_VPC}"
+                    env.TF_VAR_aws_account_id        = "${ORG_ACCOUNT_NUM}"
                     env.TF_VAR_vpc_cidr_block        = "10.10.0.0/16"
                     env.TF_VAR_subnet1_cidr_block    = "10.10.1.0/24"
                     env.TF_VAR_subnet2_cidr_block    = "10.10.2.0/24"
@@ -54,15 +54,15 @@ pipeline {
                     env.TF_VAR_pc_name               = "WC-Jenkins-pc"
                     env.TF_VAR_peering_rt_name       = "JenkinsRoutes"
                     env.TF_VAR_internet_gw_name      = "WC-ig"
-                    env.TF_VAR_ssm_path="${WC_SECRETS_PATH_DEV}"
-                    env.TF_VAR_key_name="${SSH_GROUP_KEY}"
+                    env.TF_VAR_ssm_path              ="${WC_SECRETS_PATH_DEV}"
+                    env.TF_VAR_key_name              ="${SSH_GROUP_KEY}"
                 }
             }
         }
         stage('Terraform init') {
 
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/networks") {
                     sh 'terraform init'
                 }
             }
@@ -70,14 +70,14 @@ pipeline {
         stage('Terraform plan') {
 
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/networks") {
                     sh 'terraform plan'                
                     }
             }
         }
         stage('Terraform action') {
             steps {
-                dir("terraform/terraform_v2") {
+                dir("terraform/networks") {
                     sh "terraform ${action} -auto-approve"
                 }
             } 
