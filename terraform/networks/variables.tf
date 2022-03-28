@@ -27,3 +27,5 @@ variable "peering_rt_name" { type = string }
 variable "pc_name" { type = string }
 
 variable "aws_account_id" { type = string }
+
+variable "ssm_path" { type=string }
