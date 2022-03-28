@@ -5,6 +5,57 @@ data "aws_secretsmanager_secret" "secrets" {
 }
 
 
+variable "rds_ingress" {
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
+    }))
+    default = [
+                          {
+                            description      = "Allow HTTP from any IPv4",
+                            from_port        = 80,
+                            to_port          = 80,
+                            protocol         = "tcp",
+                            cidr_blocks      = ["0.0.0.0/0"],
+                          },
+                          {
+                            description      = "Allow connection to MYSQL",
+                            from_port        = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
+                            to_port          = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
+                            protocol         = "tcp",
+                            cidr_blocks      = ["0.0.0.0/0"],           
+                          }
+                          ]
+  rds_egress            = [{
+                            description      = "Allow egress to anywhere ipv4/ipv6",
+                            from_port        = 0,
+                            to_port          = 0,
+                            protocol         = "-1",
+                            cidr_blocks      = ["0.0.0.0/0"],
+                            ipv6_cidr_blocks = ["::/0"]
+                          }]
+  ec2_ingress           = [{
+                            description      = "Allow SSH from anywhere",
+                            from_port        = 22,
+                            to_port          = 22,
+                            protocol         = "tcp",
+                            cidr_blocks      = ["0.0.0.0/0"], 
+                          }]
+  ec2_egress            = [{
+                          description      = "Allow egress to anywhere ipv4/ipv6",
+                          from_port        = 0,
+                          to_port          = 0,
+                          protocol         = "-1",
+                          cidr_blocks      = ["0.0.0.0/0"],
+                          ipv6_cidr_blocks = ["::/0"]
+                          }]
+}
+
+
 locals {
   secrets = jsondecode(
     data.aws_secretsmanager_secret_version.secrets.secret_string
