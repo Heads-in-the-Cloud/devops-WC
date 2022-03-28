@@ -45,6 +45,10 @@ variable "ssm_path" {
     type=string 
 }
 
+locals {
+  database_ingress_port = var.db_driver == "${"mysql" ? 3306: var.db_driver == "postgres" ? 5432 : ""}"
+}
+
 variable "rds_ingress" {
     type = list(object({
         description     = string
@@ -64,8 +68,8 @@ variable "rds_ingress" {
                           },
                           {
                             description      = "Allow connection to MYSQL",
-                            from_port        = 3306,
-                            to_port          = 3306,
+                            from_port        = locals.database_ingress_port,
+                            to_port          = locals.database_ingress_port,
                             protocol         = "tcp",
                             cidr_blocks      = ["0.0.0.0/0"],           
                           }

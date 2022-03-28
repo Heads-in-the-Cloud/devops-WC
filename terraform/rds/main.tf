@@ -9,7 +9,9 @@ locals {
   secrets = jsondecode(
     data.aws_secretsmanager_secret_version.secrets.secret_string
   )
+  # database_ingress_port = var.db_driver == "${"mysql" ? 3306: var.db_driver == "postgres" ? 5432 : ""}"
 }
+
 
 #local.secrets.subnet_id_1
 resource "random_password" "db_password" {
