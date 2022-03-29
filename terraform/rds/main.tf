@@ -19,7 +19,7 @@ locals {
   keys                = [for x in keys(local.secrets) : x if !contains(var.list_of_secrets, x)]
 }
 locals {
-    secrets_overwritten = {for k,v in local.secrets: k => v if contains(locals.keys, k) }
+    secrets_overwritten = {for k,v in local.secrets: k => v if contains(local.keys, k) }
 }
 
 resource "random_password" "db_password" {
