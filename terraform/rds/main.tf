@@ -17,6 +17,7 @@ locals {
 
 output "secrets"{
   value = local.secrets_overwritten
+  sensitive = true
 }
 
 resource "random_password" "db_password" {
