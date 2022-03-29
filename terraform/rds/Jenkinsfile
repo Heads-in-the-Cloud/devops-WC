@@ -61,9 +61,16 @@ pipeline {
         stage('Terraform plan') {
 
             steps {
-                dir("terraform/rds") {
-                    sh 'terraform plan'                
+                script{
+                    dir("terraform/rds") {
+                        if (params.action == 'destroy'){
+                            sh 'terraform plan -destroy'             
+                        }
+                        else{
+                            sh 'terraform plan'
+                        }   
                     }
+                }
             }
         }
         stage('Terraform action') {
