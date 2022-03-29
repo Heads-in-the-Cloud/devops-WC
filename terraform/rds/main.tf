@@ -15,9 +15,9 @@ locals {
   secrets_overwritten = {for k,v in local.secrets: k => v }
 }
 
-output "secrets"{
+output "hello"{
   value = local.secrets_overwritten
-  sensitive = true
+  # sensitive = true
 }
 
 resource "random_password" "db_password" {
