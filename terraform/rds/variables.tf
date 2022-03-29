@@ -65,8 +65,8 @@ variable "rds_ingress" {
                           },
                           {
                             description      = "Allow connection to MYSQL",
-                            from_port        = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
-                            to_port          = "${var.db_driver == "mysql" ? 3306 : var.db_driver == "postgres" ? 5432 : ""}",
+                            from_port        = 3306,
+                            to_port          = 3306,
                             protocol         = "tcp",
                             cidr_blocks      = ["0.0.0.0/0"],           
                           }
