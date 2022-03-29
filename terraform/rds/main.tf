@@ -5,7 +5,7 @@ data "aws_secretsmanager_secret" "secrets" {
 }
 
 data "aws_secretsmanager_secret_version" "secrets" {
-  name  = var.ssm_path
+  secret_id  = var.ssm_path
 }
 
 locals {
