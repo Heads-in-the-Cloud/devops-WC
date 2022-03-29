@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket = "utopia-bucket-wc"
     key    = "terraform/dev/networks/terraform.tfstate"
-    region = "us-west-2"
+    region = "$AWS_REGION"
     dynamodb_table = "WC_terraform_state"
   }
 
@@ -18,4 +18,9 @@ terraform {
 provider "aws" {
   region                  =  var.region
   shared_credentials_file = "$HOME/.aws/credentials"
+}
+
+provider "aws" {
+  alias  = "home"
+  region = "us-west-2"
 }

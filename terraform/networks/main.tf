@@ -5,6 +5,7 @@ data "aws_availability_zones" "available" {
 
 
 data "aws_vpc" "vpc_peering" {
+  provider = aws.home
     filter {
       name   = "tag:Name"
       values = [ var.peering_vpc_name ]
