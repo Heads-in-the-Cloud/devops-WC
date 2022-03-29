@@ -6,20 +6,16 @@ data "aws_secretsmanager_secret_version" "secrets" {
   secret_id  = var.ssm_path
 }
 
-variable "list_of_secrets"{
-  type = list(string)
-  default = ["db_password"]
-}
 locals {
   secrets = jsondecode(
     data.aws_secretsmanager_secret_version.secrets.secret_string
   )
 }
 locals {
-  keys                = [for x in keys(local.secrets) : x if !contains(var.list_of_secrets, x)]
+  keys = [for x in keys(local.secrets) : x if !contains(var.list_of_secrets, x)]
 }
 locals {
-    secrets_overwritten = {for k,v in local.secrets: k => v if contains(local.keys, k) }
+    existing_secrets = {for k,v in local.secrets: k => v if contains(local.keys, k) }
 }
 
 resource "random_password" "db_password" {
@@ -40,7 +36,7 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
                                   #  {"db_host"     = aws_db_instance.rds.address},
                                    {"secret_key"  = random_password.secret_key.result},
                                    {"db_user"     = var.db_user},
-                                   #local.secrets_overwritten
+                                   local.existing_secrets
                                    ))
 }
 

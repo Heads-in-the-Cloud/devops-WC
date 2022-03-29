@@ -6,6 +6,11 @@ variable "db_instance" {
     default="db.t2.micro"
 }
 
+variable "list_of_secrets"{
+  type = list(string)
+  default = ["db_password", "secret_key", "db_user"]
+}
+
 variable "db_identifier" {
     type=string
     default="database-wc"
