@@ -59,6 +59,15 @@ pipeline {
                 }
             }
         }
+        stage('Configure region'){
+            steps{
+                script{
+                    dir("terraform") {
+                        sh "sed 's/AWS_REGION/${REGION_WC}/g' config.tf > rds/config.tf"
+                    }
+                }
+            }
+        }
         stage('Terraform init') {
 
             steps {
