@@ -1,3 +1,6 @@
+variable "region" {
+  type=string
+}
 variable "db_instance" {
     type=string
     default="db.t2.micro"
