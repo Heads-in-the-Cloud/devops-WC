@@ -33,7 +33,8 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_string = jsonencode(merge({"db_password" = random_password.db_password.result},
                                   #  {"db_host"     = aws_db_instance.rds.address},
                                    {"secret_key"  = random_password.secret_key.result},
-                                   {"db_user"     = var.db_user}
+                                   {"db_user"     = var.db_user},
+                                   local.secrets_overwritten
                                    ))
 }
 
