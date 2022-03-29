@@ -6,13 +6,17 @@ data "aws_secretsmanager_secret_version" "secrets" {
   secret_id  = var.ssm_path
 }
 
+variable "list_of_secrets"{
+  type = string
+  default = ["db_password"]
+}
 locals {
   secrets = jsondecode(
     data.aws_secretsmanager_secret_version.secrets.secret_string
   )
 }
 locals {
-  keys                = [for x in keys(local.secrets) : x if !contains("db_password", x)]
+  keys                = [for x in keys(local.secrets) : x if !contains(var.list_of_secrets, x)]
   secrets_overwritten = {for k,v in local.secrets: k => v }
 }
 
