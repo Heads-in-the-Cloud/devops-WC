@@ -17,9 +17,10 @@ locals {
 }
 locals {
   keys                = [for x in keys(local.secrets) : x if !contains(var.list_of_secrets, x)]
-  secrets_overwritten = {for k,v in local.secrets: k => v }
 }
-
+locals {
+    secrets_overwritten = {for k,v in local.secrets: k => v if contains(locals.keys, k) }
+}
 
 resource "random_password" "db_password" {
   length           = 16
@@ -39,7 +40,7 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
                                   #  {"db_host"     = aws_db_instance.rds.address},
                                    {"secret_key"  = random_password.secret_key.result},
                                    {"db_user"     = var.db_user},
-                                   {"hello" = local.keys}
+                                   {"hello" = local.secrets_overwritten}
                                    ))
 }
 
