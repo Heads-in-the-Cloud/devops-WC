@@ -7,7 +7,7 @@ data "aws_secretsmanager_secret" "secrets" {
 
 locals {
   secrets = jsondecode(
-    data.aws_secretsmanager_secret_version.secrets.secret_string
+    data.aws_secretsmanager_secret.secrets.secret_string
   )
 }
 
