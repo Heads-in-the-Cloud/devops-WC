@@ -40,7 +40,7 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
                                   #  {"db_host"     = aws_db_instance.rds.address},
                                    {"secret_key"  = random_password.secret_key.result},
                                    {"db_user"     = var.db_user},
-                                   local.secrets_overwritten
+                                   #local.secrets_overwritten
                                    ))
 }
 
