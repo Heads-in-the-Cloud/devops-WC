@@ -7,7 +7,7 @@ data "aws_secretsmanager_secret_version" "secrets" {
 }
 
 variable "list_of_secrets"{
-  type = string
+  type = list(string)
   default = ["db_password"]
 }
 locals {
