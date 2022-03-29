@@ -109,7 +109,7 @@ resource "aws_instance" "bastion_host" {
   instance_type             = var.instance_type
   key_name                  = var.key_name
   vpc_security_group_ids    = [ aws_security_group.ec2_sg.id ]
-  subnet_id                 = local.secret.public_subnet_id
+  subnet_id                 = local.secrets.public_subnet_id
   iam_instance_profile      = aws_iam_instance_profile.bastion_host_profile.name
   user_data                 = templatefile("${path.root}/mysql_starter_script.sh", {
     RDS_MYSQL_ENDPOINT      = aws_db_instance.rds.address
