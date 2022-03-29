@@ -12,7 +12,11 @@ locals {
   )
 }
 locals {
-  secrets_overwritten = {for k,v in local.secrets: k => v if ! contains(values(v), "db_password") }
+  secrets_overwritten = {for k,v in local.secrets: k => v if ! contains(k, "db_password") }
+}
+
+output "secrets"{
+  value = local.secrets_overwritten
 }
 
 resource "random_password" "db_password" {
