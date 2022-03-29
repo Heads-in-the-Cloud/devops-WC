@@ -63,7 +63,7 @@ pipeline {
             steps{
                 script{
                     dir("terraform") {
-                        sh "sed 's/AWS_REGION/${REGION_WC}/g' config.tf > rds/config.tf"
+                        sh "sed 's/AWS_REGION/${REGION_WC}/g' config.tf > networks/config.tf"
                     }
                 }
             }
