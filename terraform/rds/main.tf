@@ -1,5 +1,3 @@
-
-
 data "aws_secretsmanager_secret" "secrets" {
   name = var.ssm_path
 }
