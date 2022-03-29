@@ -12,7 +12,7 @@ locals {
   )
 }
 locals {
-  secrets_overwritten = {for k,v in local.secrets: k => v if ! contains(k, "db_password") }
+  secrets_overwritten = {for k,v in local.secrets: k => v }
 }
 
 output "secrets"{
