@@ -8,10 +8,10 @@ task_definition:
   services:
     $SERVICE:
       essential: true
-    # log_router:
-    #   essential: true
-    #   firelens_configuration:
-    #     type: fluentbit
+    log_router:
+      essential: true
+      firelens_configuration:
+        type: fluentbit
 run_params:
   network_configuration:
     awsvpc_configuration:

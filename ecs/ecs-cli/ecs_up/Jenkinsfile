@@ -146,46 +146,46 @@ pipeline {
                 }
             }
         }
-        // stage('Create Cloudformation Stack') {
-        //     when {
-        //         environment name: 'PARAM_ACTION', value: 'create'
-        //     }
-        //     steps{
-        //         script{
-        //             dir('ecs/ecs-cli'){
+        stage('Create Cloudformation Stack') {
+            when {
+                environment name: 'PARAM_ACTION', value: 'create'
+            }
+            steps{
+                script{
+                    dir('ecs/ecs-cli'){
 
-        //                 sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
-        //                 VpcId=${VPC_ID} \
-        //                 Subnet1=${SUBNET1} \
-        //                 Subnet2=${SUBNET2} \
-        //                 Environment=${ENV} \
-        //                 FlightsPath=/airline/* \
-        //                 BookingsPath=/booking/* \
-        //                 FrontendPath=/lms/* \
-        //                 UsersHealthCheck=/health \
-        //                 FlightsHealthCheck=/airline/read/airport \
-        //                 BookingsHealthCheck=/health \
-        //                 FrontendHealthCheck=/health \
-        //                 TGNameUsers=${TG_NAME_USERS} \
-        //                 TGNameFlights=${TG_NAME_FLIGHTS} \
-        //                 TGNameBookings=${TG_NAME_BOOKINGS} \
-        //                 TGNameFrontend=${TG_NAME_FRONTEND} \
-        //                 HostedZoneId=${HOSTED_ZONE} \
-        //                 RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
+                        VpcId=${VPC_ID} \
+                        Subnet1=${SUBNET1} \
+                        Subnet2=${SUBNET2} \
+                        Environment=${ENV} \
+                        FlightsPath=/airline/* \
+                        BookingsPath=/booking/* \
+                        FrontendPath=/lms/* \
+                        UsersHealthCheck=/health \
+                        FlightsHealthCheck=/airline/read/airport \
+                        BookingsHealthCheck=/health \
+                        FrontendHealthCheck=/health \
+                        TGNameUsers=${TG_NAME_USERS} \
+                        TGNameFlights=${TG_NAME_FLIGHTS} \
+                        TGNameBookings=${TG_NAME_BOOKINGS} \
+                        TGNameFrontend=${TG_NAME_FRONTEND} \
+                        HostedZoneId=${HOSTED_ZONE} \
+                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
-        //                 //wait for cloudformation to finish for outputs then get output ID's
-        //                 sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
-        //             }
-        //         }
-        //     }
-        //     post {
-        //         always{
-        //             script {
-        //                 CF_STACK_CREATED = true
-        //             }
-        //         }
-        //     }
-        // }
+                        //wait for cloudformation to finish for outputs then get output ID's
+                        sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
+                    }
+                }
+            }
+            post {
+                always{
+                    script {
+                        CF_STACK_CREATED = true
+                    }
+                }
+            }
+        }
         stage('Get Cloudformation Stack Resource IDs'){
             steps{
                 script{
@@ -223,25 +223,25 @@ pipeline {
                 }
             }
         }
-        // stage('Create Cluster'){
-        //     when {
-        //         environment name: 'PARAM_ACTION', value: 'create'
-        //     }
-        //     steps{
-        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
-        //             --capability-iam --cluster-config ${CLUSTER_NAME} \
-        //             --subnets ${SUBNET1},${SUBNET2}"
-        //     }
-        //     post {
-        //         success {
-        //             script {
-        //                 CLUSTER_CREATED = true
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Docker Compose Up'){
-        //     parallel {
+        stage('Create Cluster'){
+            when {
+                environment name: 'PARAM_ACTION', value: 'create'
+            }
+            steps{
+                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
+                    --capability-iam --cluster-config ${CLUSTER_NAME} \
+                    --subnets ${SUBNET1},${SUBNET2}"
+            }
+            post {
+                success {
+                    script {
+                        CLUSTER_CREATED = true
+                    }
+                }
+            }
+        }
+        stage('Docker Compose Up'){
+            parallel {
                 stage('Docker compose users'){
                     when {
                         anyOf{          
@@ -268,88 +268,88 @@ pipeline {
                         }
                     }
                 }
-                // stage('Docker compose flights'){
-                //     when {
-                //         anyOf{          
-                //             environment name: 'PARAM_CONTAINER', value: 'flights'
-                //             environment name: 'PARAM_ACTION', value: 'create'
-                //             }
-                //         }
-                //     steps{
-                //         script{
-                //             dir("ecs/ecs-cli"){
-                //                 try {
-                //                     sh 'chmod +x ecs_up/up.sh'
-                //                     env.CPU_LIMIT       = "$CPU_FLIGHTS"
-                //                     env.MEM_LIMIT       = "$MEM_FLIGHTS"
-                //                     env.SERVICE         = "$FLIGHTS_CONTAINER"
-                //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-                //                     sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
+                stage('Docker compose flights'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'flights'
+                            environment name: 'PARAM_ACTION', value: 'create'
+                            }
+                        }
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_FLIGHTS"
+                                    env.MEM_LIMIT       = "$MEM_FLIGHTS"
+                                    env.SERVICE         = "$FLIGHTS_CONTAINER"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
+                                    sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
                                     
-                //                 }
-                //                 catch (err) {
-                //                     echo err.getMessage()
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
 
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-                // stage('Docker compose bookings'){
-                //     when {
-                //         anyOf{          
-                //             environment name: 'PARAM_CONTAINER', value: 'bookings'
-                //             environment name: 'PARAM_ACTION', value: 'create'
-                //             }
-                //         }
-                //     steps{
-                //         script{
-                //             dir("ecs/ecs-cli"){
-                //                 try {
-                //                     sh 'chmod +x ecs_up/up.sh'
-                //                     env.CPU_LIMIT       = "$CPU_BOOKINGS"
-                //                     env.MEM_LIMIT       = "$MEM_BOOKINGS"
-                //                     env.SERVICE         = "$BOOKINGS_CONTAINER"
-                //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-                //                     sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Docker compose bookings'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'bookings'
+                            environment name: 'PARAM_ACTION', value: 'create'
+                            }
+                        }
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_BOOKINGS"
+                                    env.MEM_LIMIT       = "$MEM_BOOKINGS"
+                                    env.SERVICE         = "$BOOKINGS_CONTAINER"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
+                                    sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
 
-                //                 }
-                //                 catch (err) {
-                //                     echo err.getMessage()
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
 
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-        //         stage('Docker compose frontend'){
-        //             when {
-        //                 anyOf{          
-        //                     environment name: 'PARAM_CONTAINER', value: 'frontend'
-        //                     environment name: 'PARAM_ACTION', value: 'create'
-        //                     }
-        //                 }
-        //             steps{
-        //                 script{
-        //                     dir("ecs/ecs-cli"){
-        //                         try {
-        //                             sh 'chmod +x ecs_up/up.sh'
-        //                             env.CPU_LIMIT       = "$CPU_FRONTEND"
-        //                             env.MEM_LIMIT       =" $MEM_FRONTEND"
-        //                             env.SERVICE         = "$FRONTEND_CONTAINER"
-        //                             env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-        //                             sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Docker compose frontend'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'frontend'
+                            environment name: 'PARAM_ACTION', value: 'create'
+                            }
+                        }
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_FRONTEND"
+                                    env.MEM_LIMIT       =" $MEM_FRONTEND"
+                                    env.SERVICE         = "$FRONTEND_CONTAINER"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
+                                    sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
-        //                         }
-        //                         catch (err) {
-        //                             echo err.getMessage()
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         failure {
