@@ -43,10 +43,10 @@
       ######  Create Cluster  ######
       ##############################
      
-    # - name: Create EKS cluster
-    #   shell: |
-    #     eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
-    #     --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
+    - name: Create EKS cluster
+      shell: |
+        eksctl create cluster --name="{{ CLUSTER_NAME }}" --region="{{ REGION }}" --fargate \
+        --vpc-private-subnets="{{SUBNET1}},{{SUBNET2}}"
 
       ##############################
       ######  Set Up Cluster  ######
@@ -85,15 +85,15 @@
       #### Create Secrets from SSM ####
       #################################
 
-    # - name: Extract Secrets from SSM and create Kubernetes Secrets
-    #   shell: | 
-    #     kubectl create secret generic db-info -n kube-system \
-    #       --from-literal=db_user="{{ DB_USER }}" \
-    #       --from-literal=db_host="{{ DB_HOST}}" \
-    #       --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
+    - name: Extract Secrets from SSM and create Kubernetes Secrets
+      shell: | 
+        kubectl create secret generic db-info -n kube-system \
+          --from-literal=db_user="{{ DB_USER }}" \
+          --from-literal=db_host="{{ DB_HOST}}" \
+          --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
 
-    #     kubectl create secret generic jwt-secret -n kube-system\
-    #       --from-literal=secret_key="{{ SECRET_KEY }}"
+        kubectl create secret generic jwt-secret -n kube-system\
+          --from-literal=secret_key="{{ SECRET_KEY }}"
 
       ########################
       #### Set Up Logging ####
@@ -141,9 +141,9 @@
       #########  Route 53  #########
       ##############################
 
-    # - name: Wait for ingress to create
-    #   shell: |
-    #     sleep 200
+    - name: Wait for ingress to create
+      shell: |
+        sleep 200
 
     - name: Get ingress endpoint 
       shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
