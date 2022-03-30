@@ -59,15 +59,6 @@ pipeline {
                 }
             }
         }
-        stage('Configure region'){
-            steps{
-                script{
-                    dir("terraform") {
-                        sh "sed 's/'AWS_REGION'/${REGION_WC}/g' config.tf > networks/config.tf"
-                    }
-                }
-            }
-        }
         stage('Terraform init') {
 
             steps {
@@ -79,9 +70,16 @@ pipeline {
         stage('Terraform plan') {
 
             steps {
-                dir("terraform/networks") {
-                    sh 'terraform plan'                
+                script{
+                    dir("terraform/rds") {
+                        if (params.action == 'destroy'){
+                            sh 'terraform plan -destroy'             
+                        }
+                        else{
+                            sh 'terraform plan'
+                        }   
                     }
+                }
             }
         }
         stage('Terraform action') {
