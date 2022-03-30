@@ -338,7 +338,7 @@ pipeline {
                                     env.MEM_LIMIT       =" $MEM_FRONTEND"
                                     env.SERVICE         = "$FRONTEND_CONTAINER"
                                     env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                                    sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+                                    sh "./ecs_up/up.sh $FRONTEND_SERVICE 'FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
 
                                 }
                                 catch (err) {
