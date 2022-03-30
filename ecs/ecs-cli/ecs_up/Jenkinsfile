@@ -223,23 +223,23 @@ pipeline {
                 }
             }
         }
-        stage('Create Cluster'){
-            when {
-                environment name: 'PARAM_ACTION', value: 'create'
-            }
-            steps{
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
-                    --capability-iam --cluster-config ${CLUSTER_NAME} \
-                    --subnets ${SUBNET1},${SUBNET2}"
-            }
-            post {
-                success {
-                    script {
-                        CLUSTER_CREATED = true
-                    }
-                }
-            }
-        }
+        // stage('Create Cluster'){
+        //     when {
+        //         environment name: 'PARAM_ACTION', value: 'create'
+        //     }
+        //     steps{
+        //         sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
+        //             --capability-iam --cluster-config ${CLUSTER_NAME} \
+        //             --subnets ${SUBNET1},${SUBNET2}"
+        //     }
+        //     post {
+        //         success {
+        //             script {
+        //                 CLUSTER_CREATED = true
+        //             }
+        //         }
+        //     }
+        // }
         stage('Docker Compose Up'){
             parallel {
                 stage('Docker compose users'){
