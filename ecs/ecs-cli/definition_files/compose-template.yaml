@@ -1,7 +1,7 @@
 version: '3'
 services:
   $SERVICE
-    image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:latest"
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${SERVICE}:latest"
     ports:
       - "${PORT}:${PORT}"
     logging:
