@@ -91,7 +91,7 @@ pipeline {
         stage('Delete Cluster'){
             steps{
                 script{
-                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f"
+                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f --region ${AWS_DEFAULT_REGION}"
                 }
             }
         }
