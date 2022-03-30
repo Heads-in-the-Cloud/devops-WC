@@ -7,10 +7,11 @@ pipeline {
                 steps{
                     script {
                         env.ENVIRONMENT = "dev"
-                        env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
-                        env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
-                        env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
-                        env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()                
+                        env.AWS_DEFAULT_REGION = "${REGION_WC}"
+                        env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                        env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                        env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                        env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()                
                     }
                 }
             }
@@ -24,7 +25,7 @@ pipeline {
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
                             VPC_NAME: "WC-vpc-$ENVIRONMENT"
-                            REGION: "$region"
+                            REGION: "$REGION_WC"
                             DB_HOST: "$DB_HOST"
                             SECRET_KEY: "$SECRET_KEY"
                             DB_USER: "$DB_USER"
@@ -45,6 +46,7 @@ pipeline {
                             BOOKINGS_HEALTH: "/booking/health"
                             FLIGHTS_HEALTH: "/airline/read/airport"
                             FRONTEND_HEALTH: "/lms/health"
+                            LOG_GROUP_NAME: "eks/wc-logs/$ENVIRONMENT"
                             USERS_NUM_POD: "1"
                             FLIGHTS_NUM_POD: "1"
                             BOOKINGS_NUM_POD: "1"
