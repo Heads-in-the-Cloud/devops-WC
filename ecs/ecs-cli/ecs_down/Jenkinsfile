@@ -5,7 +5,7 @@ pipeline {
             steps{
                 script{
                     env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
-                    env.AWS_REGION          = "$region"
+                    env.AWS_DEFAULT_REGION  = "$REGION_WC"
                     env.ENVIRONMENT         = "dev"
 
                     env.PORT                = 5000

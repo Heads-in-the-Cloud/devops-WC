@@ -228,7 +228,7 @@ pipeline {
                 environment name: 'PARAM_ACTION', value: 'create'
             }
             steps{
-
+                sh "ecs-cli configure --cluster ${CLUSTER_NAME} --region ${REGION_WC}"
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
                     --capability-iam --cluster-config ${CLUSTER_NAME} \
                     --subnets ${SUBNET1},${SUBNET2}"
