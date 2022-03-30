@@ -105,10 +105,20 @@ resource "aws_internet_gateway" "default" {
 resource "aws_vpc_peering_connection" "pc" {
   peer_owner_id = var.aws_account_id
   peer_vpc_id   = data.aws_vpc.vpc_peering.id
+  peer_region   = var.aws_home_region
   vpc_id        = aws_vpc.my_vpc.id
-  auto_accept   = true
   tags = {
     Name = "${var.pc_name}"
+  }
+}
+
+resource "aws_vpc_peering_connection_accepter" "peer" {
+  provider                  = aws.home
+  vpc_peering_connection_id = aws_vpc_peering_connection.pc.id
+  auto_accept               = true
+
+  tags = {
+    Side = "Accepter"
   }
 }
 

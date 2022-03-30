@@ -29,3 +29,8 @@ variable "pc_name" { type = string }
 variable "aws_account_id" { type = string }
 
 variable "ssm_path" { type=string }
+
+variable "aws_home_region" { 
+    type=string
+    default = "us-west-2"
+}
