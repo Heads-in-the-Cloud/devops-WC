@@ -8,8 +8,8 @@ services:
       driver: awsfirelens
       options:
         Name: es
-        Host: "${ELK_URL}"
-        Port: "${PORT}"
+        Host: ${ELK_URL}
+        Port: ${PORT}
         Index: ${SERVICE}
   log_router:
     image: "docker.io/amazon/aws-for-fluent-bit:latest"
