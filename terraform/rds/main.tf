@@ -109,6 +109,24 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name = "${var.environment}/${var.ecs_log_prefix}"
+
+  tags = {
+    Environment = var.environment
+    Application = "ecs"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "eks_logs" {
+  name = "${var.environment}/${var.eks_log_prefix}"
+
+  tags = {
+    Environment = var.environment
+    Application = "eks"
+  }
+}
+
 resource "aws_instance" "bastion_host" {
   ami                       = data.aws_ami.amazon_linux.id
   instance_type             = var.instance_type

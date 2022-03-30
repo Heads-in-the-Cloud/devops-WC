@@ -53,6 +53,13 @@ variable "ssm_path" {
     type=string 
 }
 
+variable "ecs_log_prefix" {
+    type=string
+}
+
+variable "eks_log_prefix" {
+    type=string
+}
 
 variable "rds_ingress" {
     type = list(object({
@@ -135,8 +142,3 @@ variable "rds_ingress" {
         ipv6_cidr_blocks = ["::/0"]
       }]
 }
-
-
-#   subnet_group_id       = module.networks.subnet_group_id
-#   public_subnet_id      = element(module.networks.public-subnet-ids, 0)
-#   vpc_id                = module.networks.vpc.id

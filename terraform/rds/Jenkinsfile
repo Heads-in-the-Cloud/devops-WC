@@ -40,6 +40,8 @@ pipeline {
                 script{
                     env.TF_VAR_db_engine            ="mysql"
                     env.TF_VAR_environment          ="dev"
+                    env.TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
+                    env.TF_VAR_eks_log_prefix       ="${WC_EKS_LOGS}"
                     env.TF_VAR_region               ="${REGION_WC}"
                     env.TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
                     env.TF_VAR_vpc_name             ="${WC_vpc_name}"
