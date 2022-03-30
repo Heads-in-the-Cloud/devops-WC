@@ -71,7 +71,7 @@ pipeline {
 
             steps {
                 script{
-                    dir("terraform/rds") {
+                    dir("terraform/networks") {
                         if (params.action == 'destroy'){
                             sh 'terraform plan -destroy'             
                         }
