@@ -44,7 +44,7 @@ cat "${1}-ecs-params.yaml"
 
 
 #Docker-Compose Up with target-group 
-ecs-cli compose --file "${1}-docker-compose.yaml" --project-name ${1} \
+ecs-cli compose --file "${1}-docker-compose.yaml" --project-name ${1}  --region ${AWS_DEFAULT_REGION}\
 --ecs-params "${1}-ecs-params.yaml" service up \
 --force-deployment \
 --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
