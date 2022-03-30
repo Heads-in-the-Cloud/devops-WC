@@ -50,7 +50,7 @@ ecs-cli compose --file "${1}-docker-compose.yaml" --project-name ${1}  --region 
 --target-groups "targetGroupArn=${3},containerName=${1},containerPort=${PORT}" 
 
 #Scale the service to the desired count
-# ecs-cli compose --project-name ${1} --file "${1}-docker-compose.yaml" service scale ${DESIRED_COUNT}
+ecs-cli compose --project-name ${1} --file "${1}-docker-compose.yaml" service scale ${DESIRED_COUNT}
 
 rm "${1}-ecs-params.yaml"
 rm "${1}-docker-compose.yaml"
