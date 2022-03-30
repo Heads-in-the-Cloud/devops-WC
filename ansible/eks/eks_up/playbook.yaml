@@ -85,15 +85,15 @@
       #### Create Secrets from SSM ####
       #################################
 
-    - name: Extract Secrets from SSM and create Kubernetes Secrets
-      shell: | 
-        kubectl create secret generic db-info -n kube-system \
-          --from-literal=db_user="{{ DB_USER }}" \
-          --from-literal=db_host="{{ DB_HOST}}" \
-          --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
+    # - name: Extract Secrets from SSM and create Kubernetes Secrets
+    #   shell: | 
+    #     kubectl create secret generic db-info -n kube-system \
+    #       --from-literal=db_user="{{ DB_USER }}" \
+    #       --from-literal=db_host="{{ DB_HOST}}" \
+    #       --from-literal=db_user_password="{{ DB_USER_PASSWORD }}"
 
-        kubectl create secret generic jwt-secret -n kube-system\
-          --from-literal=secret_key="{{ SECRET_KEY }}"
+    #     kubectl create secret generic jwt-secret -n kube-system\
+    #       --from-literal=secret_key="{{ SECRET_KEY }}"
 
       ########################
       #### Set Up Logging ####
