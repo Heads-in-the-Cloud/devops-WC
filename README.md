@@ -30,14 +30,15 @@ Deprecated: EC2 directory, has playbooks to create EC2's, target groups, and a l
 
 ## Kubernetes   
   
-**Directories:**
+**Directories:**  
+  
 **eks:** contains YAML files for resources that need to be deployed into the eks cluster. Contains Jenkinsfile to create the cluster and apply YAML files in sequence.  
   
  **local:** contains YAML files to similar to the eks directory above, but for local deployment.
  
  ## Terraform
  
- **Directories:**
+
  **Branches:** terraform, terraform-networks, terraform-rds
    
  **Directories:**
