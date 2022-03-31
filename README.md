@@ -27,3 +27,25 @@ Deprecated: EC2 directory, has playbooks to create EC2's, target groups, and a l
 **Deprecated**:  
 **ecs-context**: docker-compose via ecs context. Docker-compose yaml with secrets injected via docker secrets. No Jenkins pipeline.
 **cloudformation**: creates the ECS cluster using a vanilla cloudformation template
+
+## Kubernetes   
+  
+**Directories:**
+**eks:** contains YAML files for resources that need to be deployed into the eks cluster. Contains Jenkinsfile to create the cluster and apply YAML files in sequence.  
+  
+ **local:** contains YAML files to similar to the eks directory above, but for local deployment.
+ 
+ ## Terraform
+ 
+ **Directories:**
+ **Branches:** terraform, terraform-networks, terraform-rds
+   
+ **Directories:**
+   
+ **terraform_v1:** original terraform script that includes ECS module and Load Balancer modules.
+   
+ **terraform_v2:** terraform script which deploys its own VPC and network resources as well as a peering connection to the Jenkins (default) vpc. Contains the RDS module.
+   
+ **networks:** terraform script that creates only networking resources.
+   
+ **rds:** terraform script that creates only resources for the RDS deployment. Gets the network resources ID's that it needs from the Secrest Manager.
