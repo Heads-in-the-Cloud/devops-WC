@@ -70,6 +70,7 @@
         eksctl create iamserviceaccount \
           --name=alb-ingress-controller \
           --namespace=kube-system \
+          --region="{{ REGION }}" \
           --cluster="{{ CLUSTER_NAME }}" \
           --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
           --override-existing-serviceaccounts \
