@@ -1,8 +1,8 @@
 # devops-WC
 
-## Library for devOps files and resources for the Utopia Capstone Project.
+**Description:** Library for devOps files and resources for the Utopia Capstone Project.
 
-### Ansible
+## Ansible
 **Branches**: feature-ansible-dev, feature-ansible-prod  
 **Directories:**  
   
@@ -15,7 +15,7 @@ that calls the Ansible job using the Ansible plugin.
 Deprecated: EC2 directory, has playbooks to create EC2's, target groups, and a load balancer to deploy microservices pulled from ECR.
   
 
-### ECS
+## ECS
 **Branches**: ecs-dev, ecs-prod  
   
 **Directories:**  
