@@ -3,8 +3,9 @@
 ## Library for devOps files and resources for the Utopia Capstone Project.
 
 ### Ansible
-**Branches**: feature-ansible-dev, feature-ansible-prod
+**Branches**: feature-ansible-dev, feature-ansible-prod  
 **Directories:**  
+  
 **EKS_UP**: main playbook that creates an EKS cluster along with deployment, servies, namespaces, configmaps, secrets to run the microservices. Contains a Jenkinsfile
 that calls the Ansible job using the Ansible plugin.   
   
@@ -15,7 +16,8 @@ Deprecated: EC2 directory, has playbooks to create EC2's, target groups, and a l
   
 
 ### ECS
-**Branches**: ecs-dev, ecs-prod
+**Branches**: ecs-dev, ecs-prod  
+  
 **Directories:**  
 **ecs-cli**: 
   - **definition files**: contains the cloudformation template to create an ALB, a docker-compose.yaml (template), and an ecs-params.yaml (template). 
