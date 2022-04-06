@@ -125,8 +125,10 @@ pipeline {
                     env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
 
                     env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.SUBNET1             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.SUBNET2             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         }
@@ -231,7 +233,7 @@ pipeline {
             steps{
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
                     --capability-iam --cluster-config ${CLUSTER_NAME} \
-                    --subnets ${SUBNET1},${SUBNET2}"
+                    --subnets ${PRIVATE_SUBNET1},${PRIVATE_SUBNET2}"
             }
             post {
                 success {
@@ -346,6 +348,13 @@ pipeline {
                                     echo err.getMessage()
                                 }
                             }
+                        }
+                    }
+                }
+                stage('Move LoadBalancer to Public Subnets'){
+                    steps{
+                        script{
+                            sh "aws elbv2 set-subnets --load-balancer-arn $LOAD_BALANCER_ARN --subnets $PUBLIC_SUBNET1 $PUBLIC_SUBNET2"
                         }
                     }
                 }
