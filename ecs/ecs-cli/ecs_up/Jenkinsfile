@@ -352,6 +352,9 @@ pipeline {
                     }
                 }
                 stage('Move LoadBalancer to Public Subnets'){
+                    when {         
+                            environment name: 'PARAM_ACTION', value: 'create'
+                    }
                     steps{
                         script{
                             sh "aws elbv2 set-subnets --load-balancer-arn $LOAD_BALANCER_ARN --subnets $PUBLIC_SUBNET1 $PUBLIC_SUBNET2"
