@@ -48,9 +48,6 @@ pipeline {
                                                 if (action.equals("create")){
                                                     return[]
                                                 }
-                                                else if(action.equals("delete")){
-                                                    return[]
-                                                }
                                                 else if(action.equals("update")){
                                                     return["users","flights","bookings","frontend"]
                                                 }
