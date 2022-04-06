@@ -159,8 +159,8 @@ pipeline {
 
                         sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
-                        Subnet1=${SUBNET1} \
-                        Subnet2=${SUBNET2} \
+                        Subnet1=${PRIVATE_SUBNET1} \
+                        Subnet2=${PRIVATE_SUBNET2} \
                         Environment=${ENV} \
                         FlightsPath=/airline/* \
                         BookingsPath=/booking/* \
