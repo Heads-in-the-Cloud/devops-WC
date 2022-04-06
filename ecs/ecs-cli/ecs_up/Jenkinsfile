@@ -48,7 +48,7 @@ pipeline {
                                                 if (action.equals("create")){
                                                     return[]
                                                 }
-                                                else if(action.equals("update")){
+                                                else{
                                                     return["users","flights","bookings","frontend"]
                                                 }
                                                 '''
