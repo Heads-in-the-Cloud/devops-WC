@@ -91,11 +91,7 @@ pipeline {
         stage('Delete Cluster'){
             steps{
                 script{
-                    try {
                         sh "ecs-cli down --cluster ${CLUSTER_NAME} -f --region ${AWS_DEFAULT_REGION}"
-                    }
-                    catch (err) {
-                        echo err.getMessage()
                     }
                 }
             }
@@ -103,13 +99,9 @@ pipeline {
         stage('Delete Cloudformation Stack'){
             steps{
                 script{
-                    try {
                         sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
                         //wait for cloudformation stack to delete
                         sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                    }
-                    catch (err) {
-                        echo err.getMessage()
                     }
                 }
             }
