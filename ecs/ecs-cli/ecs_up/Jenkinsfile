@@ -81,10 +81,6 @@ pipeline {
                     env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENV}"
                     env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENV}"
                     env.PORT                = "${WC_CONTAINER_PORT}"
-                    // env.USERS_CONTAINER     = "${USER_REPO_WC}"
-                    // env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
-                    // env.BOOKINGS_CONTAINER  = "${BOOKING_REPO_WC}"
-                    // env.FRONTEND_CONTAINER  = "${FRONTEND_REPO_WC}"
 
                     env.USERS_TG            = "UsersTG"
                     env.FLIGHTS_TG          = "FlightsTG"
@@ -109,6 +105,7 @@ pipeline {
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
+                    env.CLUSTER_ACTIVE          = false
                     env.CF_STACK_CREATED        = false
                     env.CLUSTER_CREATED         = false
                     env.UPSERT                  = false
@@ -136,16 +133,16 @@ pipeline {
                 script {
                     env.cluster=sh ( script: "aws ecs describe-clusters --region ${REGION_WC} --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
                     echo env.cluster
-                    if (!env.cluster || env.cluster == "INACTIVE"){
-                        sh "echo 'ECS cluster is not up currently. Creating the cluster and cf stack now.'"
-                        env.PARAM_ACTION='create'
+                    if (env.cluster && env.cluster == "ACTIVE"){
+                        echo "cluster is already active"
+                        env.CLUSTER_ACTIVE = true
                     }
                 }
             }
         }
         stage('Create Cloudformation Stack') {
             when {
-                environment name: 'PARAM_ACTION', value: 'create'
+                environment name: 'CLUSTER_ACTIVE', value: 'false'
             }
             steps{
                 script{
@@ -222,7 +219,7 @@ pipeline {
         }
         stage('Create Cluster'){
             when {
-                environment name: 'PARAM_ACTION', value: 'create'
+                environment name: 'CLUSTER_ACTIVE', value: 'false'
             }
             steps{
                 sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
@@ -243,7 +240,7 @@ pipeline {
                     when {
                         anyOf{          
                             environment name: 'PARAM_CONTAINER', value: 'users'
-                            environment name: 'PARAM_ACTION', value: 'create'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
                             }
                         }
                     steps{
@@ -269,7 +266,7 @@ pipeline {
                     when {
                         anyOf{          
                             environment name: 'PARAM_CONTAINER', value: 'flights'
-                            environment name: 'PARAM_ACTION', value: 'create'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
                             }
                         }
                     steps{
@@ -296,7 +293,7 @@ pipeline {
                     when {
                         anyOf{          
                             environment name: 'PARAM_CONTAINER', value: 'bookings'
-                            environment name: 'PARAM_ACTION', value: 'create'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
                             }
                         }
                     steps{
@@ -323,7 +320,7 @@ pipeline {
                     when {
                         anyOf{          
                             environment name: 'PARAM_CONTAINER', value: 'frontend'
-                            environment name: 'PARAM_ACTION', value: 'create'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
                             }
                         }
                     steps{
@@ -347,7 +344,7 @@ pipeline {
                 }
                 stage('Move LoadBalancer to Public Subnets'){
                     when {         
-                            environment name: 'PARAM_ACTION', value: 'create'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
                     }
                     steps{
                         script{
