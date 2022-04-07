@@ -91,18 +91,16 @@ pipeline {
         stage('Delete Cluster'){
             steps{
                 script{
-                        sh "ecs-cli down --cluster ${CLUSTER_NAME} -f --region ${AWS_DEFAULT_REGION}"
-                    }
+                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f --region ${AWS_DEFAULT_REGION}"
                 }
             }
         }
         stage('Delete Cloudformation Stack'){
             steps{
                 script{
-                        sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
-                        //wait for cloudformation stack to delete
-                        sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
-                    }
+                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
+                    //wait for cloudformation stack to delete
+                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
                 }
             }
         }
