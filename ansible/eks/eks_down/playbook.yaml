@@ -1,0 +1,51 @@
+
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+      ############################
+      ##### Update KubeConfig ####
+      ############################
+
+    - name: Switch Context to Cluster
+      shell: |
+        aws eks --region "{{ REGION }}" update-kubeconfig --name "{{ CLUSTER_NAME }}"
+
+    - name: Get ingress endpoint 
+      shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: dns_hostname
+
+      #############################
+      #########  Delete  ##########
+      #############################
+
+    - name: Delete Route53
+      route53:
+        state: absent
+        hosted_zone_id: "{{ HOSTED_ZONE}}"
+        record: "{{ RECORD_NAME }}"
+        ttl: "{{ ROUTE_53_TTL }}"
+        type: CNAME
+        value: "{{ dns_hostname.stdout }}"
+
+    - name: Delete Resources
+      ignore_errors: yes
+      shell: |
+        kubectl delete -f ingress.yaml -f service.yaml -f deployment.yaml -f cloudwatch.yaml -f namespace.yaml
+      args:
+        chdir: "{{ EKS_LOCATION }}"
+
+
+    - name: Detach IAM Policy
+      shell: |
+          export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --region "{{ REGION }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+          echo $PodRole
+          aws iam detach-role-policy \
+          --policy-arn "arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/FluentBitEKSFargate" \
+          --role-name ${PodRole}
+
+    - name: Delete EKS cluster
+      shell: | 
+          eksctl delete cluster "{{ CLUSTER_NAME }}" --region "{{ REGION }}"

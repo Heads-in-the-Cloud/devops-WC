@@ -1,0 +1,59 @@
+pipeline {
+
+    agent any
+
+    stages{
+            stage('Set up Environment Variables'){
+                steps{
+                    script {
+                        env.ENVIRONMENT = "dev"
+                        env.AWS_DEFAULT_REGION = "${REGION_WC}"
+                        env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                        env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                        env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                        env.DB_USER_PASSWORD = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim()                
+                    }
+                }
+            }
+            stage('Run Ansible Playbook') {
+                steps {
+                    script {
+                        results=ansibleTower(
+                            towerServer: 'Tower 1',
+                            jobTemplate: 'EKS-create-cluster',
+                            verbose: true,
+                            extraVars: '''---
+                            ENVIRONMENT: "$ENVIRONMENT"
+                            VPC_NAME: "WC-vpc-$ENVIRONMENT"
+                            REGION: "$REGION_WC"
+                            DB_HOST: "$DB_HOST"
+                            SECRET_KEY: "$SECRET_KEY"
+                            DB_USER: "$DB_USER"
+                            DB_USER_PASSWORD: "$DB_USER_PASSWORD"
+                            CLUSTER_NAME: "$CLUSTER_NAME_WC"
+                            AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
+                            RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"
+                            HOSTED_ZONE: "$HOSTED_ZONE"
+                            EKS_LOCATION: "../../../kubernetes/eks"
+                            HEALTH_CHECK: "health"
+                            CONTAINER_PORT: "5000"
+                            ROUTE_53_TTL: "300"
+                            USERS_PREFIX: "/*"
+                            FLIGHTS_PREFIX: "/airline/*"
+                            BOOKINGS_PREFIX: "/booking/*"
+                            FRONTEND_PREFIX: "/lms/*"
+                            USERS_HEALTH: "/health"
+                            BOOKINGS_HEALTH: "/booking/health"
+                            FLIGHTS_HEALTH: "/airline/read/airport"
+                            FRONTEND_HEALTH: "/lms/health"
+                            LOG_GROUP_NAME: "eks/wc-logs/$ENVIRONMENT"
+                            USERS_NUM_POD: "1"
+                            FLIGHTS_NUM_POD: "1"
+                            BOOKINGS_NUM_POD: "1"
+                            FRONTEND_NUM_POD: "1"
+                            ''')
+                    }
+                }
+            }
+        }
+}

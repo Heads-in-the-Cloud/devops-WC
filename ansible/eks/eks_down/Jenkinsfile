@@ -1,0 +1,34 @@
+pipeline {
+
+    agent any
+
+    stages{
+            stage('Set up Environment Variables'){
+                steps{
+                    script {
+                        env.ENVIRONMENT = "dev"         
+                    }
+                }
+            }
+            stage('Run Ansible Playbook') {
+                steps {
+                    script {
+                        results=ansibleTower(
+                            towerServer: 'Tower 1',
+                            jobTemplate: 'EKS-delete-cluster',
+                            verbose: true,
+                            extraVars: '''---
+                            ENVIRONMENT: "$ENVIRONMENT"
+                            REGION: "$REGION_WC"
+                            EKS_LOCATION: "../../../kubernetes/eks"
+                            CLUSTER_NAME: "$CLUSTER_NAME_WC"
+                            RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"
+                            HOSTED_ZONE: "$HOSTED_ZONE"
+                            ROUTE_53_TTL: "300"
+                            AWS_ACCOUNT_ID: "$ORG_ACCOUNT_NUM"
+                            ''')
+                    }
+                }
+            }
+        }
+}

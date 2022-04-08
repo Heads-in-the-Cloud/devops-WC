@@ -48,7 +48,14 @@ pipeline {
                                                 if (action.equals("create")){
                                                     return[]
                                                 }
+<<<<<<< HEAD
                                                 else{
+=======
+                                                else if(action.equals("delete")){
+                                                    return[]
+                                                }
+                                                else if(action.equals("update")){
+>>>>>>> feature-ansible-dev
                                                     return["users","flights","bookings","frontend"]
                                                 }
                                                 '''
@@ -63,6 +70,7 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
+<<<<<<< HEAD
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
@@ -81,14 +89,46 @@ pipeline {
                     env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENV}"
                     env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENV}"
                     env.PORT                = "${WC_CONTAINER_PORT}"
+=======
+                    env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
+                    env.AWS_REGION          = "$region"
+                    env.ENVIRONMENT         = "dev"
+                    env.VPC_NAME            = "WC-vpc-${ENVIRONMENT}"
+                    env.ELK_URL             = "elk-docker-compose.hitwc.link"
+                    env.PARAM_ACTION        = params.action
+                    env.PARAM_CONTAINER     = params.container
+
+                    env.CLUSTER_NAME        = "ECS-Cluster-WC"
+
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${ENVIRONMENT}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${ENVIRONMENT}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENVIRONMENT}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENVIRONMENT}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENVIRONMENT}"
+                    env.PORT                = 5000
+                    env.USERS_CONTAINER     = "${USER_REPO_WC}"
+                    env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
+                    env.BOOKINGS_CONTAINER  = "${BOOKING_REPO_WC}"
+                    env.FRONTEND_CONTAINER  = "${FRONTEND_REPO_WC}"
+
+                    env.TG_NAME_USERS       = "WC-Users"
+                    env.TG_NAME_FLIGHTS     = "WC-Flights"
+                    env.TG_NAME_BOOKINGS    = "WC-Bookings"
+                    env.TG_NAME_FRONTEND    = "WC-Frontend"
+>>>>>>> feature-ansible-dev
 
                     env.USERS_TG            = "UsersTG"
                     env.FLIGHTS_TG          = "FlightsTG"
                     env.BOOKINGS_TG         = "BookingsTG"
                     env.FRONTEND_TG         = "FrontendTG"
 
+<<<<<<< HEAD
                     env.ECS_ALB             = "ECSALB"
                     env.ECS_SG              = "EcsSecurityGroup"
+=======
+                    env.ECS_ALB              = "ECSALB"
+                    env.ECS_SG               = "EcsSecurityGroup"
+>>>>>>> feature-ansible-dev
 
                     env.CPU_USERS           = "512"
                     env.CPU_FLIGHTS         = "512"
@@ -105,6 +145,7 @@ pipeline {
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
+<<<<<<< HEAD
                     env.CLUSTER_ACTIVE          = false
                     env.CF_STACK_CREATED        = false
                     env.CLUSTER_CREATED         = false
@@ -130,13 +171,71 @@ pipeline {
                     if (env.cluster && env.cluster == "ACTIVE"){
                         echo "cluster is already active"
                         env.CLUSTER_ACTIVE = true
+=======
+                    env.CF_STACK_CREATED        = false
+                    env.CLUSTER_CREATED         = false
+                    env.UPSERT                  = false
+
+                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+
+                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.SUBNET1             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.SUBNET2             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                }
+            }
+        }
+        stage('Set up conditionals'){
+            when {                    
+                expression { 
+                    return params.environment == 'prod'
+                }
+            }
+            steps{
+                script{
+                    env.CPU_USERS           = "512"
+                    env.CPU_FLIGHTS         = "1024"
+                    env.CPU_BOOKINGS        = "1024"
+                    env.CPU_FRONTEND        = "1024"
+
+                    env.MEM_USERS           = "4GB"
+                    env.MEM_FLIGHTS         = "4GB"
+                    env.MEM_BOOKINGS        = "4GB"
+                    env.MEM_FRONTEND        = "4GB"
+
+                    env.DESIRED_COUNT_USERS     = 1
+                    env.DESIRED_COUNT_FLIGHTS   = 2
+                    env.DESIRED_COUNT_BOOKINGS  = 2
+                    env.DESIRED_COUNT_FRONTEND  = 2
+                }
+            }
+        }
+        stage('Update Microservices'){
+            when {                    
+                expression { 
+                        return params.action == 'update'
+                    }
+                }
+            steps{
+                script {
+                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
+                    if ("${cluster}" == "INACTIVE"){
+                        sh "echo 'Skipping update of services. ECS cluster is not up currently'"
+                        env.PARAM_ACTION='create'
+>>>>>>> feature-ansible-dev
                     }
                 }
             }
         }
         stage('Create Cloudformation Stack') {
             when {
+<<<<<<< HEAD
                 environment name: 'CLUSTER_ACTIVE', value: 'false'
+=======
+                environment name: 'PARAM_ACTION', value: 'create'
+>>>>>>> feature-ansible-dev
             }
             steps{
                 script{
@@ -144,6 +243,7 @@ pipeline {
 
                         sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
+<<<<<<< HEAD
                         Subnet1=${PRIVATE_SUBNET1} \
                         Subnet2=${PRIVATE_SUBNET2} \
                         Environment=${ENV} \
@@ -158,6 +258,22 @@ pipeline {
                         TGNameFlights=${FLIGHTS_TG} \
                         TGNameBookings=${BOOKINGS_TG} \
                         TGNameFrontend=${FRONTEND_TG} \
+=======
+                        Subnet1=${SUBNET1} \
+                        Subnet2=${SUBNET2} \
+                        Environment=${ENVIRONMENT} \
+                        FlightsPath=/airline/* \
+                        BookingsPath=/booking/* \
+                        FrontendPath=/lms/* \
+                        UsersHealthCheck=/health \
+                        FlightsHealthCheck=/airline/read/airport \
+                        BookingsHealthCheck=/health \
+                        FrontendHealthCheck=/health \
+                        TGNameUsers=${TG_NAME_USERS} \
+                        TGNameFlights=${TG_NAME_FLIGHTS} \
+                        TGNameBookings=${TG_NAME_BOOKINGS} \
+                        TGNameFrontend=${TG_NAME_FRONTEND} \
+>>>>>>> feature-ansible-dev
                         HostedZoneId=${HOSTED_ZONE} \
                         RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
@@ -167,7 +283,11 @@ pipeline {
                 }
             }
             post {
+<<<<<<< HEAD
                 success{
+=======
+                always{
+>>>>>>> feature-ansible-dev
                     script {
                         CF_STACK_CREATED = true
                     }
@@ -175,6 +295,12 @@ pipeline {
             }
         }
         stage('Get Cloudformation Stack Resource IDs'){
+<<<<<<< HEAD
+=======
+            when { 
+                environment name: 'PARAM_ACTION', value: 'create'
+            }
+>>>>>>> feature-ansible-dev
             steps{
                 script{
                     env.SECURITY_GROUP= sh ( script: "aws cloudformation describe-stack-resource \
@@ -349,7 +475,6 @@ pipeline {
             }
         }
     }
-    
     post {
         failure {
             script {

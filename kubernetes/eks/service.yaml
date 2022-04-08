@@ -2,17 +2,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: users-service
-  namespace: default
+  namespace: kube-system
   labels:
     app: users-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $USERS_HEALTH
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+    # alb.ingress.kubernetes.io/successCodes: "200"
+    # alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
 spec:
   selector:
     app: users-microservice
   ports:
     - protocol: TCP
-      port: 5000
+      port: $CONTAINER_PORT
       name: http
 
 ---
@@ -21,17 +25,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flights-service
-  namespace: default
+  namespace: kube-system
   labels:
     app: flights-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $FLIGHTS_HEALTH
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+    # alb.ingress.kubernetes.io/successCodes: "200"
+    # alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
 spec:
   selector:
     app: flights-microservice
   ports:
     - protocol: TCP
-      port: 5000
+      port: $CONTAINER_PORT
       name: http
 
 ---
@@ -40,17 +48,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bookings-service
-  namespace: default
+  namespace: kube-system
   labels:
     app: bookings-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $BOOKINGS_HEALTH
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+    # alb.ingress.kubernetes.io/successCodes: "200"
+    # alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
 spec:
   selector:
     app: bookings-microservice
   ports:
     - protocol: TCP
-      port: 5000
+      port: $CONTAINER_PORT
       name: http
 
 ---
@@ -59,15 +71,19 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
-  namespace: default
+  namespace: kube-system
   labels:
     app: frontend-microservice
   annotations:
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: $FRONTEND_HEALTH
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+    # alb.ingress.kubernetes.io/successCodes: "200"
+    # alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
 spec:
   selector:
     app: frontend-microservice
   ports:
     - protocol: TCP
-      port: 5000
+      port: $CONTAINER_PORT
       name: http

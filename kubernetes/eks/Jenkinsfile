@@ -2,10 +2,66 @@ pipeline {
     agent any
 
     stages{
+stage('Setup parameters') {
+            steps {
+                script {
+                properties([
+                        parameters([
+                            [$class: 'ChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the action to perform', 
+                                filterLength: 1, 
+                                filterable: false, 
+                                name: 'action', 
+                                script: [
+                                    $class: 'GroovyScript', 
+                                    fallbackScript: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['Could not load actions']"
+                                    ], 
+                                    script: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['up','down']"
+                                    ]
+                                ]
+                            ],
+                            [$class: 'CascadeChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the environment',
+                                name: 'environment', 
+                                referencedParameters: 'action', 
+                                script: 
+                                    [$class: 'GroovyScript', 
+                                    fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: "return['Could not get Environment from Env Param']"
+                                            ], 
+                                    script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: '''
+                                            if(action.equals("up")){
+                                                return["dev","prod"]
+                                            }
+                                            '''
+                                        ] 
+                                ]
+                            ]
+                        ])
+                    ])
+                }
+            }
+        }
         stage('retrieve secrets'){
             steps{
                 script{
-
+                    
+                    env.ENVIRONMENT = params.environment
                     env.DB_HOST = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER = sh ( script: 'aws secretsmanager get-secret-value --secret-id prod/Walter/secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_username"', returnStdout: true).trim()
@@ -13,13 +69,31 @@ pipeline {
                     env.AWS_REGION = "${region}"
                     env.HOSTED_ZONE = "${HOSTED_ZONE}"
                     env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                    env.RECORD_NAME = "utopia-wc-eks.hitwc.link"
+                    env.RECORD_NAME = "utopia-wc-eks-${params.environment}.hitwc.link"
                     env.AWS_ACCOUNT_ID= "${ORG_ACCOUNT_NUM}"
+                    env.DNS=""
 
                     
                 }
             }
         }
+        // stage('create cluster'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'up'
+        //         }
+        //     }
+        //     steps {
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+        //             dir("kubernetes/eks") {
+        //                 sh 'chmod +x up.sh'
+        //                 sh './up.sh'
+        //             }
+        //         }
+        //     }
+        // }
+        
         stage('export VPC and subnet IDs'){
             when {
                 expression {
@@ -29,12 +103,11 @@ pipeline {
             steps{
                 script{
                     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=WC-vpc | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                        private_subnet1 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[0]'", returnStdout: true).trim()
-                        private_subnet2 = sh( script: "aws ec2 describe-subnets --filter Name=vpc-id,Values=${VPC_ID} --query 'Subnets[?MapPublicIpOnLaunch==`false`].SubnetId' | jq '.[1]'", returnStdout: true).trim()
-                        // sh "echo $PRIVATE_SUBNETS | jq '.[0]'"
-                        // private_subnet1 = sh( script: "echo $PRIVATE_SUBNETS | jq '.[0]'", returnStdout: true).trim()
-                        // private_subnet2 = sh( script: "echo ${PRIVATE_SUBNETS} | jq '.[1]'", returnStdout: true).trim()
+                        VPC_ID = sh( script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=Jenkins-VPC | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                        private_subnet1 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                        private_subnet2 = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} --filters Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                        sh "echo $private_subnet1"
+                        sh "echo $private_subnet2"
                     }
                 }
             }
@@ -47,7 +120,7 @@ pipeline {
             }
             steps{
                 script{
-                    sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${region} --fargate \
+                    sh "eksctl create cluster --name=${CLUSTER_NAME_WC} --region=${AWS_REGION} --fargate \
                     --vpc-private-subnets=${private_subnet1},${private_subnet2}"               
                 }
             }
@@ -72,6 +145,8 @@ pipeline {
             }
             steps{
                 script{
+                    sh "kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml"
+
                     sh "eksctl create iamserviceaccount \
                         --name=alb-ingress-controller \
                         --namespace=kube-system \
@@ -96,19 +171,20 @@ pipeline {
             }
             steps{
                 script{
-                    dir("cloud/kubernetes") {
+                    dir("kubernetes/eks") {
+                        sh "chmod +x up.sh"
+                        sh "./up.sh"
+                        // sh "kubectl create secret generic db-info \
+                        // --from-literal=db_user=${DB_USER} \
+                        // --from-literal=db_host=${DB_HOST} \
+                        // --from-literal=db_user_password=${DB_USER_PASSWORD}"
 
-                        sh "kubectl create secret generic db-info \
-                        --from-literal=db_user=${DB_USER} \
-                        --from-literal=db_host=${DB_HOST} \
-                        --from-literal=db_user_password=${DB_USER_PASSWORD}"
+                        // sh "kubectl create secret generic jwt-secret \
+                        // --from-literal=secret_key=${SECRET_KEY}"
 
-                        sh "kubectl create secret generic jwt-secret \
-                        --from-literal=secret_key=${SECRET_KEY}"
+                        // sh "kubectl apply -f service.yaml -f ingress.yaml"
 
-                        sh "kubectl apply -f service.yaml -f ingress.yaml"
-
-                        sh "sed -e 's/$AWS_REGION/'"$AWS_REGION"'/g' -e 's/$AWS_ACCOUNT_ID/'"$AWS_ACCOUNT_ID"'/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
+                        // sh "sed -e 's/$AWS_REGION/${AWS_REGION}/g' -e 's/$AWS_ACCOUNT_ID/${AWS_ACCOUNT_ID}/g' -e 's/$RECORD_NAME/'"$RECORD_NAME"'/g' deployment.yaml | kubectl apply -f -"      
                     }
                 }
             }
@@ -120,7 +196,10 @@ pipeline {
                 }
             }
             steps{
+
                 script{
+                    dir("kubernetes/eks") {
+                    sh "sleep 200"
                     DNS = sh (script: "timeout 200s bash -c 'until kubectl get ingress utopia-ingress --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'; do : ; done'", returnStdout: true).trim()
 
 
@@ -143,6 +222,11 @@ pipeline {
                  }
             }
         }
+<<<<<<< HEAD
+=======
+        }
+
+>>>>>>> feature-ansible-dev
         stage('delete cluster'){
             when {
                 expression { 
@@ -150,11 +234,17 @@ pipeline {
                 }
             }
             steps {
+<<<<<<< HEAD
                 dir("cloud/kubernetes") {
                     sh 'chmod +x down.sh'
                     sh './down.sh'
+=======
+                    dir("kubernetes/eks") {
+                        sh 'chmod +x down.sh'
+                        sh './down.sh'
+                    }
+>>>>>>> feature-ansible-dev
                 }
             }
-        }
     }
 }
