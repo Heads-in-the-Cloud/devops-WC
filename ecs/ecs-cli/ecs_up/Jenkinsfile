@@ -124,11 +124,6 @@ pipeline {
             }
         }
         stage('Check if cluster is up'){
-            // when {                    
-            //     expression { 
-            //             return params.action == 'update'
-            //         }
-            //     }
             steps{
                 script {
                     env.cluster=sh ( script: "aws ecs describe-clusters --region ${REGION_WC} --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
