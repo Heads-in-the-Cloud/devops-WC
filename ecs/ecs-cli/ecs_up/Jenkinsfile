@@ -167,7 +167,7 @@ pipeline {
                 }
             }
             post {
-                always{
+                success{
                     script {
                         CF_STACK_CREATED = true
                     }
