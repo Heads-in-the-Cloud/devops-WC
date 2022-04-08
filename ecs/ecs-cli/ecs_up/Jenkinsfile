@@ -101,7 +101,7 @@ pipeline {
                     env.MEM_FRONTEND        = "2GB"
 
                     env.DESIRED_COUNT_USERS     = 1
-                    env.DESIRED_COUNT_FLIGHTS   = 1
+                    env.DESIRED_COUNT_FLIGHTS   = 2
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
