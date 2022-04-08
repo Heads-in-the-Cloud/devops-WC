@@ -108,7 +108,6 @@ pipeline {
                     env.CLUSTER_ACTIVE          = false
                     env.CF_STACK_CREATED        = false
                     env.CLUSTER_CREATED         = false
-                    env.UPSERT                  = false
 
                     env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
                     env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
