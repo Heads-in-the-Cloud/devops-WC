@@ -1,0 +1,95 @@
+pipeline {
+
+    agent any
+
+    stages {
+        stage('Setup parameters') {
+            steps {
+                    script {
+                    properties([
+                            parameters([
+                                [$class: 'ChoiceParameter', 
+                                    choiceType: 'PT_SINGLE_SELECT', 
+                                    description: 'Select the action', 
+                                    filterLength: 1, 
+                                    filterable: false, 
+                                    name: 'action', 
+                                    script: [
+                                        $class: 'GroovyScript', 
+                                        fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['Could not load actions']"
+                                        ], 
+                                        script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: 
+                                                "return['apply','destroy']"
+                                        ]
+                                    ]
+                                ]
+                            ])
+                        ])
+                    }
+                }
+        }
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.TF_VAR_db_engine            ="mysql"
+                    env.TF_VAR_environment          ="dev"
+                    env.TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
+                    env.TF_VAR_eks_log_prefix       ="${WC_EKS_LOGS}"
+                    env.TF_VAR_region               ="${REGION_WC}"
+                    env.TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
+                    env.TF_VAR_vpc_name             ="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name     = "${JENKINS_VPC}"
+                    env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
+                    env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
+                    env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+                }
+            }
+        }
+        // stage('Configure region'){
+        //     steps{
+        //         script{
+        //             sh "sed 's/AWS_REGION/${REGION_WC}/g' config.tf > rds/config.tf"
+        //         }
+        //     }
+        // }
+        stage('Terraform init') {
+
+            steps {
+                script {
+                    dir("terraform/rds") {
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+        stage('Terraform plan') {
+
+            steps {
+                script{
+                    dir("terraform/rds") {
+                        if (params.action == 'destroy'){
+                            sh 'terraform plan -destroy'             
+                        }
+                        else{
+                            sh 'terraform plan'
+                        }   
+                    }
+                }
+            }
+        }
+        stage('Terraform action') {
+            steps {
+                dir("terraform/rds") {
+                    sh "terraform ${params.action} -auto-approve"
+                }
+            } 
+        }
+    }
+}

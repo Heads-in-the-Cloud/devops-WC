@@ -1,66 +1,67 @@
-variable "db_instance"{
-    type = string
-    default = ""
+variable "environment" { type=string }
+
+variable "db_user" { type=string }
+
+variable "ssm_path" { type=string }
+
+variable "db_instance"{ type=string }
+
+variable "db_name"{ type=string }
+
+variable "db_identifier"{ type=string }
+
+variable "db_engine_version"{ type=string }
+
+variable "db_engine"{ type=string }
+
+variable "subnet_group_id"{ type=string }
+
+variable "vpc_id"{ type=string }
+
+variable "instance_type" { type=string }
+
+variable "key_name" { type=string }
+
+variable "public_subnet_id" { type=string }
+
+variable "rds_ingress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+    }))
 }
 
-variable "db_name"{
-    type = string
-    default = ""
+variable "rds_egress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
+    }))
 }
 
-variable "db_identifier"{
-    type = string
-    default = ""
+variable "ec2_ingress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+    }))
 }
 
-variable "db_engine_version"{
-    type = string
-    default = ""
-}
-
-variable "db_engine"{
-    type = string
-    default = ""
-}
-
-
-variable "subnet_group_id"{
-    type = string
-    default = ""
-}
-
-variable "vpc_id"{
-    type = string
-    default = ""
-}
-
-variable "db_username"{
-    type = string
-    default = ""
-}
-
-variable "db_password"{
-    type = string
-    default = ""
-}
-
-variable "ami_id" {
-    type = string
-    default = "ami-00f7e5c52c0f43726"
-}
-
-variable "instance_type" {
-    type = string
-    default = "t2.micro"
-}
-
-
-variable "key_name" {
-    type = string
-    default = "SSH_KEY_WC"
-}
-
-variable "public_subnet_id" {
-    type = string
-    default = ""
+variable "ec2_egress" { 
+    type = list(object({
+        description     = string
+        from_port       = number        
+        to_port         = number
+        protocol        = string
+        cidr_blocks     = list(string)
+        ipv6_cidr_blocks= list(string)
+    }))
 }
