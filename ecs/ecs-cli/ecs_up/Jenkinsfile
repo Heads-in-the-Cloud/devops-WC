@@ -48,10 +48,7 @@ pipeline {
                                                 if (action.equals("create")){
                                                     return[]
                                                 }
-                                                else if(action.equals("delete")){
-                                                    return[]
-                                                }
-                                                else if(action.equals("update")){
+                                                else{
                                                     return["users","flights","bookings","frontend"]
                                                 }
                                                 '''
@@ -66,39 +63,32 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
-                    env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
-                    env.AWS_REGION          = "$region"
-                    env.ENVIRONMENT         = "dev"
-                    env.VPC_NAME            = "WC-vpc-${ENVIRONMENT}"
-                    env.ELK_URL             = "elk-docker-compose.hitwc.link"
                     env.PARAM_ACTION        = params.action
                     env.PARAM_CONTAINER     = params.container
 
+                    env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
+                    env.AWS_DEFAULT_REGION  = "$REGION_WC"
+                    env.ENV                 = "dev"
+                    env.VPC_NAME            = "${WC_vpc_name}-${ENV}"
+                    env.ELK_URL             = "${WC_ELK}"
+
+
                     env.CLUSTER_NAME        = "ECS-Cluster-WC"
 
-                    env.STACK_NAME          = "WC-ecs-alb-stack-${ENVIRONMENT}"
-                    env.USERS_SERVICE       = "WC-ecs-users-${ENVIRONMENT}"
-                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENVIRONMENT}"
-                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENVIRONMENT}"
-                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENVIRONMENT}"
-                    env.PORT                = 5000
-                    env.USERS_CONTAINER     = "${USER_REPO_WC}"
-                    env.FLIGHTS_CONTAINER   = "${FLIGHT_REPO_WC}"
-                    env.BOOKINGS_CONTAINER  = "${BOOKING_REPO_WC}"
-                    env.FRONTEND_CONTAINER  = "${FRONTEND_REPO_WC}"
-
-                    env.TG_NAME_USERS       = "WC-Users"
-                    env.TG_NAME_FLIGHTS     = "WC-Flights"
-                    env.TG_NAME_BOOKINGS    = "WC-Bookings"
-                    env.TG_NAME_FRONTEND    = "WC-Frontend"
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${ENV}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${ENV}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENV}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENV}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENV}"
+                    env.PORT                = "${WC_CONTAINER_PORT}"
 
                     env.USERS_TG            = "UsersTG"
                     env.FLIGHTS_TG          = "FlightsTG"
                     env.BOOKINGS_TG         = "BookingsTG"
                     env.FRONTEND_TG         = "FrontendTG"
 
-                    env.ECS_ALB              = "ECSALB"
-                    env.ECS_SG               = "EcsSecurityGroup"
+                    env.ECS_ALB             = "ECSALB"
+                    env.ECS_SG              = "EcsSecurityGroup"
 
                     env.CPU_USERS           = "512"
                     env.CPU_FLIGHTS         = "512"
@@ -115,65 +105,38 @@ pipeline {
                     env.DESIRED_COUNT_BOOKINGS  = 1
                     env.DESIRED_COUNT_FRONTEND  = 1
 
+                    env.CLUSTER_ACTIVE          = false
                     env.CF_STACK_CREATED        = false
                     env.CLUSTER_CREATED         = false
-                    env.UPSERT                  = false
 
-                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
-                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
-                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
-                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id dev/WC/utopia-secrets --region us-west-2  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
 
                     env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.SUBNET1             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.SUBNET2             = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         }
-        stage('Set up conditionals'){
-            when {                    
-                expression { 
-                    return params.environment == 'prod'
-                }
-            }
-            steps{
-                script{
-                    env.CPU_USERS           = "512"
-                    env.CPU_FLIGHTS         = "1024"
-                    env.CPU_BOOKINGS        = "1024"
-                    env.CPU_FRONTEND        = "1024"
-
-                    env.MEM_USERS           = "4GB"
-                    env.MEM_FLIGHTS         = "4GB"
-                    env.MEM_BOOKINGS        = "4GB"
-                    env.MEM_FRONTEND        = "4GB"
-
-                    env.DESIRED_COUNT_USERS     = 1
-                    env.DESIRED_COUNT_FLIGHTS   = 2
-                    env.DESIRED_COUNT_BOOKINGS  = 2
-                    env.DESIRED_COUNT_FRONTEND  = 2
-                }
-            }
-        }
-        stage('Update Microservices'){
-            when {                    
-                expression { 
-                        return params.action == 'update'
-                    }
-                }
+        stage('Check if cluster is up'){
             steps{
                 script {
-                    env.cluster=sh ( script: "aws ecs describe-clusters --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
-                    if ("${cluster}" == "INACTIVE"){
-                        sh "echo 'Skipping update of services. ECS cluster is not up currently'"
-                        env.PARAM_ACTION='create'
+                    env.cluster=sh ( script: "aws ecs describe-clusters --region ${REGION_WC} --cluster $CLUSTER_NAME  | jq --raw-output .clusters | jq '.[].status'", returnStdout: true).trim().replaceAll("\"", "")
+                    echo env.cluster
+                    if (env.cluster && env.cluster == "ACTIVE"){
+                        echo "cluster is already active"
+                        env.CLUSTER_ACTIVE = true
                     }
                 }
             }
         }
         stage('Create Cloudformation Stack') {
             when {
-                environment name: 'PARAM_ACTION', value: 'create'
+                environment name: 'CLUSTER_ACTIVE', value: 'false'
             }
             steps{
                 script{
@@ -181,20 +144,20 @@ pipeline {
 
                         sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./definition_files/alb-cf.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
-                        Subnet1=${SUBNET1} \
-                        Subnet2=${SUBNET2} \
-                        Environment=${ENVIRONMENT} \
-                        FlightsPath=/airline/* \
-                        BookingsPath=/booking/* \
-                        FrontendPath=/lms/* \
-                        UsersHealthCheck=/health \
-                        FlightsHealthCheck=/airline/read/airport \
-                        BookingsHealthCheck=/health \
-                        FrontendHealthCheck=/health \
-                        TGNameUsers=${TG_NAME_USERS} \
-                        TGNameFlights=${TG_NAME_FLIGHTS} \
-                        TGNameBookings=${TG_NAME_BOOKINGS} \
-                        TGNameFrontend=${TG_NAME_FRONTEND} \
+                        Subnet1=${PRIVATE_SUBNET1} \
+                        Subnet2=${PRIVATE_SUBNET2} \
+                        Environment=${ENV} \
+                        FlightsPath=${WC_FLIGHTS_PREFIX} \
+                        BookingsPath=${WC_BOOKINGS_PREFIX} \
+                        FrontendPath=${WC_FRONTEND_PREFIX} \
+                        UsersHealthCheck=${WC_HEALTH_USERS} \
+                        FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
+                        BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
+                        FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
+                        TGNameUsers=${USERS_TG} \
+                        TGNameFlights=${FLIGHTS_TG} \
+                        TGNameBookings=${BOOKINGS_TG} \
+                        TGNameFrontend=${FRONTEND_TG} \
                         HostedZoneId=${HOSTED_ZONE} \
                         RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
 
@@ -204,7 +167,7 @@ pipeline {
                 }
             }
             post {
-                always{
+                success{
                     script {
                         CF_STACK_CREATED = true
                     }
@@ -253,15 +216,12 @@ pipeline {
         }
         stage('Create Cluster'){
             when {
-                expression { 
-                   return params.action == 'create'
-                }
+                environment name: 'CLUSTER_ACTIVE', value: 'false'
             }
             steps{
-
-                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE \
+                sh "ecs-cli up --vpc ${VPC_ID} --launch-type FARGATE --region ${REGION_WC}\
                     --capability-iam --cluster-config ${CLUSTER_NAME} \
-                    --subnets ${SUBNET1},${SUBNET2}"
+                    --subnets ${PRIVATE_SUBNET1},${PRIVATE_SUBNET2}"
             }
             post {
                 success {
@@ -271,152 +231,121 @@ pipeline {
                 }
             }
         }
-
-        // stage('Docker Compose Up'){
-        //     when {                    
-        //         expression { 
-        //                 return params.action == 'create'
-        //             }
-        //         }
-        //     steps{
-        //         script{
-        //             dir("ecs/ecs-cli"){
-        //                 try {                   
-        //                     sh 'chmod +x ecs_up/up.sh'
-
-        //                     env.CPU_LIMIT       = "$CPU_USERS"
-        //                     env.MEM_LIMIT       = "$MEM_USERS"
-        //                     env.SERVICE         = "$USERS_CONTAINER"
-        //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
-        //                     sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
-
-        //                     env.CPU_LIMIT       = "$CPU_FLIGHTS"
-        //                     env.MEM_LIMIT       = "$MEM_FLIGHTS"
-        //                     env.SERVICE         = "$FLIGHTS_CONTAINER"
-        //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-        //                     sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
-                            
-        //                     env.CPU_LIMIT       = "$CPU_BOOKINGS"
-        //                     env.MEM_LIMIT       = "$MEM_BOOKINGS"
-        //                     env.SERVICE         = "$BOOKINGS_CONTAINER"
-        //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-        //                     sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
-
-        //                     env.CPU_LIMIT       = "$CPU_FRONTEND"
-        //                     env.MEM_LIMIT       =" $MEM_FRONTEND"
-        //                     env.SERVICE         = "$FRONTEND_CONTAINER"
-        //                     env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-        //                     sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
-
-        //                 }
-        //                 catch (err) {
-        //                     echo err.getMessage()
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        stage('Docker compose users'){
-            when {
-                anyOf{          
-                    environment name: 'PARAM_CONTAINER', value: 'users'
-                    environment name: 'PARAM_ACTION', value: 'create'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x ecs_up/up.sh'
-                            env.CPU_LIMIT       = "$CPU_USERS"
-                            env.MEM_LIMIT       = "$MEM_USERS"
-                            env.SERVICE         = "$USERS_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
-                            sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
+        stage('Docker Compose Up'){
+            parallel {
+                stage('Docker compose users'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'users'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
+                            }
                         }
-                        catch (err) {
-                            echo err.getMessage()
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_USERS"
+                                    env.MEM_LIMIT       = "$MEM_USERS"
+                                    env.SERVICE         = "$USER_REPO_WC"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_USERS"
+                                    sh "./ecs_up/up.sh $USERS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},USERS_PORT=${PORT}' $USERS_TG_ARN"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
 
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-        stage('Docker compose flights'){
-            when {
-                anyOf{          
-                    environment name: 'PARAM_CONTAINER', value: 'flights'
-                    environment name: 'PARAM_ACTION', value: 'create'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x ecs_up/up.sh'
-                            env.CPU_LIMIT       = "$CPU_FLIGHTS"
-                            env.MEM_LIMIT       = "$MEM_FLIGHTS"
-                            env.SERVICE         = "$FLIGHTS_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
-                            sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
-                            
+                stage('Docker compose flights'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'flights'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
+                            }
                         }
-                        catch (err) {
-                            echo err.getMessage()
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_FLIGHTS"
+                                    env.MEM_LIMIT       = "$MEM_FLIGHTS"
+                                    env.SERVICE         = "$FLIGHT_REPO_WC"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_FLIGHTS"
+                                    sh "./ecs_up/up.sh $FLIGHTS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FLIGHTS_PORT=${PORT}' $FLIGHTS_TG_ARN"
+                                    
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
 
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-        stage('Docker compose bookings'){
-            when {
-                anyOf{          
-                    environment name: 'PARAM_CONTAINER', value: 'bookings'
-                    environment name: 'PARAM_ACTION', value: 'create'
-                    }
-                }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x ecs_up/up.sh'
-                            env.CPU_LIMIT       = "$CPU_BOOKINGS"
-                            env.MEM_LIMIT       = "$MEM_BOOKINGS"
-                            env.SERVICE         = "$BOOKINGS_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
-                            sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
+                stage('Docker compose bookings'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'bookings'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
+                            }
+                        }
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_BOOKINGS"
+                                    env.MEM_LIMIT       = "$MEM_BOOKINGS"
+                                    env.SERVICE         = "$BOOKING_REPO_WC"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_BOOKINGS"
+                                    sh "./ecs_up/up.sh $BOOKINGS_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},BOOKINGS_PORT=${PORT}' $BOOKINGS_TG_ARN"
 
-                        }
-                        catch (err) {
-                            echo err.getMessage()
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
 
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-        stage('Docker compose frontend'){
-            when {
-                anyOf{          
-                    environment name: 'PARAM_CONTAINER', value: 'frontend'
-                    environment name: 'PARAM_ACTION', value: 'create'
+                stage('Docker compose frontend'){
+                    when {
+                        anyOf{          
+                            environment name: 'PARAM_CONTAINER', value: 'frontend'
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
+                            }
+                        }
+                    steps{
+                        script{
+                            dir("ecs/ecs-cli"){
+                                try {
+                                    sh 'chmod +x ecs_up/up.sh'
+                                    env.CPU_LIMIT       = "$CPU_FRONTEND"
+                                    env.MEM_LIMIT       =" $MEM_FRONTEND"
+                                    env.SERVICE         = "$FRONTEND_REPO_WC"
+                                    env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
+                                    sh "./ecs_up/up.sh $FRONTEND_SERVICE 'FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
+
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
                     }
                 }
-            steps{
-                script{
-                    dir("ecs/ecs-cli"){
-                        try {
-                            sh 'chmod +x ecs_up/up.sh'
-                            env.CPU_LIMIT       = "$CPU_FRONTEND"
-                            env.MEM_LIMIT       =" $MEM_FRONTEND"
-                            env.SERVICE         = "$FRONTEND_CONTAINER"
-                            env.DESIRED_COUNT   = "$DESIRED_COUNT_FRONTEND"
-                            sh "./ecs_up/up.sh $FRONTEND_SERVICE 'DB_USER=${DB_USER},DB_USER_PASSWORD=${DB_USER_PASSWORD},SECRET_KEY=${SECRET_KEY},DB_HOST=${DB_HOST},FRONTEND_PORT=${PORT},HOST_DOMAIN=http://${HOST_DOMAIN}' $FRONTEND_TG_ARN"
-
-                        }
-                        catch (err) {
-                            echo err.getMessage()
+                stage('Move LoadBalancer to Public Subnets'){
+                    when {         
+                            environment name: 'CLUSTER_ACTIVE', value: 'false'
+                    }
+                    steps{
+                        script{
+                            sh "aws elbv2 set-subnets --load-balancer-arn $LOAD_BALANCER_ARN --subnets $PUBLIC_SUBNET1 $PUBLIC_SUBNET2"
                         }
                     }
                 }

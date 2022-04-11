@@ -1,0 +1,22 @@
+version: '3'
+services:
+  $SERVICE
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${SERVICE}:latest"
+    ports:
+      - "${PORT}:${PORT}"
+    logging:
+      driver: awsfirelens
+      options:
+        Name: es
+        Host: ${ELK_URL}
+        Port: ${PORT}
+        Index: ${SERVICE}
+  log_router:
+    image: "docker.io/amazon/aws-for-fluent-bit:latest"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-create-group: "true"
+        awslogs-group: /ecs/wc-logs/${ENV}
+        awslogs-region: ${AWS_DEFAULT_REGION}
+        awslogs-stream-prefix: ${SERVICE}

@@ -19,7 +19,7 @@ pipeline {
                             verbose: true,
                             extraVars: '''---
                             ENVIRONMENT: "$ENVIRONMENT"
-                            REGION: "$region"
+                            REGION: "$REGION_WC"
                             EKS_LOCATION: "../../../kubernetes/eks"
                             CLUSTER_NAME: "$CLUSTER_NAME_WC"
                             RECORD_NAME: "$ENVIRONMENT-wc-utopia-eks.hitwc.link"

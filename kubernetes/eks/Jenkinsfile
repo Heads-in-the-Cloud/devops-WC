@@ -222,8 +222,11 @@ stage('Setup parameters') {
                  }
             }
         }
+<<<<<<< HEAD
+=======
         }
 
+>>>>>>> feature-ansible-dev
         stage('delete cluster'){
             when {
                 expression { 
@@ -231,10 +234,16 @@ stage('Setup parameters') {
                 }
             }
             steps {
+<<<<<<< HEAD
+                dir("cloud/kubernetes") {
+                    sh 'chmod +x down.sh'
+                    sh './down.sh'
+=======
                     dir("kubernetes/eks") {
                         sh 'chmod +x down.sh'
                         sh './down.sh'
                     }
+>>>>>>> feature-ansible-dev
                 }
             }
     }

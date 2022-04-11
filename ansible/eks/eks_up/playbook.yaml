@@ -54,7 +54,7 @@
 
     - name: Associate Open ID Provider
       shell: |
-        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --approve
+        eksctl utils associate-iam-oidc-provider --cluster="{{ CLUSTER_NAME }}" --region "{{ REGION }}" --approve
 
     - name: Switch Context to Cluster
       shell: |
@@ -70,6 +70,7 @@
         eksctl create iamserviceaccount \
           --name=alb-ingress-controller \
           --namespace=kube-system \
+          --region="{{ REGION }}" \
           --cluster="{{ CLUSTER_NAME }}" \
           --attach-policy-arn="arn:aws:iam::{{ AWS_ACCOUNT_ID }}:policy/ALBIngressControllerIAMPolicy" \
           --override-existing-serviceaccounts \
@@ -102,8 +103,8 @@
     - name: Set up CloudWatch Logs
       shell: |
         kubectl apply -f namespace.yaml
-        sed -e 's/$AWS_REGION/'"{{REGION}}"'/g' cloudwatch.yaml | kubectl apply -f -
-        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
+        sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$LOG_GROUP_NAME#'"{{LOG_GROUP_NAME}}"'#g' cloudwatch.yaml | kubectl apply -f -
+        export PodRole=$(aws eks describe-fargate-profile --cluster-name "{{ CLUSTER_NAME }}" --region "{{ REGION }}" --fargate-profile-name fp-default --query 'fargateProfile.podExecutionRoleArn' | sed -n 's/^.*role\/\(.*\)".*$/\1/ p')
         echo $PodRole
 
         aws iam attach-role-policy \
@@ -132,8 +133,10 @@
         sed -e 's#$AWS_REGION#'"{{REGION}}"'#g' -e 's#$AWS_ACCOUNT_ID#'"{{AWS_ACCOUNT_ID}}"'#g' \
         -e 's#$RECORD_NAME#'"http://{{RECORD_NAME}}"'#g' -e 's#$CONTAINER_PORT#'"{{CONTAINER_PORT}}"'#g' \
         deployment.yaml | kubectl apply -f -
+
       args:
         chdir: "{{ EKS_LOCATION }}"
+
 
       ##############################
       #########  Route 53  #########
@@ -147,14 +150,16 @@
       shell: kubectl get ingress utopia-ingress -n kube-system --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
       register: dns_hostname
 
+
     - name: Set up Route53
       route53:
         state: present
         hosted_zone_id: "{{ HOSTED_ZONE}}"
-        record: "{{ENVIRONMENT}}-{{ RECORD_NAME }}"
+        record: "{{ RECORD_NAME }}"
         ttl: "{{ ROUTE_53_TTL }}"
         type: CNAME
         value: "{{ dns_hostname.stdout }}"
+
 
 
 

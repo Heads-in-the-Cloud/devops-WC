@@ -3,17 +3,21 @@ task_definition:
   task_execution_role: ecsTaskExecutionRole
   ecs_network_mode: awsvpc
   task_size:
-    cpu_limit: 512
-    mem_limit: 2GB
+    cpu_limit: $CPU_LIMIT
+    mem_limit: $MEM_LIMIT
   services:
-    SERVICE:
+    $SERVICE:
       essential: true
+    log_router:
+      essential: true
+      firelens_configuration:
+        type: fluentbit
 run_params:
   network_configuration:
     awsvpc_configuration:
       subnets:
-        - SUBNET1
-        - SUBNET2
+        - $PRIVATE_SUBNET1
+        - $PRIVATE_SUBNET2
       security_groups:
-        - SECURITY_GROUP
+        - $SECURITY_GROUP
       assign_public_ip: ENABLED

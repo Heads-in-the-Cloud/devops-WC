@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-
+Conditions:
+  ProdEnv:
+    "Fn::Equals":
+        - !Ref Environment
+        - prod
 Parameters:
   VpcId:
     Type: 'AWS::EC2::VPC::Id'
@@ -10,6 +14,10 @@ Parameters:
     Description: Public subnets for the load balancer
   Subnet2:
     Type: String
+  
+  Environment:
+    Type: String
+    Default: dev
 
   #ALB Listener Parameters
   FlightsPath:
@@ -18,6 +26,8 @@ Parameters:
     Type: String
   FrontendPath:
     Type: String
+
+    
   #Target Group Parameters
   UsersHealthCheck:
     Type: String
@@ -27,6 +37,14 @@ Parameters:
   BookingsHealthCheck:
     Type: String
   FrontendHealthCheck:
+    Type: String
+  TGNameUsers:
+    Type: String
+  TGNameFlights:
+    Type: String
+  TGNameBookings:
+    Type: String
+  TGNameFrontend:
     Type: String
   
   #Route53 Parameters
@@ -40,7 +58,7 @@ Resources:
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: WC-ecs-alb
+      Name: !Join [ '-', [WC-ecs-alb, !Ref Environment ]]
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
@@ -63,6 +81,15 @@ Resources:
       FromPort: 80
       ToPort: 80
       CidrIp: 0.0.0.0/0
+  AlbSecurityGroupHTTPSinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 0.0.0.0/0
+    Condition: ProdEnv
   AlbSecurityGroupSSHinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -146,7 +173,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: UsersTG
+      Name: !Join [ '-', [TGNameUsers, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -164,7 +191,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FlightsTG
+      Name: !Join [ '-', [TGNameFlights, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -182,7 +209,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: BookingsTG
+      Name: !Join [ '-', [TGNameBookings, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -200,7 +227,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FrontendTG
+      Name: !Join [ '-', [TGNameFrontend, !Ref Environment ]]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -215,6 +242,6 @@ Resources:
       ResourceRecords:
         - !GetAtt ECSALB.DNSName
       HostedZoneId: !Ref HostedZoneId
-      Name: !Ref RecordName
+      Name: !Join [ '-', [ !Ref Environment, !Ref RecordName ]]
       Type: 'CNAME'
       TTL: '300'

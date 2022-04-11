@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+    stages {
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.AWS_ACCOUNT_ID      = "$ORG_ACCOUNT_NUM"
+                    env.AWS_DEFAULT_REGION  = "$REGION_WC"
+                    env.ENVIRONMENT         = "dev"
+
+                    env.PORT                = "${WC_CONTAINER_PORT}"
+
+                    env.CLUSTER_NAME        = "ECS-Cluster-WC"
+
+                    env.STACK_NAME          = "WC-ecs-alb-stack-${ENVIRONMENT}"
+                    env.USERS_SERVICE       = "WC-ecs-users-${ENVIRONMENT}"
+                    env.FLIGHTS_SERVICE     = "WC-ecs-flights-${ENVIRONMENT}"
+                    env.BOOKINGS_SERVICE    = "WC-ecs-bookings-${ENVIRONMENT}"
+                    env.FRONTEND_SERVICE    = "WC-ecs-frontend-${ENVIRONMENT}"
+                }
+            }
+        }
+        stage('Docker Compose Down'){
+            parallel {
+                stage('Docker Compose Down Users'){
+                    steps{
+                        script {
+                            dir("ecs/ecs-cli"){
+
+                                sh 'chmod +x ecs_down/down.sh'
+                                try {
+                                    sh "./ecs_down/down.sh $USERS_SERVICE"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Docker Compose Down Flights'){
+                    steps{
+                        script {
+                            dir("ecs/ecs-cli"){
+
+                                sh 'chmod +x ecs_down/down.sh'
+                                try {
+                                    sh "./ecs_down/down.sh $FLIGHTS_SERVICE"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Docker Compose Down Bookings'){
+                    steps{
+                        script {
+                            dir("ecs/ecs-cli"){
+
+                                sh 'chmod +x ecs_down/down.sh'
+                                try {
+                                    sh "./ecs_down/down.sh $BOOKINGS_SERVICE"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Docker Compose Down Frontend'){
+                    steps{
+                        script {
+                            dir("ecs/ecs-cli"){
+
+                                sh 'chmod +x ecs_down/down.sh'
+                                try {
+                                    sh "./ecs_down/down.sh $FRONTEND_SERVICE"
+                                }
+                                catch (err) {
+                                    echo err.getMessage()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Delete Cluster'){
+            steps{
+                script{
+                    sh "ecs-cli down --cluster ${CLUSTER_NAME} -f --region ${AWS_DEFAULT_REGION}"
+                }
+            }
+        }
+        stage('Delete Cloudformation Stack'){
+            steps{
+                script{
+                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"
+                    //wait for cloudformation stack to delete
+                    sh "aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME"
+                }
+            }
+        }
+    }
+}
