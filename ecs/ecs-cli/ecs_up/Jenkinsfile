@@ -4,6 +4,7 @@ pipeline {
     stages{
         stage('Setup parameters') {
             steps {
+                
                     script {
                     properties([
                             parameters([
