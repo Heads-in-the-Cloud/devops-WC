@@ -1,0 +1,58 @@
+---
+- hosts: webservers
+  gather_facts: false
+
+  tasks:
+      - name: Update and upgrade system
+        shell: sudo apt update && sudo apt upgrade -y
+
+      # - name: Check if certbot is installed 
+      #   shell: 
+
+      - name: Install certbot
+        script: ./modules/installation.py --certbot
+        args:
+            executable: python3
+        # condition:
+
+      # - name: Check if openssh is installed
+      #   shell:
+
+      - name: Install openssh
+        script: ./modules/installation.py --openssh
+        args:
+            executable: python3
+
+      - name: Update certbot version to latest
+        script: ./modules/update.py
+        args:
+            executable: python3
+
+      # - name: Functional test
+      # - name: Rollback
+
+      # - name: Update openssh version to latest
+      # - name: Test ssh
+      # - name: Rollback
+
+    # - name: Remove existing certbot packages
+    #   shell: sudo apt-get remove certbot
+
+    # - name: Install certbot
+    #   shell: sudo apt install certbot python3-certbot-nginx
+    
+    # - name: Create certificate
+    #   shell: sudo certbot --nginx -m walter.chang@smoothstack.com -d certbot.hitwc.link
+
+    # - name: Ensure snap is updated
+    #   shell: sudo snap install core; sudo snap refresh core
+
+    # - name: Install certbot
+    #   shell: sudo snap install --classic certbot
+    
+    # - name: Create symlink for certbot command
+    #   shell: sudo ln -s /snap/bin/certbot /usr/bin/certbot
+      # - name: Create venv
+      #   pip:
+      #     virtualenv: /venv
+      #     requirements: ./modules/requirements.txt

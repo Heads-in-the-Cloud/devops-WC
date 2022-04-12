@@ -1,0 +1,25 @@
+### Create a generic EC2 server with the Ubuntu 20 image 
+
+- hosts: localhost
+  gather_facts: false
+
+  tasks:
+  - name: Create ubuntu server
+    ec2_instance:
+      name: "wc-generic-ubuntu"
+      vpc_subnet_id: subnet-011ddfcbc5d63bdf8
+      instance_type: t2.micro
+      image_id: ami-0892d3c7ee96c0bf7
+      key_name: "GroupKey"
+      security_group: opencertbot-sg
+    register: ec2
+
+  - name: Create route53 record for the server
+    route53:
+      state: present
+      hosted_zone_id: Z02774322V8FI017JONWO
+      record: certbot.hitwc.link
+      ttl: 300
+      type: A
+      overwrite: yes
+      value: "{{ ec2.instances[0].public_ip_address }}"
