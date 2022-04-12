@@ -1,11 +1,13 @@
-import subprocess
-import argparse
+import subprocess, argparse, logging
 
 def install_certbot():
     try:
-        output = subprocess.check_output(["sudo", "apt", "install", "certbot", "python3-certbot-nginx", "-y"])
-        print(output)
-    except subprocess.CalledProcessError as exception:                                                                                                   
+        subprocess.check_output(["sudo", "apt", "install", "certbot", "python3-certbot-nginx", "-y"])
+    except subprocess.CalledProcessError as exception:   
+        logging.error(exception.output)
+        f = open("logs.txt", "a")
+        f.write(exception.output)
+        f.close()
         print("error code", exception.returncode, exception.output)
     try: 
         subprocess.check_output(["sudo", "certbot", "--nginx", "-m", "walter.chang@smoothstack.com", "--agree-tos", "-d", "certbot.hitwc.link", "--redirect", "-n"])
@@ -14,15 +16,15 @@ def install_certbot():
 
 def install_openssh():
     try:
-        output = subprocess.check_output(["sudo", "apt-get", "install", "openssh-client", "-y"])
+        subprocess.check_output(["sudo", "apt-get", "install", "openssh-client", "-y"])
     except subprocess.CalledProcessError as exception:
         print("error code", exception.returncode, exception.output)
     try:
-        output = subprocess.check_output(["sudo", "systemctl", "enable", "ssh"])
+        subprocess.check_output(["sudo", "systemctl", "enable", "ssh"])
     except subprocess.CalledProcessError as exception:
         print("error code", exception.returncode, exception.output)
     try:
-        output = subprocess.check_output(["sudo", "ufw", "allow", "ssh"])
+        subprocess.check_output(["sudo", "ufw", "allow", "ssh"])
     except subprocess.CalledProcessError as exception:
         print("error code", exception.returncode, exception.output)
 
