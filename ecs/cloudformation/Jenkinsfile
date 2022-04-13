@@ -28,43 +28,44 @@ pipeline {
                 }
             }
         } 
-        // stage('create'){
-        //     when {
-        //         expression { 
-        //            return params.action == 'create'
-        //         }
-        //     }
-        //     steps{
-        //     sh "aws cloudformation deploy --stack-name ${STACK_NAME}-${params.environment} --template-file ./template.yaml --parameter-overrides \
-        //             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                    // ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
-        //             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
-        //             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
-        //             ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
-        //             ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
-        //             ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
-        //             ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-        //             ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
-        //             ParameterKey=EnvType,ParameterValue=${params.environment} \
-        //             ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
-        //             ParameterKey=Region,ParameterValue=${REGION_WC} \
-        //             ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
-        //             ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
-        //             ParameterKey=BookingsRepo,ParameterValue=${BOOKINGS_REPO_WC} \
-        //             ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
-        //             ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
-        //             ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
-        //             ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
-        //             ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
-        //             ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
-        //             ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
-        //             ParameterKey=DbHost,ParameterValue=db_host \
-        //             ParameterKey=DbUser,ParameterValue=db_user \
-        //             ParameterKey=DbPassword,ParameterValue=db_password \
-        //             ParameterKey=SecretKey,ParameterValue=secret_key"
-
-        //     }
-        // }
+        stage('create'){
+            when {
+                expression { 
+                   return params.action == 'create'
+                }
+            }
+            steps{
+                dir('ecs/ecs-cli'){
+                    sh "aws cloudformation deploy --stack-name ${STACK_NAME}-${params.environment} --template-file ./template.yaml --parameter-overrides \
+                            ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                            ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
+                            ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
+                            ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                            ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
+                            ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
+                            ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
+                            ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                            ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
+                            ParameterKey=EnvType,ParameterValue=${params.environment} \
+                            ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
+                            ParameterKey=Region,ParameterValue=${REGION_WC} \
+                            ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
+                            ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
+                            ParameterKey=BookingsRepo,ParameterValue=${BOOKINGS_REPO_WC} \
+                            ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
+                            ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                            ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
+                            ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
+                            ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
+                            ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
+                            ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
+                            ParameterKey=DbHost,ParameterValue=db_host \
+                            ParameterKey=DbUser,ParameterValue=db_user \
+                            ParameterKey=DbPassword,ParameterValue=db_password \
+                            ParameterKey=SecretKey,ParameterValue=secret_key"
+                }
+            }
+        }
         // stage('delete'){
         //     when {
         //         expression { 
