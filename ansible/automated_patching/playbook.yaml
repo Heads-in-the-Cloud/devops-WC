@@ -1,17 +1,30 @@
 ---
 - hosts: webservers
   gather_facts: false
+  vars_files:
+    - ./variables.yaml
+
 
   tasks:
-      # - name: Update and upgrade system
-      #   shell: sudo apt update && sudo apt upgrade -y
+      - name: Update and upgrade system
+        shell: sudo apt update && sudo apt upgrade -y
+
+      - name: Ensure that nginx is installed an enabled
+        block:
+        - name: Check if nginx is installed
+          shell: systemctl is-active --quiet nginx
+        rescue:
+        - name: Install nginx
+          script: ./modules/installation.py --nginx
+          args:
+              executable: python3
 
       - name: Check if certbot is installed 
-        shell: if dpkg -l | grep certbot > /dev/null; then echo 'true'; else echo 'false'; fi
+        shell: if snap list | grep certbot > /dev/null; then echo 'true'; else echo 'false'; fi
         register: certbot_installed
 
       - name: Install certbot
-        script: ./modules/installation.py --certbot
+        script: ./modules/installation.py --certbot -d "{{ DOMAIN }}"
         args:
             executable: python3
         when: certbot_installed.stdout == 'false'
@@ -30,11 +43,32 @@
             executable: python3
         when: openssh_installed.stdout == 'false'
 
-        
-      # - name: Update certbot version to latest
-      #   script: ./modules/update.py
-      #   args:
-      #       executable: python3
+      - name: Update certbot version to latest
+        script: ./modules/installation.py --certbot --update
+        args:
+            executable: python3
+
+      - name: Functional testing for certbot
+        block:
+          - name: Test certbot
+            script: ./modules/tests.py -d "{{ DOMAIN }}" --certbot
+            args:
+                executable: python3
+        rescue:
+          - name: Rollback certbot
+            shell: echo ROLLBACK CERTBOT
+
+      - name: Functional testing for openssh
+        block:
+          - name: Test openssh
+            script: ./modules/tests.py -d "{{ DOMAIN }}" --openssh
+            args:
+                executable: python3
+        rescue:
+          - name: Rollback openssh
+            shell: echo HELLO
+
+
 
       # - name: Functional test
       # - name: Rollback

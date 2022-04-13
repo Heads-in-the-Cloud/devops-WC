@@ -2,23 +2,25 @@
 
 - hosts: localhost
   gather_facts: false
+  vars_files:
+    - ./variables.yaml
 
   tasks:
   - name: Create ubuntu server
     ec2_instance:
       name: "wc-generic-ubuntu"
-      vpc_subnet_id: subnet-011ddfcbc5d63bdf8
+      vpc_subnet_id: "{{ SUBNET }}"
       instance_type: t2.micro
-      image_id: ami-0892d3c7ee96c0bf7
-      key_name: "GroupKey"
+      image_id: "{{ AMI }}"
+      key_name: "{{ KEY }}"
       security_group: opencertbot-sg
     register: ec2
 
   - name: Create route53 record for the server
     route53:
       state: present
-      hosted_zone_id: Z02774322V8FI017JONWO
-      record: certbot.hitwc.link
+      hosted_zone_id: "{{ HOSTED_ZONE }}"
+      record: "{{ DOMAIN }}"
       ttl: 300
       type: A
       overwrite: yes
