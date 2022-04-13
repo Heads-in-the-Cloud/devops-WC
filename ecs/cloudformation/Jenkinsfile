@@ -46,7 +46,7 @@ pipeline {
                             ParameterKey=Region,ParameterValue=${REGION_WC} \
                             ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
                             ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
-                            ParameterKey=BookingsRepo,ParameterValue=${BOOKINGS_REPO_WC} \
+                            ParameterKey=BookingsRepo,ParameterValue=${BOOKING_REPO_WC} \
                             ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
                             ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
                             ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
