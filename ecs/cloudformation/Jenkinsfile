@@ -3,19 +3,19 @@ pipeline {
 
     stages {
         stage('Setup parameters') {
-                    steps {
-                        script { 
-                            properties([
-                                parameters([
-                                    choice(
-                                        choices: ['create', 'delete'], 
-                                        name: 'action'
-                                    )
-                                ])
-                            ])
-                        }
-                    }
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['dev', 'prod', 'test'], 
+                                name: 'environment'
+                            )
+                        ])
+                    ])
                 }
+            }
+        }
 
         stage('setup environment'){
             steps{
@@ -24,35 +24,66 @@ pipeline {
                     env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
                     env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
                     env.STACK_NAME = "${CF_STACK_WC}"
+                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
+                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
+                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
+                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+
+                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                 }
             }
         } 
-        stage('create'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    dir("cloud/cloudformation") {
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
-                    }
-                }
-            }
-        }
-        stage('delete'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
-                }
-            }
-        }
+        // stage('create'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
+        //     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
+        //             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+        //             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
+        //             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
+        //             ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
+        //             ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
+        //             ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
+        //             ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+        //             ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
+        //             ParameterKey=EnvType,ParameterValue=${params.environment} \
+        //             ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
+        //             ParameterKey=Region,ParameterValue=${REGION_WC} \
+        //             ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
+        //             ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
+        //             ParameterKey=BookingsRepo,ParameterValue=${BOOKINGS_REPO_WC} \
+        //             ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
+        //             ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+        //             ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
+        //             ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
+        //             ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
+        //             ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
+        //             ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
+        //             ParameterKey=DbHost,ParameterValue=db_host \
+        //             ParameterKey=DbUser,ParameterValue=db_user \
+        //             ParameterKey=DbPassword,ParameterValue=db_password \
+        //             ParameterKey=SecretKey,ParameterValue=secret_key"
+
+        //     }
+        // }
+        // stage('delete'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'delete'
+        //         }
+        //     }
+        //     steps{
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        //             sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
+        //         }
+        //     }
+        // }
     }
 }
