@@ -31,7 +31,7 @@ pipeline {
         stage('create'){
             steps{
                 dir('ecs/ecs-cli'){
-                    sh "aws cloudformation deploy --stack-name ${STACK_NAME}-${params.environment} --template-file ./template.yaml --parameter-overrides \
+                    sh "aws cloudformation deploy --stack-name ${CF_STACK_WC}-${params.environment} --template-file ./template.yaml --parameter-overrides \
                             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                             ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
                             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
