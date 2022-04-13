@@ -67,6 +67,9 @@ Parameters:
   FrontendFamily:
     Type: String
     Description: Frontend task definition family
+  LogGroupName:
+    Type: String
+    Description: name of log group
 
   #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
   SSMSecretString:
@@ -555,7 +558,7 @@ Resources:
   myLogGroup: 
     Type: AWS::Logs::LogGroup
     Properties: 
-      LogGroupName: !Join [ '/', ['wc', 'ecs', !Ref EnvType ]]
+      LogGroupName: !Ref LogGroupName
       RetentionInDays: 1
 # Outputs:
 #   ecsservice:

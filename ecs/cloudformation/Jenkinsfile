@@ -20,16 +20,7 @@ pipeline {
         stage('setup environment'){
             steps{
                 script{
-                    env.HOSTED_ZONE = "${HOSTED_ZONE}"
-                    env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
-                    env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                    env.STACK_NAME = "${CF_STACK_WC}"
-                    env.DB_HOST             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_host"', returnStdout: true).trim()
-                    env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
-                    env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
-                    env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
-
-                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${WC_vpc_name} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                     env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
@@ -44,8 +35,9 @@ pipeline {
         //         }
         //     }
         //     steps{
-        //     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
+        //     sh "aws cloudformation deploy --stack-name ${STACK_NAME}-${params.environment} --template-file ./template.yaml --parameter-overrides \
         //             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                    // ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
         //             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
         //             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
         //             ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
