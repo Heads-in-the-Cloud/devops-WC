@@ -34,7 +34,6 @@ pipeline {
                 dir('ecs/cloudformation'){
                     sh "aws cloudformation deploy --stack-name ${CF_STACK_WC}-${params.environment} --template-file ./template.yaml --parameter-overrides \
                             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                            ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
                             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
                             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
                             ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
@@ -55,6 +54,7 @@ pipeline {
                             ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
                             ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
                             ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
+                            ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
                             ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
                             ParameterKey=UsersHealthCheck,ParameterValue=${WC_HEALTH_USERS} \
                             ParameterKey=FlighstHealthCheck,ParameterValue=${WC_HEALTH_FLIGHTS} \
