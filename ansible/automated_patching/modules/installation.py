@@ -17,64 +17,51 @@ def install_nginx():
         subprocess.check_output(["sudo", "systemctl", "start", "nginx"], stderr=STDOUT)
     except subprocess.CalledProcessError as exception:  
         logging.error(exception.output)
+        sys.exit(1)
 
 def install_certbot():
     try:
-        #get latest version of snapd
-        subprocess.check_output(["sudo", "snap", "install", "core"], stderr=STDOUT)
-        subprocess.check_output(["sudo", "snap", "refresh", "core"], stderr=STDOUT)
+        #setup virtual environment and upgrade pip
+        subprocess.check_output(["sudo", "apt", "install", "python3", "python3-venv", "libaugeas0", "-y"], stderr=STDOUT)
+        subprocess.check_output(["sudo", "python3", "-m", "venv", "/opt/certbot/"], stderr=STDOUT)
+        subprocess.check_output(["sudo", "/opt/certbot/bin/pip", "install", "--upgrade", "pip"], stderr=STDOUT)
 
-    except subprocess.CalledProcessError as exception:  
-        logging.error(exception.output)
-        return False
 
-    try:
         #install certbot
-        subprocess.check_output(["sudo", "snap", "install", "--classic", "certbot"], stderr=STDOUT)
-    except subprocess.CalledProcessError as exception:   
-        logging.error(exception.output)
-        return False
-    
-    #set up certificate with nginx using a non-interactive mode with email, domain, and license agreement
-    try: 
+        subprocess.check_output(["sudo", "/opt/certbot/bin/pip", "install", "certbot", "certbot-nginx"], stderr=STDOUT)
+
+        #set up symlink for cerbot command
+        subprocess.check_output(["sudo", "ln", "-s", "/opt/certbot/bin/certbot", "/usr/bin/certbot"], stderr=STDOUT)
+
+        #set up certificate with nginx using a non-interactive mode with email, domain, and license agreement
         subprocess.check_output(["sudo", "certbot", "--nginx", "-m", "walter.chang@smoothstack.com", "--agree-tos", "-d", args.domain, "--redirect", "-n"], stderr=STDOUT)
     except subprocess.CalledProcessError as exception:                                                                                                   
         logging.error(exception.output)
-        return False
+        sys.exit(1)
 
 def install_openssh():
 
     #install openssh-client using apt
     try:
         subprocess.check_output(["sudo", "apt-get", "install", "openssh-client", "-y"], stderr=STDOUT)
-    except subprocess.CalledProcessError as exception:
-        logging.error(exception.output)
-        return False
     
-    #enable ssh as a service
-    try:
+        #enable ssh as a service
         subprocess.check_output(["sudo", "systemctl", "enable", "ssh"], stderr=STDOUT)
-    except subprocess.CalledProcessError as exception:
-        logging.error(exception.output)
-        return False
     
-    #ufw allow ssh
-    try:
+        #ufw allow ssh
         subprocess.check_output(["sudo", "ufw", "allow", "ssh"], stderr=STDOUT)
     except subprocess.CalledProcessError as exception:
         logging.error(exception.output)
-        return False
+        sys.exit(1)
 
 def update_certbot():
     try:
-        subprocess.check_output(["ls", "-l"], stderr=STDOUT)
-        # subprocess.check_output(["sudo", "apt-get", "install", "--only-upgrade", "certbot"])
+        #update certbot, throw exit 1 if process failes
+        subprocess.check_output(["sudo", "/opt/certbot/bin/pip", "install", "--upgrade", "certbot-nginx"])
     except subprocess.CalledProcessError as exception:
         logging.error(exception.output)
-        return False
+        logging.error("Update certbot failed")
 
-def update_openssh():
-    pass
 
 if __name__ == "__main__":
 
@@ -95,9 +82,6 @@ if __name__ == "__main__":
         else:
             install_certbot()
     elif args.openssh:
-        if args.update:
-            update_openssh()
-        else:
-            install_openssh()
+        install_openssh()
     else:
         install_nginx()

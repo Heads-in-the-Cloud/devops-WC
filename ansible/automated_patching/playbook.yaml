@@ -4,8 +4,8 @@
   vars_files:
     - ./variables.yaml
 
-
   tasks:
+  
       - name: Update and upgrade system
         shell: sudo apt update && sudo apt upgrade -y
 
@@ -19,8 +19,10 @@
           args:
               executable: python3
 
-      - name: Check if certbot is installed 
-        shell: if snap list | grep certbot > /dev/null; then echo 'true'; else echo 'false'; fi
+      - name: Check if certbot is installed
+        shell: |
+          certbot --version > /dev/null
+          if [ $(echo $?) == "0" ]; then echo true; else echo false; fi
         register: certbot_installed
 
       - name: Install certbot
@@ -56,7 +58,7 @@
                 executable: python3
         rescue:
           - name: Rollback certbot
-            shell: echo ROLLBACK CERTBOT
+            shell: sudo /opt/certbot/bin/pip install certbot certbot-nginx=="{{ certbot_version.stdout }}" --force-reinstall
 
       - name: Functional testing for openssh
         block:
@@ -66,35 +68,4 @@
                 executable: python3
         rescue:
           - name: Rollback openssh
-            shell: echo HELLO
-
-
-
-      # - name: Functional test
-      # - name: Rollback
-
-      # - name: Update openssh version to latest
-      # - name: Test ssh
-      # - name: Rollback
-
-    # - name: Remove existing certbot packages
-    #   shell: sudo apt-get remove certbot
-
-    # - name: Install certbot
-    #   shell: sudo apt install certbot python3-certbot-nginx
-    
-    # - name: Create certificate
-    #   shell: sudo certbot --nginx -m walter.chang@smoothstack.com -d certbot.hitwc.link
-
-    # - name: Ensure snap is updated
-    #   shell: sudo snap install core; sudo snap refresh core
-
-    # - name: Install certbot
-    #   shell: sudo snap install --classic certbot
-    
-    # - name: Create symlink for certbot command
-    #   shell: sudo ln -s /snap/bin/certbot /usr/bin/certbot
-      # - name: Create venv
-      #   pip:
-      #     virtualenv: /venv
-      #     requirements: ./modules/requirements.txt
+            shell: echo Rollback openssh-client version
