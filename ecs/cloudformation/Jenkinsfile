@@ -3,56 +3,56 @@ pipeline {
 
     stages {
         stage('Setup parameters') {
-                    steps {
-                        script { 
-                            properties([
-                                parameters([
-                                    choice(
-                                        choices: ['create', 'delete'], 
-                                        name: 'action'
-                                    )
-                                ])
-                            ])
-                        }
-                    }
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['dev', 'prod', 'test'], 
+                                name: 'environment'
+                            )
+                        ])
+                    ])
                 }
+            }
+        }
 
-        stage('setup environment'){
-            steps{
-                script{
-                    env.HOSTED_ZONE = "${HOSTED_ZONE}"
-                    env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
-                    env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
-                    env.STACK_NAME = "${CF_STACK_WC}"
-                }
-            }
-        } 
-        stage('create'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
-            steps{
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    dir("cloud/cloudformation") {
-                        sh 'chmod +x up.sh'
-                        sh './up.sh'
-                    }
-                }
-            }
-        }
-        stage('delete'){
-            when {
-                expression { 
-                   return params.action == 'delete'
-                }
-            }
-            steps{
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
-                }
-            }
-        }
+        // stage('setup environment'){
+        //     steps{
+        //         script{
+        //             env.HOSTED_ZONE = "${HOSTED_ZONE}"
+        //             env.ACCOUNT_ID = "${ORG_ACCOUNT_NUM}"
+        //             env.CLUSTER_NAME = "${CLUSTER_NAME_WC}"
+        //             env.STACK_NAME = "${CF_STACK_WC}"
+        //         }
+        //     }
+        // } 
+        // stage('create'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'create'
+        //         }
+        //     }
+        //     steps{
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        //             dir("cloud/cloudformation") {
+        //                 sh 'chmod +x up.sh'
+        //                 sh './up.sh'
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('delete'){
+        //     when {
+        //         expression { 
+        //            return params.action == 'delete'
+        //         }
+        //     }
+        //     steps{
+        //         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key-WC', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        //             sh "aws cloudformation delete-stack --stack-name ${STACK_NAME}"               
+        //         }
+        //     }
+        // }
     }
 }
