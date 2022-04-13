@@ -40,6 +40,7 @@ pipeline {
                             ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
                             ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
                             ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                            ParameterKey=RecordName,ParameterValue=${params.environment}-wc-ecs.${ROUTE53_DOMAIN} \
                             ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
                             ParameterKey=EnvType,ParameterValue=${params.environment} \
                             ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
@@ -54,6 +55,10 @@ pipeline {
                             ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
                             ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
                             ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
+                            ParameterKey=UsersHealthCheck,ParameterValue=${WC_HEALTH_USERS} \
+                            ParameterKey=FlighstHealthCheck,ParameterValue=${WC_HEALTH_FLIGHTS} \
+                            ParameterKey=BookingsHealthCheck,ParameterValue=${WC_HEALTH_BOOKINGS} \
+                            ParameterKey=FrontendHealthCheck,ParameterValue=${WC_HEALTH_FRONTEND} \
                             ParameterKey=DbHost,ParameterValue=db_host \
                             ParameterKey=DbUser,ParameterValue=db_user \
                             ParameterKey=DbPassword,ParameterValue=db_password \
