@@ -33,37 +33,37 @@ pipeline {
             steps{
                 dir('ecs/cloudformation'){
                     sh "aws cloudformation deploy --stack-name ${CF_STACK_WC}-${params.environment} --template-file ./template.yaml --parameter-overrides \
-                            ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                            ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
-                            ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
-                            ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
-                            ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
-                            ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
-                            ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-                            ParameterKey=RecordName,ParameterValue=${params.environment}-wc-ecs.${ROUTE53_DOMAIN} \
-                            ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
-                            ParameterKey=EnvType,ParameterValue=${params.environment} \
-                            ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
-                            ParameterKey=Region,ParameterValue=${REGION_WC} \
-                            ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
-                            ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
-                            ParameterKey=BookingsRepo,ParameterValue=${BOOKING_REPO_WC} \
-                            ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
-                            ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
-                            ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
-                            ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
-                            ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
-                            ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
-                            ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
-                            ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
-                            ParameterKey=UsersHealthCheck,ParameterValue=${WC_HEALTH_USERS} \
-                            ParameterKey=FlighstHealthCheck,ParameterValue=${WC_HEALTH_FLIGHTS} \
-                            ParameterKey=BookingsHealthCheck,ParameterValue=${WC_HEALTH_BOOKINGS} \
-                            ParameterKey=FrontendHealthCheck,ParameterValue=${WC_HEALTH_FRONTEND} \
-                            ParameterKey=DbHost,ParameterValue=db_host \
-                            ParameterKey=DbUser,ParameterValue=db_user \
-                            ParameterKey=DbPassword,ParameterValue=db_password \
-                            ParameterKey=SecretKey,ParameterValue=secret_key"
+                            VpcId=${VPC_ID} \
+                            PublicSubnet1=${PUBLIC_SUBNET1} \
+                            PublicSubnet2=${PUBLIC_SUBNET2} \
+                            PrivateSubnet1=${PRIVATE_SUBNET1} \
+                            PrivateSubnet2=${PRIVATE_SUBNET2} \
+                            AccountId=${ORG_ACCOUNT_NUM} \
+                            HostedZoneId=${HOSTED_ZONE} \
+                            RecordName=${params.environment}-wc-ecs.${ROUTE53_DOMAIN} \
+                            ClusterName=${CLUSTER_NAME_WC} \
+                            EnvType=${params.environment} \
+                            ContainerPort=${WC_CONTAINER_PORT} \
+                            Region=${REGION_WC} \
+                            UsersRepo=${USER_REPO_WC} \
+                            FlightsRepo=${FLIGHT_REPO_WC} \
+                            BookingsRepo=${BOOKING_REPO_WC} \
+                            FrontendRepo=${FRONTEND_REPO_WC} \
+                            IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                            UsersFamily=${USER_REPO_WC}-${params.environment}\
+                            FlightsFamily=${FLIGHT_REPO_WC}-${params.environment} \
+                            BookingsFamily=${BOOKING_REPO_WC}-${params.environment} \
+                            FrontendFamily=${FRONTEND_REPO_WC}-${params.environment} \
+                            LogGroupName=${WC_ECS_LOGS} \
+                            SSMSecretString=${WC_SECRETS_PATH_DEV} \
+                            UsersHealthCheck=${WC_HEALTH_USERS} \
+                            FlighstHealthCheck=${WC_HEALTH_FLIGHTS} \
+                            BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
+                            FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
+                            DbHost=db_host \
+                            DbUser=db_user \
+                            DbPassword=db_password \
+                            SecretKey=secret_key"
                 }
             }
         }
