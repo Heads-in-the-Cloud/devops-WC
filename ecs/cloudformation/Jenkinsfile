@@ -29,11 +29,6 @@ pipeline {
             }
         } 
         stage('create'){
-            when {
-                expression { 
-                   return params.action == 'create'
-                }
-            }
             steps{
                 dir('ecs/ecs-cli'){
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME}-${params.environment} --template-file ./template.yaml --parameter-overrides \
