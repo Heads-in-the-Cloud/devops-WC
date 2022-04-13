@@ -195,7 +195,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Region
+              awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /users-taskdef
       Cpu: "1vCPU"
@@ -232,7 +232,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Region
+              awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /flights-taskdef
       Cpu: "1vCPU"
@@ -270,7 +270,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Region
+              awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /bookings-taskdef
       Cpu: "1vCPU"
@@ -304,7 +304,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Region
+              awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /frontend-taskdef
       Cpu: "1vCPU"
