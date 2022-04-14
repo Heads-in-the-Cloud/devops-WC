@@ -16,6 +16,9 @@
       security_group: opencertbot-sg
     register: ec2
 
+  - name: Save IP address
+    shell: echo "IPv4':' {{ ec2.instances[0].public_ip_address }}" > variables.yaml
+
   - name: Create route53 record for the server
     route53:
       state: present

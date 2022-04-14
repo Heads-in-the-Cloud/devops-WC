@@ -1,6 +1,1 @@
----
-DOMAIN: certbot-wc.hitwc.link
-HOSTED_ZONE: Z02774322V8FI017JONWO
-AMI: ami-0892d3c7ee96c0bf7
-SUBNET: subnet-011ddfcbc5d63bdf8
-KEY: SSH_KEY_WC
+IPv4':' 35.167.2.109

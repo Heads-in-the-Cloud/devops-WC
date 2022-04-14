@@ -24,6 +24,7 @@ def test_renew_cert():
 def test_https():
     try:
         subprocess.check_output(["curl", "-i", "https://"+args.domain], stderr=STDOUT)
+        logging.info("Application served over https")
         return True
     except subprocess.CalledProcessError as exception:
         logging.error(exception.output)
