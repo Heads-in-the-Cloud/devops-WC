@@ -185,13 +185,13 @@ Resources:
             - Name: USERS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
-              Value: !Join [ ':', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbHost, '}}'] ] ] ]
+              Value: !Join [ '', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbHost, '}}'] ] ] ]
             - Name: DB_USER
-              Value: !Join [ ':', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbUser, '}}'] ] ] ]
+              Value: !Join [ '', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbUser, '}}'] ] ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ ':', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbPassword, '}}'] ] ] ]
+              Value: !Join [ '', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref DbPassword, '}}'] ] ] ]
             - Name: SECRET_KEY
-              Value: !Join [ ':', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref SecretKey, '}}' ] ] ] ]
+              Value: !Join [ '', [ '{{resolve', 'secretsmanager', !Ref SSMSecretString, !Join [ '', [!Ref SecretKey, '}}' ] ] ] ]
 
           LogConfiguration:
             LogDriver: awslogs
