@@ -19,10 +19,7 @@
         script: ./modules/installation.py --nginx
         args:
             executable: python3
-
-      - name: debug
-        debug:
-          msg: "{{ nginx_installed.stdout }}"
+        when: nginx_installed.stdout == 'true'
 
       - name: Ensure that nginx is enabled
         block:
