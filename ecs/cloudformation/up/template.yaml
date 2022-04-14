@@ -185,7 +185,7 @@ Resources:
             - Name: USERS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve', ':', 'secretsmanager', !Ref SSMSecretString, !Ref DbHost, '}}'] ]
+              Value: !Join [ '', [ '{{resolve', ':', 'secretsmanager', ':', !Ref SSMSecretString, !Ref DbHost, '}}'] ]
             # - Name: DB_USER
             #   Value: !Join [ '', [ '{{resolve', ':', 'secretsmanager', ':', !Ref SSMSecretString, ':', !Ref DbUser, '}}' ] ]
             # - Name: DB_USER_PASSWORD
