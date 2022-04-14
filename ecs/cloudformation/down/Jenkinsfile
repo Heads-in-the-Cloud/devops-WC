@@ -1,7 +1,7 @@
 pipeline {
     agent any 
     environment{
-        env.AWS_DEFAULT_REGION  = "$REGION_WC"
+        AWS_DEFAULT_REGION  = "$REGION_WC"
     }
     stages {
         stage('Setup parameters') {
