@@ -1,0 +1,33 @@
+pipeline {
+    agent any 
+    environment{
+        env.AWS_DEFAULT_REGION  = "$REGION_WC"
+    }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['dev', 'prod', 'test'], 
+                                name: 'environment'
+                            )
+                        ])
+                    ])
+                }
+            }
+        }
+        stage('delete'){
+            when {
+                expression { 
+                   return params.action == 'delete'
+                }
+            }
+            steps{
+                sh "aws cloudformation delete-stack --stack-name ${CF_STACK_WC}-${params.environment}"               
+                
+            }
+        }
+    }
+}
