@@ -187,11 +187,11 @@ Resources:
             - Name: DB_HOST
               Value: !Join [ '', [ "{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbHost, '}}'] ]
             - Name: DB_USER
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
 
           LogConfiguration:
             LogDriver: awslogs
@@ -225,11 +225,11 @@ Resources:
             - Name: DB_HOST
               Value: !Join [ '', [ "{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbHost, '}}'] ]
             - Name: DB_USER
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -263,11 +263,11 @@ Resources:
             - Name: DB_HOST
               Value: !Join [ '', [ "{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbHost, '}}'] ]
             - Name: DB_USER
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref DbPassword, '}}'] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ "{{resolve:secretsmanager", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ "{{resolve:secretsmanager:", !Ref SSMSecretString, ":", !Ref SecretKey, '}}' ] ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
