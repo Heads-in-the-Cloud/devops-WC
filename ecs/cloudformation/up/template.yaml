@@ -301,7 +301,7 @@ Resources:
             - Name: HOST_DOMAIN
               Value: !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve', ':', !Ref SSMSecretString, ':', !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref SecretKey, '}}' ] ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
