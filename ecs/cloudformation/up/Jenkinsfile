@@ -26,11 +26,26 @@ pipeline {
                     env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
-                    env.STACK_EXISTS        = sh( script:"aws cloudformation describe-stacks --stack-name wc-utopia-cf-dev", returnStdout: true)
+                    env.STACK_EXISTS        = false
                 }
             }
-        } 
+        }
+        stage('check if stack exists'){
+            steps{
+                script {
+                    try {
+                        aws cloudformation describe-stacks --stack-name wc-utopia-cf-dev
+                    }
+                    catch (Exception e){
+                        STACK_EXISTS        = true
+                    }
+                }
+            }
+        }
         stage('create'){
+            when{
+                environment name: 'STACK_EXISTS', value: 'false'
+            }
             steps{
                 dir('ecs/cloudformation/up'){
                     sh "aws cloudformation deploy --stack-name ${CF_STACK_WC}-${params.environment} --template-file ./template.yaml --parameter-overrides \
