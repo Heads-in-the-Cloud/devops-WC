@@ -118,9 +118,9 @@ Parameters:
   RecordName:
     Type: String
     Description: full DNS of our record
-  CertificateArn:
-    Type: String
-    Description: certificate arn for prod environment
+  # CertificateArn:
+  #   Type: String
+  #   Description: certificate arn for prod environment
 
 Resources:
   ECSCluster:

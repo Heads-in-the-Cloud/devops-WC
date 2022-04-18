@@ -161,9 +161,8 @@ pipeline {
                         TGNameBookings=${BOOKINGS_TG} \
                         TGNameFrontend=${FRONTEND_TG} \
                         HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN} \
-                        CertificateArn=${CERTIFICATE_ARN}"
-
+                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                         
                         //wait for cloudformation to finish for outputs then get output ID's
                         sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
                     }
