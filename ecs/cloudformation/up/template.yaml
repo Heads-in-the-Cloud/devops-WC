@@ -118,6 +118,9 @@ Parameters:
   RecordName:
     Type: String
     Description: full DNS of our record
+  CertificateArn:
+    Type: String
+    Description: certificate arn for prod environment
 
 Resources:
   ECSCluster:
@@ -168,8 +171,8 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 0
-      ToPort: 65535
+      FromPort: 80
+      ToPort: 80
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
@@ -339,9 +342,11 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref UsersTG
+      Certificates: 
+        - CertificateArn: 'arn:aws:acm:us-west-2:026390315914:certificate/d98c4707-79dd-403c-8d27-43e909ace851'
       LoadBalancerArn: !Ref ECSALB
-      Port: '80'
-      Protocol: HTTP
+      Port: '443'
+      Protocol: HTTPS
   FlightsListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
     Condition: CreateResources
