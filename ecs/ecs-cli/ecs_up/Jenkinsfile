@@ -113,6 +113,8 @@ pipeline {
                     env.SECRET_KEY          = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."secret_key"', returnStdout: true).trim()
                     env.DB_USER             = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_user"', returnStdout: true).trim()
                     env.DB_USER_PASSWORD    = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."db_password"', returnStdout: true).trim() 
+                    env.CERTIFICATE_ARN     = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."certificate_arn"', returnStdout: true).trim() 
+
 
                     env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${VPC_NAME} | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
                     env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
@@ -159,7 +161,8 @@ pipeline {
                         TGNameBookings=${BOOKINGS_TG} \
                         TGNameFrontend=${FRONTEND_TG} \
                         HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN}"
+                        RecordName=wc-utopia-ecs.${ROUTE53_DOMAIN} \
+                        CertifacteArn=${CERTIFICATE_ARN}"
 
                         //wait for cloudformation to finish for outputs then get output ID's
                         sh "aws cloudformation wait stack-create-complete --stack-name $STACK_NAME"                    
