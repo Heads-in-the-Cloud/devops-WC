@@ -156,7 +156,7 @@ Resources:
     Condition: ProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tco
+      IpProtocol: tcp
       FromPort: 443
       ToPort: 443
       CidrIp: 0.0.0.0/0
