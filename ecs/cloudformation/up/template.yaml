@@ -3,6 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Conditions:
   CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
+  NotProdEnv: !Not [Condition: ProdEnv]
 
 Parameters:
   EnvType:
@@ -132,28 +133,31 @@ Resources:
       VpcId: !Ref VpcId
   AlbSecurityGroupHTTPinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
+    Condition: NotProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
       FromPort: 80
       ToPort: 80
       CidrIp: 0.0.0.0/0
-  AlbSecurityGroupSSHinbound:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Properties:
-      GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      CidrIp: 0.0.0.0/0
+  # AlbSecurityGroupSSHinbound:
+  #   Type: 'AWS::EC2::SecurityGroupIngress'
+  #   Properties:
+  #     GroupId: !Ref AlbSecurityGroup
+  #     IpProtocol: tcp
+  #     FromPort: 22
+  #     ToPort: 22
+  #     CidrIp: 0.0.0.0/0
   AlbSecurityGroupALBports:
     Type: 'AWS::EC2::SecurityGroupIngress'
+    Condition: ProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
-      FromPort: 31000
-      ToPort: 61000
+      FromPort: 443
+      ToPort: 443
       SourceSecurityGroupId: !Ref AlbSecurityGroup
+
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
