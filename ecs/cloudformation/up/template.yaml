@@ -156,10 +156,10 @@ Resources:
     Condition: ProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tcp
+      IpProtocol: http
       FromPort: 443
       ToPort: 443
-      SourceSecurityGroupId: !Ref AlbSecurityGroup
+      CidrIp: 0.0.0.0/0
 
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -573,17 +573,3 @@ Resources:
     Properties: 
       LogGroupName: !Ref LogGroupName
       RetentionInDays: 1
-# Outputs:
-#   ecsservice:
-#     Value: !Ref service
-#   ecscluster:
-#     Value: !Ref ECSCluster
-#   ECSALB:
-#     Description: Your ALB DNS URL
-#     Value: !Join 
-#       - ''
-#       - - !GetAtt 
-#           - ECSALB
-#           - DNSName
-#   taskdef:
-#     Value: !Ref taskdefinition
