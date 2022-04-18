@@ -216,115 +216,115 @@ Resources:
       RequiresCompatibilities: 
         - "FARGATE"
       TaskRoleArn: !Ref IamRole
-  FlightsTaskDef:
-    Type: 'AWS::ECS::TaskDefinition'
-    Condition: CreateResources
-    Properties:
-      Family: !Ref FlightsFamily
-      ContainerDefinitions: 
-        - Name: !Ref FlightsFamily
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
-          Cpu: '10'
-          Memory: '300'
-          Essential: 'true'
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
-          Environment: 
-            - Name: FLIGHTS_PORT
-              Value: !Ref ContainerPort
-            - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-            - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-            - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-            - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /flights-taskdef
-      Cpu: "1vCPU"
-      ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
-      TaskRoleArn: !Ref IamRole
+  # FlightsTaskDef:
+  #   Type: 'AWS::ECS::TaskDefinition'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Family: !Ref FlightsFamily
+  #     ContainerDefinitions: 
+  #       - Name: !Ref FlightsFamily
+  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
+  #         Cpu: '10'
+  #         Memory: '300'
+  #         Essential: 'true'
+  #         PortMappings: 
+  #           - ContainerPort: !Ref ContainerPort
+  #         Environment: 
+  #           - Name: FLIGHTS_PORT
+  #             Value: !Ref ContainerPort
+  #           - Name: DB_HOST
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+  #           - Name: DB_USER
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+  #           - Name: DB_USER_PASSWORD
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+  #           - Name: SECRET_KEY
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-region: !Ref Region
+  #             awslogs-group: !Ref myLogGroup
+  #             awslogs-stream-prefix: /flights-taskdef
+  #     Cpu: "1vCPU"
+  #     ExecutionRoleArn: !Ref IamRole
+  #     Memory: "2GB"
+  #     NetworkMode: "awsvpc"
+  #     RequiresCompatibilities: 
+  #       - "FARGATE"
+  #     TaskRoleArn: !Ref IamRole
 
-  BookingsTaskDef:
-    Type: 'AWS::ECS::TaskDefinition'
-    Condition: CreateResources
-    Properties:
-      Family: !Ref BookingsFamily
-      ContainerDefinitions: 
-        - Name: !Ref BookingsFamily
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
-          Cpu: '10'
-          Memory: '300'
-          Essential: 'true'
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
-          Environment: 
-            - Name: BOOKINGS_PORT
-              Value: !Ref ContainerPort
-            - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-            - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-            - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-            - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /bookings-taskdef
-      Cpu: "1vCPU"
-      ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
-      TaskRoleArn: !Ref IamRole
+  # BookingsTaskDef:
+  #   Type: 'AWS::ECS::TaskDefinition'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Family: !Ref BookingsFamily
+  #     ContainerDefinitions: 
+  #       - Name: !Ref BookingsFamily
+  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
+  #         Cpu: '10'
+  #         Memory: '300'
+  #         Essential: 'true'
+  #         PortMappings: 
+  #           - ContainerPort: !Ref ContainerPort
+  #         Environment: 
+  #           - Name: BOOKINGS_PORT
+  #             Value: !Ref ContainerPort
+  #           - Name: DB_HOST
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+  #           - Name: DB_USER
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+  #           - Name: DB_USER_PASSWORD
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+  #           - Name: SECRET_KEY
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-region: !Ref Region
+  #             awslogs-group: !Ref myLogGroup
+  #             awslogs-stream-prefix: /bookings-taskdef
+  #     Cpu: "1vCPU"
+  #     ExecutionRoleArn: !Ref IamRole
+  #     Memory: "2GB"
+  #     NetworkMode: "awsvpc"
+  #     RequiresCompatibilities: 
+  #       - "FARGATE"
+  #     TaskRoleArn: !Ref IamRole
 
-  FrontendTaskDef:
-    Type: 'AWS::ECS::TaskDefinition'
-    Condition: CreateResources
-    Properties:
-      Family: !Ref FrontendFamily
-      ContainerDefinitions: 
-        - Name: !Ref FrontendFamily
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
-          Cpu: '10'
-          Memory: '300'
-          Essential: 'true'
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
-          Environment: 
-            - Name: FRONTEND_PORT
-              Value: !Ref ContainerPort
-            - Name: HOST_DOMAIN
-              Value: !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ]
-            - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /frontend-taskdef
-      Cpu: "1vCPU"
-      ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
-      TaskRoleArn: !Ref IamRole
+  # FrontendTaskDef:
+  #   Type: 'AWS::ECS::TaskDefinition'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Family: !Ref FrontendFamily
+  #     ContainerDefinitions: 
+  #       - Name: !Ref FrontendFamily
+  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
+  #         Cpu: '10'
+  #         Memory: '300'
+  #         Essential: 'true'
+  #         PortMappings: 
+  #           - ContainerPort: !Ref ContainerPort
+  #         Environment: 
+  #           - Name: FRONTEND_PORT
+  #             Value: !Ref ContainerPort
+  #           - Name: HOST_DOMAIN
+  #             Value: !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ]
+  #           - Name: SECRET_KEY
+  #             Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-region: !Ref Region
+  #             awslogs-group: !Ref myLogGroup
+  #             awslogs-stream-prefix: /frontend-taskdef
+  #     Cpu: "1vCPU"
+  #     ExecutionRoleArn: !Ref IamRole
+  #     Memory: "2GB"
+  #     NetworkMode: "awsvpc"
+  #     RequiresCompatibilities: 
+  #       - "FARGATE"
+  #     TaskRoleArn: !Ref IamRole
 
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
@@ -350,45 +350,45 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '443'
       Protocol: HTTPS
-  FlightsListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref FlightsTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref FlightsPath
-      ListenerArn: !Ref ALBListener
-      Priority: 1
-  BookingsListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref BookingsTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref BookingsPath
-      ListenerArn: !Ref ALBListener
-      Priority: 2
-  FrontendListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref FrontendTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref FrontendPath
-      ListenerArn: !Ref ALBListener
-      Priority: 3
+  # FlightsListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref FlightsTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref FlightsPath
+  #     ListenerArn: !Ref ALBListener
+  #     Priority: 1
+  # BookingsListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref BookingsTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref BookingsPath
+  #     ListenerArn: !Ref ALBListener
+  #     Priority: 2
+  # FrontendListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref FrontendTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref FrontendPath
+  #     ListenerArn: !Ref ALBListener
+  #     Priority: 3
   UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
@@ -407,63 +407,63 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  FlightsTG:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
-    DependsOn: ECSALB
-    Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: !Ref FlightsHealthCheck
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
-      Name: FlightsTG
-      Port: 80
-      Protocol: HTTP
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
-      TargetType: ip
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M
-  BookingsTG:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
-    DependsOn: ECSALB
-    Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: !Ref BookingsHealthCheck
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
-      Name: BookingsTG
-      Port: 80
-      Protocol: HTTP
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
-      TargetType: ip
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M
-  FrontendTG:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
-    DependsOn: ECSALB
-    Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: !Ref FrontendHealthCheck
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
-      Name: FrontendTG
-      Port: 80
-      Protocol: HTTP
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
-      TargetType: ip
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M
+  # FlightsTG:
+  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+  #   Condition: CreateResources
+  #   DependsOn: ECSALB
+  #   Properties:
+  #     HealthCheckIntervalSeconds: 10
+  #     HealthCheckPath: !Ref FlightsHealthCheck
+  #     HealthCheckProtocol: HTTP
+  #     HealthCheckTimeoutSeconds: 5
+  #     HealthyThresholdCount: 2
+  #     Name: FlightsTG
+  #     Port: 80
+  #     Protocol: HTTP
+  #     UnhealthyThresholdCount: 2
+  #     VpcId: !Ref VpcId
+  #     TargetType: ip
+  #   CreationPolicy:
+  #     ResourceSignal:
+  #       Timeout: PT15M
+  # BookingsTG:
+  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+  #   Condition: CreateResources
+  #   DependsOn: ECSALB
+  #   Properties:
+  #     HealthCheckIntervalSeconds: 10
+  #     HealthCheckPath: !Ref BookingsHealthCheck
+  #     HealthCheckProtocol: HTTP
+  #     HealthCheckTimeoutSeconds: 5
+  #     HealthyThresholdCount: 2
+  #     Name: BookingsTG
+  #     Port: 80
+  #     Protocol: HTTP
+  #     UnhealthyThresholdCount: 2
+  #     VpcId: !Ref VpcId
+  #     TargetType: ip
+  #   CreationPolicy:
+  #     ResourceSignal:
+  #       Timeout: PT15M
+  # FrontendTG:
+  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+  #   Condition: CreateResources
+  #   DependsOn: ECSALB
+  #   Properties:
+  #     HealthCheckIntervalSeconds: 10
+  #     HealthCheckPath: !Ref FrontendHealthCheck
+  #     HealthCheckProtocol: HTTP
+  #     HealthCheckTimeoutSeconds: 5
+  #     HealthyThresholdCount: 2
+  #     Name: FrontendTG
+  #     Port: 80
+  #     Protocol: HTTP
+  #     UnhealthyThresholdCount: 2
+  #     VpcId: !Ref VpcId
+  #     TargetType: ip
+  #   CreationPolicy:
+  #     ResourceSignal:
+  #       Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
     DependsOn: ALBListener
@@ -487,78 +487,78 @@ Resources:
       Tags:
         - Key: Name
           Value: UsersService
-  FlightsService:
-    Type: 'AWS::ECS::Service'
-    Condition: CreateResources
-    DependsOn: FlightsListenerRule
-    Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
-      LaunchType: "FARGATE"
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
-          SecurityGroups: 
-            - !Ref EcsSecurityGroup
-          Subnets: 
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
-      LoadBalancers:
-        - ContainerName: !Ref FlightsFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref FlightsTG
-      TaskDefinition: !Ref FlightsTaskDef
-      Tags:
-        - Key: Name
-          Value: FlightsService
-  BookingsService:
-    Type: 'AWS::ECS::Service'
-    Condition: CreateResources
-    DependsOn: BookingsListenerRule
-    Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
-      LaunchType: "FARGATE"
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
-          SecurityGroups: 
-            - !Ref EcsSecurityGroup
-          Subnets: 
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
-      LoadBalancers:
-        - ContainerName: !Ref BookingsFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref BookingsTG
-      TaskDefinition: !Ref BookingsTaskDef
-      Tags:
-        - Key: Name
-          Value: BookingsService
-  FrontendService:
-    Type: 'AWS::ECS::Service'
-    Condition: CreateResources
-    DependsOn: FrontendListenerRule
-    Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
-      LaunchType: "FARGATE"
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
-          SecurityGroups: 
-            - !Ref EcsSecurityGroup
-          Subnets: 
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
-      LoadBalancers:
-        - ContainerName: !Ref FrontendFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref FrontendTG
-      TaskDefinition: !Ref FrontendTaskDef
-      Tags:
-        - Key: Name
-          Value: FrontendService
+  # FlightsService:
+  #   Type: 'AWS::ECS::Service'
+  #   Condition: CreateResources
+  #   DependsOn: FlightsListenerRule
+  #   Properties:
+  #     Cluster: !Ref ECSCluster
+  #     DesiredCount: !If [ProdEnv, 4, 2]
+  #     LaunchType: "FARGATE"
+  #     NetworkConfiguration:
+  #       AwsvpcConfiguration:
+  #         AssignPublicIp: "ENABLED"
+  #         SecurityGroups: 
+  #           - !Ref EcsSecurityGroup
+  #         Subnets: 
+  #           - !Ref PrivateSubnet1
+  #           - !Ref PrivateSubnet2
+  #     LoadBalancers:
+  #       - ContainerName: !Ref FlightsFamily
+  #         ContainerPort: !Ref ContainerPort
+  #         TargetGroupArn: !Ref FlightsTG
+  #     TaskDefinition: !Ref FlightsTaskDef
+  #     Tags:
+  #       - Key: Name
+  #         Value: FlightsService
+  # BookingsService:
+  #   Type: 'AWS::ECS::Service'
+  #   Condition: CreateResources
+  #   DependsOn: BookingsListenerRule
+  #   Properties:
+  #     Cluster: !Ref ECSCluster
+  #     DesiredCount: !If [ProdEnv, 4, 2]
+  #     LaunchType: "FARGATE"
+  #     NetworkConfiguration:
+  #       AwsvpcConfiguration:
+  #         AssignPublicIp: "ENABLED"
+  #         SecurityGroups: 
+  #           - !Ref EcsSecurityGroup
+  #         Subnets: 
+  #           - !Ref PrivateSubnet1
+  #           - !Ref PrivateSubnet2
+  #     LoadBalancers:
+  #       - ContainerName: !Ref BookingsFamily
+  #         ContainerPort: !Ref ContainerPort
+  #         TargetGroupArn: !Ref BookingsTG
+  #     TaskDefinition: !Ref BookingsTaskDef
+  #     Tags:
+  #       - Key: Name
+  #         Value: BookingsService
+  # FrontendService:
+  #   Type: 'AWS::ECS::Service'
+  #   Condition: CreateResources
+  #   DependsOn: FrontendListenerRule
+  #   Properties:
+  #     Cluster: !Ref ECSCluster
+  #     DesiredCount: !If [ProdEnv, 4, 2]
+  #     LaunchType: "FARGATE"
+  #     NetworkConfiguration:
+  #       AwsvpcConfiguration:
+  #         AssignPublicIp: "ENABLED"
+  #         SecurityGroups: 
+  #           - !Ref EcsSecurityGroup
+  #         Subnets: 
+  #           - !Ref PrivateSubnet1
+  #           - !Ref PrivateSubnet2
+  #     LoadBalancers:
+  #       - ContainerName: !Ref FrontendFamily
+  #         ContainerPort: !Ref ContainerPort
+  #         TargetGroupArn: !Ref FrontendTG
+  #     TaskDefinition: !Ref FrontendTaskDef
+  #     Tags:
+  #       - Key: Name
+  #         Value: FrontendService
   Route53:
     Type: AWS::Route53::RecordSet
     Properties: 
