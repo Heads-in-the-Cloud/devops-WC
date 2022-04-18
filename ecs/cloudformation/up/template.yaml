@@ -200,7 +200,7 @@ Resources:
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awsfirelens
+            LogDriver: awslogs
             Options:
               awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
