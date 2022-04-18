@@ -395,12 +395,12 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 10
       HealthCheckPath: !Ref UsersHealthCheck
-      HealthCheckProtocol: HTTPS
+      HealthCheckProtocol: TCP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       Name: UsersTG
       Port: 443
-      Protocol: HTTPS
+      Protocol: TCP
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
       TargetType: ip
