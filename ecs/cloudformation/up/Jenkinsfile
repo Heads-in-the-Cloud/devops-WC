@@ -87,8 +87,7 @@ pipeline {
                         echo 'hello'
                     }
                     catch (Exception e){
-                        echo 'stack'
-                        STACK_EXISTS        = false
+                        env.STACK_EXISTS        = false
                     }
                 }
             }
