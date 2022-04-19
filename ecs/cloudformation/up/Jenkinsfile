@@ -182,7 +182,7 @@ pipeline {
                         FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
                         BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
                         FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
-                        CertificateArn=${CERTMANAGER_ARN} \
+                        CertificateArn=${WC_CERTMANAGER_ARN} \
                         DbHost=db_host \
                         DbUser=db_user \
                         DbPassword=db_password \
