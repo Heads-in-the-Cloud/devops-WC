@@ -5,6 +5,7 @@ Conditions:
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   NotProdEnv: !Not [Condition: ProdEnv]
 
+
 Parameters:
   EnvType:
     Description: Environment type.
@@ -467,11 +468,13 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
+  ListenerRuleReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
   UsersService:
     Type: 'AWS::ECS::Service'
-    DependsOn: 
-      - ALBListenerHTTP
-      - ALBListenerHTTPS
+    DependsOn: ListenerRuleReady
     Properties:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 4, 2]
