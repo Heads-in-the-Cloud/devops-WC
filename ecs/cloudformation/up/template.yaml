@@ -135,24 +135,24 @@ Resources:
     Properties:
       GroupDescription: Alb Security Group
       VpcId: !Ref VpcId
-  AlbSecurityGroupHTTPinbound:
+  AlbSecurityGroupInbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Condition: NotProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
-      FromPort: 80
-      ToPort: 80
+      FromPort: !If [ ProdEnv, 443, 80 ]
+      ToPort: !If [ ProdEnv, 443, 80 ]
       CidrIp: 0.0.0.0/0
-  AlbSecurityGroupHTTPSinbound:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Condition: ProdEnv
-    Properties:
-      GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
-      CidrIp: 0.0.0.0/0
+  # AlbSecurityGroupHTTPSinbound:
+  #   Type: 'AWS::EC2::SecurityGroupIngress'
+  #   Condition: ProdEnv
+  #   Properties:
+  #     GroupId: !Ref AlbSecurityGroup
+  #     IpProtocol: tcp
+  #     FromPort: 443
+  #     ToPort: 443
+  #     CidrIp: 0.0.0.0/0
 
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -164,8 +164,8 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
+      FromPort: 0
+      ToPort: 61000
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
