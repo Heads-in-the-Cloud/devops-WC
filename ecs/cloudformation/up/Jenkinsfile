@@ -84,7 +84,7 @@ pipeline {
             steps{
                 script {
                     // try {
-                        aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --region "${REGION_WC}"
+                        sh "aws cloudformation describe-stacks --stack-name ${STACK_NAME} --region ${REGION_WC}"
                         echo $("aws cloudformation describe-stacks --stack-name ${STACK_NAME} --region ${REGION_WC}")
                     // }
                     // catch (Exception e){
