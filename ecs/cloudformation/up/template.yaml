@@ -350,15 +350,15 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '443'
       Protocol: HTTPS
-  ALBListenerHTTP:
-    Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref UsersTG
-      LoadBalancerArn: !Ref ECSALB
-      Port: '80'
-      Protocol: HTTP
+  # ALBListenerHTTP:
+  #   Type: 'AWS::ElasticLoadBalancingV2::Listener'
+  #   Properties:
+  #     DefaultActions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref UsersTG
+  #     LoadBalancerArn: !Ref ECSALB
+  #     Port: '80'
+  #     Protocol: HTTP
   # FlightsListenerRule:
   #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
   #   Condition: CreateResources
