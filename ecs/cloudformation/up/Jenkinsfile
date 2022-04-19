@@ -83,12 +83,12 @@ pipeline {
         stage('check if stack exists'){
             steps{
                 script {
-                    // try {
-                        sh "aws cloudformation describe-stacks --stack-name ${STACK_NAME} --region ${REGION_WC}"
-                    // }
-                    // catch (Exception e){
-                    //     env.STACK_EXISTS        = false
-                    // }
+                    try {
+                        sh "aws cloudformation describe-stacks --stack-name ${STACK_NAME}"
+                    }
+                    catch (Exception e){
+                        env.STACK_EXISTS        = false
+                    }
                 }
             }
         }
