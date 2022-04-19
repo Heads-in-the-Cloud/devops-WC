@@ -136,7 +136,7 @@ Resources:
       VpcId: !Ref VpcId
   AlbSecurityGroupHTTPinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
-    Condition: NotProdEnv
+    # Condition: NotProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
@@ -339,7 +339,7 @@ Resources:
         - !Ref PublicSubnet2
       SecurityGroups:
         - !Ref AlbSecurityGroup
-  ALBListener:
+  ALBListenerHTTPS:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
       DefaultActions:
@@ -350,6 +350,15 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '443'
       Protocol: HTTPS
+  ALBListenerHTTP:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTG
+      LoadBalancerArn: !Ref ECSALB
+      Port: '80'
+      Protocol: HTTP
   # FlightsListenerRule:
   #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
   #   Condition: CreateResources
@@ -399,7 +408,7 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       Name: UsersTG
-      Port: 443
+      Port: 80
       Protocol: HTTPS
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
@@ -466,7 +475,7 @@ Resources:
   #       Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
-    DependsOn: ALBListener
+    DependsOn: ALBListenerHTTPS
     Properties:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 4, 2]
