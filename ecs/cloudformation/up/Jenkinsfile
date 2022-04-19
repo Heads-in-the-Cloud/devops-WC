@@ -83,7 +83,7 @@ pipeline {
             steps{
                 script {
                     try {
-                        aws cloudformation describe-stacks --stack-name wc-utopia-cf-dev
+                        aws cloudformation describe-stacks --stack-name "${STACK_NAME}"
                     }
                     catch (Exception e){
                         STACK_EXISTS        = false
