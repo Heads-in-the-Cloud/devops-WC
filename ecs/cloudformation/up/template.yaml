@@ -302,7 +302,7 @@ Resources:
             - Name: FRONTEND_PORT
               Value: !Ref ContainerPort
             - Name: HOST_DOMAIN
-              Value: !If [ ProdEnv, !Join [ '', [ 'https://', !GetAtt ECSALB.DNSName ] ], !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ] ]
+              Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
