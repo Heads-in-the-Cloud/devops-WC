@@ -84,6 +84,7 @@ pipeline {
                 script {
                     try {
                         aws cloudformation describe-stacks --stack-name "${STACK_NAME}"
+                        echo 'hello'
                     }
                     catch (Exception e){
                         STACK_EXISTS        = false
