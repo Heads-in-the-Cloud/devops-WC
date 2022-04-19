@@ -136,22 +136,14 @@ Resources:
       VpcId: !Ref VpcId
   AlbSecurityGroupHTTPinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
-    # Condition: NotProdEnv
+    Condition: NotProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
       FromPort: 80
       ToPort: 80
       CidrIp: 0.0.0.0/0
-  # AlbSecurityGroupSSHinbound:
-  #   Type: 'AWS::EC2::SecurityGroupIngress'
-  #   Properties:
-  #     GroupId: !Ref AlbSecurityGroup
-  #     IpProtocol: tcp
-  #     FromPort: 22
-  #     ToPort: 22
-  #     CidrIp: 0.0.0.0/0
-  AlbSecurityGroupALBports:
+  AlbSecurityGroupHTTPSinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Condition: ProdEnv
     Properties:
@@ -171,8 +163,8 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 0
-      ToPort: 61000
+      FromPort: 80
+      ToPort: 80
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
@@ -341,6 +333,7 @@ Resources:
         - !Ref AlbSecurityGroup
   ALBListenerHTTPS:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: ProdEnv
     Properties:
       DefaultActions:
         - Type: forward
@@ -350,15 +343,16 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '443'
       Protocol: HTTPS
-  # ALBListenerHTTP:
-  #   Type: 'AWS::ElasticLoadBalancingV2::Listener'
-  #   Properties:
-  #     DefaultActions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref UsersTG
-  #     LoadBalancerArn: !Ref ECSALB
-  #     Port: '80'
-  #     Protocol: HTTP
+  ALBListenerHTTP:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: NotProdEnv
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTG
+      LoadBalancerArn: !Ref ECSALB
+      Port: '80'
+      Protocol: HTTP
   # FlightsListenerRule:
   #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
   #   Condition: CreateResources
@@ -475,7 +469,6 @@ Resources:
   #       Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
-    DependsOn: ALBListenerHTTPS
     Properties:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 4, 2]
