@@ -137,7 +137,6 @@ Resources:
       VpcId: !Ref VpcId
   AlbSecurityGroupInbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
-    Condition: NotProdEnv
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
@@ -164,8 +163,8 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 0
-      ToPort: 61000
+      FromPort: !Ref ContainerPort
+      ToPort: !Ref ContainerPort
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
@@ -304,7 +303,7 @@ Resources:
             - Name: HOST_DOMAIN
               Value: !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -477,7 +476,7 @@ Resources:
     DependsOn: ListenerRuleReady
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -501,7 +500,7 @@ Resources:
     DependsOn: FlightsListenerRule
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -525,7 +524,7 @@ Resources:
     DependsOn: BookingsListenerRule
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -549,7 +548,7 @@ Resources:
     DependsOn: FrontendListenerRule
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
