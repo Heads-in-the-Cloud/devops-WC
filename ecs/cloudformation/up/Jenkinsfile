@@ -106,6 +106,7 @@ pipeline {
                 }
             }
         }
+        stage('update flights'){
             when {
                 allOf{ 
                     environment name: "${params.container}", value: 'flights'
