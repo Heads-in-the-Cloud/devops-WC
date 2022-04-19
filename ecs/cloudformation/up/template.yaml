@@ -348,7 +348,7 @@ Resources:
       Certificates: 
         - CertificateArn: 'arn:aws:acm:us-west-2:026390315914:certificate/d98c4707-79dd-403c-8d27-43e909ace851'
       LoadBalancerArn: !Ref ECSALB
-      Port: '443'
+      Port: '80'
       Protocol: HTTPS
   # FlightsListenerRule:
   #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -399,8 +399,8 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       Name: UsersTG
-      Port: 443
-      Protocol: TCP
+      Port: 80
+      Protocol: HTTPS
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
       TargetType: ip
