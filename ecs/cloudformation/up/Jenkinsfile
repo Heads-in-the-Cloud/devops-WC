@@ -76,7 +76,6 @@ pipeline {
                     env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
-                    echo "${params.container}"
                 }
             }
         }
@@ -101,21 +100,20 @@ pipeline {
             }
             steps{
                 script{
-                    sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME}"
+                    sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
                 }
             }
         }
         stage('update flights'){
             when {
                 allOf{ 
-                    environment name: "${params.container}", value: 'flights'
+                    expression { params.container == 'flights' }
                     environment name: "STACK_EXISTS", value: 'true'
                 }
             }
             steps{
                 script{
-                    echo "flights"
-                    // aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME}
+                    sh "aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
                 }
             }
         }
