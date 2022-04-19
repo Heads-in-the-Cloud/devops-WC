@@ -171,7 +171,7 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 31000
+      FromPort: 0
       ToPort: 61000
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
