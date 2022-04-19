@@ -95,7 +95,7 @@ pipeline {
         stage('update users'){
             when {
                 allOf{ 
-                    environment name: "${params.container}", value: 'users'
+                    expression { params.container == 'users' }
                     environment name: "STACK_EXISTS", value: 'true'
                 }
             }
