@@ -395,7 +395,7 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 10
       HealthCheckPath: !Ref UsersHealthCheck
-      HealthCheckProtocol: TCP
+      HealthCheckProtocol: HTTPS
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       Name: UsersTG
