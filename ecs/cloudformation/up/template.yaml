@@ -469,6 +469,9 @@ Resources:
         Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
+    DependsOn: 
+      - ALBListenerHTTP
+      - ALBListenerHTTPS
     Properties:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 4, 2]

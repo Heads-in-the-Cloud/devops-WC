@@ -56,7 +56,7 @@ pipeline {
                         PrivateSubnet2=${PRIVATE_SUBNET2} \
                         AccountId=${ORG_ACCOUNT_NUM} \
                         HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=${params.environment}-wc-ecs.${ROUTE53_DOMAIN} \
+                        RecordName=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
                         ClusterName=${CLUSTER_NAME_WC} \
                         EnvType=${params.environment} \
                         ContainerPort=${WC_CONTAINER_PORT} \
