@@ -94,7 +94,7 @@ pipeline {
         }
         stage('update users'){
             when {        
-                environment name: ${params.container}, value: 'users'
+                environment name: "${params.container}", value: 'users'
             }
             steps{
                 script{
@@ -104,7 +104,7 @@ pipeline {
         }
         stage('update flights'){
             when {        
-                environment name: ${params.container}, value: 'flights'
+                environment name: "${params.container}", value: 'flights'
             }
             steps{
                 script{
