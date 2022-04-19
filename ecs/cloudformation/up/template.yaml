@@ -409,7 +409,7 @@ Resources:
       HealthyThresholdCount: 2
       Name: UsersTG
       Port: 80
-      Protocol: HTTPS
+      Protocol: HTTP
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
       TargetType: ip
