@@ -10,7 +10,55 @@ pipeline {
                             choice(
                                 choices: ['dev', 'prod', 'test'], 
                                 name: 'environment'
-                            )
+                            ),
+                            [$class: 'ChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the action to perform', 
+                                filterLength: 1, 
+                                filterable: false, 
+                                name: 'action', 
+                                script: [
+                                    $class: 'GroovyScript', 
+                                    fallbackScript: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['Could not load actions']"
+                                    ], 
+                                    script: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['create','update']"
+                                    ]
+                                ]
+                            ],
+                            [$class: 'CascadeChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the container to update',
+                                name: 'container', 
+                                referencedParameters: 'action', 
+                                script: 
+                                    [$class: 'GroovyScript', 
+                                    fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: "return['Could not get Environment from Env Param']"
+                                            ], 
+                                    script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: '''
+                                            if (action.equals("create")){
+                                                return[]
+                                            }
+                                            else{
+                                                return["users","flights","bookings","frontend"]
+                                            }
+                                            '''
+                                    ] 
+                                ]
+                            ]
                         ])
                     ])
                 }
@@ -43,6 +91,16 @@ pipeline {
                 }
             }
         }
+        // stage('update users'){
+        //     when {        
+        //         environment name: 'PARAM_CONTAINER', value: 'users'
+        //     }
+        //     steps{
+        //         script{
+        //             aws ecs update-service --service wc-utopia-cf-prod-UsersService-L1YPbQtGBD3V --task-definition wc-users-api-prod --force-new-deployment --cluster wc-utopia-cf-prod-ECSCluster-Gm32j12S7Xph
+        //         }
+        //     }
+        // }
         stage('create'){
             when{
                 environment name: 'STACK_EXISTS', value: 'false'
