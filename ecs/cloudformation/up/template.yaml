@@ -364,7 +364,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref FlightsPath
-      ListenerArn: !If [ProdEnv, ALBListenerHTTPS, ALBListenerHTTP]
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 1
   BookingsListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -377,7 +377,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref BookingsPath
-      ListenerArn: !If [ProdEnv, ALBListenerHTTPS, ALBListenerHTTP]
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 2
   FrontendListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -390,7 +390,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref FrontendPath
-      ListenerArn: !If [ProdEnv, ALBListenerHTTPS, ALBListenerHTTP]
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 3
   UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
