@@ -205,6 +205,8 @@ Resources:
         - Name: log_router
           Essential: 'true'
           Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
       Cpu: "1vCPU"
       ExecutionRoleArn: !Ref IamRole
       Memory: "2GB"
