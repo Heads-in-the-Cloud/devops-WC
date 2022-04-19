@@ -119,9 +119,9 @@ Parameters:
   RecordName:
     Type: String
     Description: full DNS of our record
-  # CertificateArn:
-  #   Type: String
-  #   Description: certificate arn for prod environment
+  CertificateArn:
+    Type: String
+    Description: certificate arn for prod environment
 
 Resources:
   ECSCluster:
@@ -193,15 +193,15 @@ Resources:
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awslogs
+            LogDriver: awsfirelens
             Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /users-taskdef
-              # Name: es
-              # Host: elk-docker-compose.hitwc.link
-              # Port: 5000
-              # Index: users
+              # awslogs-region: !Ref Region
+              # awslogs-group: !Ref myLogGroup
+              # awslogs-stream-prefix: /users-taskdef
+              Name: es
+              Host: elk-docker-compose.hitwc.link
+              Port: 5000
+              Index: users
       Cpu: "1vCPU"
       ExecutionRoleArn: !Ref IamRole
       Memory: "2GB"
@@ -340,7 +340,7 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref UsersTG
       Certificates: 
-        - CertificateArn: 'arn:aws:acm:us-west-2:026390315914:certificate/e6676fc9-7527-4a09-adf2-62f59d2f00bc'
+        - CertificateArn: !Ref CertificateArn
       LoadBalancerArn: !Ref ECSALB
       Port: '443'
       Protocol: HTTPS
