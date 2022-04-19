@@ -127,6 +127,7 @@ Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
+      ClusterName: !Ref ClusterName
       Tags:
         - Key: Name
           Value: !Ref ClusterName
@@ -475,6 +476,7 @@ Resources:
     Type: 'AWS::ECS::Service'
     DependsOn: ListenerRuleReady
     Properties:
+      ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
@@ -499,6 +501,7 @@ Resources:
     Condition: CreateResources
     DependsOn: FlightsListenerRule
     Properties:
+      ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
@@ -523,6 +526,7 @@ Resources:
     Condition: CreateResources
     DependsOn: BookingsListenerRule
     Properties:
+      ServiceName: !Ref BookingsRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
@@ -547,6 +551,7 @@ Resources:
     Condition: CreateResources
     DependsOn: FrontendListenerRule
     Properties:
+      ServiceName: !Ref FrontendRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, 2, 1]
       LaunchType: "FARGATE"
