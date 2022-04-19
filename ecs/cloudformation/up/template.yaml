@@ -202,6 +202,9 @@ Resources:
               Host: elk-docker-compose.hitwc.link
               Port: 5000
               Index: users
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
       Cpu: "1vCPU"
       ExecutionRoleArn: !Ref IamRole
       Memory: "2GB"
