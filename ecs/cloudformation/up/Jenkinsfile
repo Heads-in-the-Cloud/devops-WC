@@ -94,8 +94,11 @@ pipeline {
             }
         }
         stage('update users'){
-            when {        
-                environment name: "${params.container}", value: 'users'
+            when {
+                allOf{ 
+                    environment name: "${params.container}", value: 'users'
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
             }
             steps{
                 script{
@@ -103,9 +106,11 @@ pipeline {
                 }
             }
         }
-        stage('update flights'){
-            when {        
-                environment name: "${params.container}", value: 'flights'
+            when {
+                allOf{ 
+                    environment name: "${params.container}", value: 'flights'
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
             }
             steps{
                 script{
