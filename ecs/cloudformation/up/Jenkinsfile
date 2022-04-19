@@ -26,7 +26,7 @@ pipeline {
                     env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
-                    env.STACK_EXISTS        = false
+                    env.STACK_EXISTS        = true
                 }
             }
         }
@@ -37,14 +37,14 @@ pipeline {
                         aws cloudformation describe-stacks --stack-name wc-utopia-cf-dev
                     }
                     catch (Exception e){
-                        STACK_EXISTS        = true
+                        STACK_EXISTS        = false
                     }
                 }
             }
         }
         stage('create'){
             when{
-                environment name: 'STACK_EXISTS', value: false
+                environment name: 'STACK_EXISTS', value: 'true'
             }
             steps{
                 dir('ecs/cloudformation/up'){
