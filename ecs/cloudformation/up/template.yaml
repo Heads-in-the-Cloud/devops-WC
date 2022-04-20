@@ -86,7 +86,13 @@ Parameters:
   MemProd:
     Type: String
     Default: "4GB"
-
+  DevDesiredCount:
+    Type: Number
+    Description: desired count for the task definition
+    Default: 1
+  ProdDesiredCount:
+    Type: Number
+    Default: 2
   #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
   SSMSecretString:
     Type: String
@@ -197,9 +203,6 @@ Resources:
           LogConfiguration:
             LogDriver: awsfirelens
             Options:
-              # awslogs-region: !Ref Region
-              # awslogs-group: !Ref myLogGroup
-              # awslogs-stream-prefix: /users-taskdef
               Name: es
               Host: elk-docker-compose.hitwc.link
               Port: !Ref ContainerPort
@@ -239,11 +242,17 @@ Resources:
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awslogs
+            LogDriver: awsfirelens
             Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /flights-taskdef
+              Name: es
+              Host: elk-docker-compose.hitwc.link
+              Port: !Ref ContainerPort
+              Index: users
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
@@ -275,11 +284,17 @@ Resources:
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awslogs
+            LogDriver: awsfirelens
             Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /bookings-taskdef
+              Name: es
+              Host: elk-docker-compose.hitwc.link
+              Port: !Ref ContainerPort
+              Index: users
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
@@ -307,11 +322,17 @@ Resources:
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awslogs
+            LogDriver: awsfirelens
             Options:
-              awslogs-region: !Ref Region
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /frontend-taskdef
+              Name: es
+              Host: elk-docker-compose.hitwc.link
+              Port: !Ref ContainerPort
+              Index: users
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
@@ -479,7 +500,7 @@ Resources:
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 2, 1]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -504,7 +525,7 @@ Resources:
     Properties:
       ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 2, 1]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -529,7 +550,7 @@ Resources:
     Properties:
       ServiceName: !Ref BookingsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 2, 1]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -554,7 +575,7 @@ Resources:
     Properties:
       ServiceName: !Ref FrontendRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 2, 1]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
