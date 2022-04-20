@@ -64,9 +64,7 @@ pipeline {
 
             steps {
                 dir("terraform/networks") {
-                    sh 'envsubst < config.tf > temp'
-                    sh 'rm config.tf'
-                    sh 'mv temp config.tf'
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                     sh 'cat config.tf'
                     // sh 'terraform init'
                 }
