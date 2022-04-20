@@ -49,23 +49,17 @@ pipeline {
                     env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
                     env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
                     env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+                    env.TF_VAR_db_name              ="wc-utopia-${REGION_WC}"
                 }
             }
         }
-        // stage('Configure region'){
-        //     steps{
-        //         script{
-        //             sh "sed 's/AWS_REGION/${REGION_WC}/g' config.tf > rds/config.tf"
-        //         }
-        //     }
-        // }
         stage('Terraform init') {
 
             steps {
-                script {
-                    dir("terraform/rds") {
-                        sh 'terraform init'
-                    }
+                dir("terraform/rds") {
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                    sh 'cat config.tf'
+                    sh 'terraform init -migrate-state -force-copy'
                 }
             }
         }
