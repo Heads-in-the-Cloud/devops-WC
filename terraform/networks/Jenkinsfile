@@ -63,31 +63,33 @@ pipeline {
 
             steps {
                 dir("terraform/networks") {
+                    sh 'envsubst < config.tf'
+                    sh 'cat config.tf'
                     sh 'terraform init'
                 }
             }
         }
-        stage('Terraform plan') {
+        // stage('Terraform plan') {
 
-            steps {
-                script{
-                    dir("terraform/networks") {
-                        if (params.action == 'destroy'){
-                            sh 'terraform plan -destroy'             
-                        }
-                        else{
-                            sh 'terraform plan'
-                        }   
-                    }
-                }
-            }
-        }
-        stage('Terraform action') {
-            steps {
-                dir("terraform/networks") {
-                    sh "terraform ${action} -auto-approve"
-                }
-            } 
-        }
+        //     steps {
+        //         script{
+        //             dir("terraform/networks") {
+        //                 if (params.action == 'destroy'){
+        //                     sh 'terraform plan -destroy'             
+        //                 }
+        //                 else{
+        //                     sh 'terraform plan'
+        //                 }   
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Terraform action') {
+        //     steps {
+        //         dir("terraform/networks") {
+        //             sh "terraform ${action} -auto-approve"
+        //         }
+        //     } 
+        // }
     }
 }
