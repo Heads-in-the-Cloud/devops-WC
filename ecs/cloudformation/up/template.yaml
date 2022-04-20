@@ -72,6 +72,20 @@ Parameters:
   LogGroupName:
     Type: String
     Description: name of log group
+  CpuDev:
+    Type: String
+    Description: task definition cpu usage
+    Default: "1vCPU"
+  CpuProd:
+    Type: String
+    Default: "2vCPU"
+  MemDev:
+    Type: String
+    Description: task definition memory usage
+    Default: "2GB"
+  MemProd:
+    Type: String
+    Default: "4GB"
 
   #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
   SSMSecretString:
@@ -144,16 +158,6 @@ Resources:
       FromPort: !If [ ProdEnv, 443, 80 ]
       ToPort: !If [ ProdEnv, 443, 80 ]
       CidrIp: 0.0.0.0/0
-  # AlbSecurityGroupHTTPSinbound:
-  #   Type: 'AWS::EC2::SecurityGroupIngress'
-  #   Condition: ProdEnv
-  #   Properties:
-  #     GroupId: !Ref AlbSecurityGroup
-  #     IpProtocol: tcp
-  #     FromPort: 443
-  #     ToPort: 443
-  #     CidrIp: 0.0.0.0/0
-
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -175,10 +179,8 @@ Resources:
       Family: !Ref UsersFamily
       ContainerDefinitions:
         - Name: !Ref UsersFamily
-          Cpu: '10'
           Essential: 'true'
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-          Memory: '300'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
           Environment: 
@@ -200,16 +202,16 @@ Resources:
               # awslogs-stream-prefix: /users-taskdef
               Name: es
               Host: elk-docker-compose.hitwc.link
-              Port: 5000
+              Port: !Ref ContainerPort
               Index: users
         - Name: log_router
           Essential: 'true'
           Image: docker.io/amazon/aws-for-fluent-bit:latest
           FirelensConfiguration:
             Type: fluentbit  
-      Cpu: "1vCPU"
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -222,8 +224,6 @@ Resources:
       ContainerDefinitions: 
         - Name: !Ref FlightsFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -244,9 +244,9 @@ Resources:
               awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /flights-taskdef
-      Cpu: "1vCPU"
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -260,8 +260,6 @@ Resources:
       ContainerDefinitions: 
         - Name: !Ref BookingsFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -282,9 +280,9 @@ Resources:
               awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /bookings-taskdef
-      Cpu: "1vCPU"
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -298,8 +296,6 @@ Resources:
       ContainerDefinitions: 
         - Name: !Ref FrontendFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -316,9 +312,9 @@ Resources:
               awslogs-region: !Ref Region
               awslogs-group: !Ref myLogGroup
               awslogs-stream-prefix: /frontend-taskdef
-      Cpu: "1vCPU"
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
