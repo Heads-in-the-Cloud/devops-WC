@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
     bucket = "utopia-bucket-wc"
-    key    = "terraform/${ENVIRONMENT}/${WC_REGION}/networks/terraform.tfstate"
-    region = "${WC_REGION}"
+    key    = "terraform/${ENVIRONMENT}/${REGION_WC}/networks/terraform.tfstate"
+    region = "${REGION_WC}"
     dynamodb_table = "WC_terraform_state"
   }
 

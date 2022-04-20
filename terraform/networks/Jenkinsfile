@@ -38,6 +38,7 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
+                    env.ENVIRONMENT                  ="dev"
                     env.TF_VAR_environment           ="dev"
                     env.TF_VAR_region                ="${REGION_WC}"
                     env.TF_VAR_cluster_name          ="${CLUSTER_NAME_WC}"
@@ -65,7 +66,7 @@ pipeline {
                 dir("terraform/networks") {
                     sh 'envsubst < config.tf'
                     sh 'cat config.tf'
-                    sh 'terraform init'
+                    // sh 'terraform init'
                 }
             }
         }
