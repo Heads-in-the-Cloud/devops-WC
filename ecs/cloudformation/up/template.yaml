@@ -593,17 +593,16 @@ Resources:
       Tags:
         - Key: Name
           Value: FrontendService
-  # Route53:
-  #   Type: AWS::Route53::RecordSet
-  #   Properties: 
-  #     ResourceRecords:
-  #       - !GetAtt ECSALB.DNSName
-  #     HostedZoneId: !Ref HostedZoneId
-  #     Name: !Ref RecordName
-  #     EvaluateTargetHealth: 'yes'
-  #     Type: 'CNAME'
-  #     TTL: '300'
-  #     Weight: 1
+  Route53:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      ResourceRecords:
+        - !GetAtt ECSALB.DNSName
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref RecordName
+      Type: 'CNAME'
+      TTL: '300'
+      # Weight: 1
   # Route53HealthCheck: 
   #   Type: 'AWS::Route53::HealthCheck'
   #   Properties: 

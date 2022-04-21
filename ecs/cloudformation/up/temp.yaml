@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  Route53:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      ResourceRecords:
+        - ECSALB-154254013.us-west-2.elb.amazonaws.com
+      HostedZoneId: Z02774322V8FI017JONWO
+      Name: https://prod-ecs.wc-utopia.hitwc.link
+      HealthCheckId: !GetAtt Route53HealthCheck.HealthCheckId
+      SetIdentifier: Resource for us-west-2
+      Type: 'CNAME'
+      TTL: '300'
+      Weight: 1
+      # AliasTarget:
+      #   DNSName: https://prod-ecs.wc-utopia.hitwc.link
+      #   HostedZoneId: Z02774322V8FI017JONWO
+      #   EvaluateTargetHealth: true
+  Route53HealthCheck: 
+    Type: 'AWS::Route53::HealthCheck'
+    Properties: 
+      HealthCheckConfig: 
+        IPAddress: 192.0.2.44
+        Port: 443
+        Type: HTTPS
+        ResourcePath: /health
+        FullyQualifiedDomainName: https://prod-ecs.wc-utopia.hitwc.link
+        RequestInterval: 30
+        FailureThreshold: 3
