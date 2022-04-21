@@ -74,6 +74,8 @@ pipeline {
                     env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
                     env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.CERTIFICATE_ARN     = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."cert_manager_arn"', returnStdout: true).trim() 
+
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
                     
@@ -182,7 +184,7 @@ pipeline {
                         FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
                         BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
                         FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
-                        CertificateArn=${WC_CERTMANAGER_ARN} \
+                        CertificateArn=${CERTIFICATE_ARN} \
                         DbHost=db_host \
                         DbUser=db_user \
                         DbPassword=db_password \
