@@ -50,41 +50,40 @@ pipeline {
                     env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
                     env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
                     env.TF_VAR_db_name              = sh ( script: 'echo ${REGION_WC} | sed "s/-//g"', returnStdout: true )
-                    echo env.TF_VAR_db_name
                 }
             }
         }
-        // stage('Terraform init') {
+        stage('Terraform init') {
 
-        //     steps {
-        //         dir("terraform/rds") {
-        //             sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-        //             sh 'cat config.tf'
-        //             sh 'terraform init -migrate-state -force-copy'
-        //         }
-        //     }
-        // }
-        // stage('Terraform plan') {
+            steps {
+                dir("terraform/rds") {
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                    sh 'cat config.tf'
+                    sh 'terraform init -migrate-state -force-copy'
+                }
+            }
+        }
+        stage('Terraform plan') {
 
-        //     steps {
-        //         script{
-        //             dir("terraform/rds") {
-        //                 if (params.action == 'destroy'){
-        //                     sh 'terraform plan -destroy'             
-        //                 }
-        //                 else{
-        //                     sh 'terraform plan'
-        //                 }   
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Terraform action') {
-        //     steps {
-        //         dir("terraform/rds") {
-        //             sh "terraform ${params.action} -auto-approve"
-        //         }
-        //     } 
-        // }
+            steps {
+                script{
+                    dir("terraform/rds") {
+                        if (params.action == 'destroy'){
+                            sh 'terraform plan -destroy'             
+                        }
+                        else{
+                            sh 'terraform plan'
+                        }   
+                    }
+                }
+            }
+        }
+        stage('Terraform action') {
+            steps {
+                dir("terraform/rds") {
+                    sh "terraform ${params.action} -auto-approve"
+                }
+            } 
+        }
     }
 }
