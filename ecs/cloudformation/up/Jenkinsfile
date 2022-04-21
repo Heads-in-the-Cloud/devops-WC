@@ -68,16 +68,18 @@ pipeline {
         stage('setup environment'){
             steps{
                 script{
-                    env.AWS_DEFAULT_REGION  = "$REGION_WC"
-                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${WC_vpc_name}-dev | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
-                    env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
-                    env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
-                    env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
-                    env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
-                    env.STACK_EXISTS        = true
-                    sh "envsubst < .env > temp"
-                    sh "cat temp"
+                    dir('ecs/cloudformation/up'){
+                        env.AWS_DEFAULT_REGION  = "$REGION_WC"
+                        env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${WC_vpc_name}-dev | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                        env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                        env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                        env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                        env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                        env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
+                        env.STACK_EXISTS        = true
+                        sh "envsubst < .env > temp"
+                        sh "cat temp"
+                    }
                 }
             }
         }
