@@ -204,7 +204,7 @@ Resources:
             LogDriver: awsfirelens
             Options:
               Name: es
-              Host: http://elk-docker-compose.hitwc.link/
+              Host: nr-elk.hitwc.link
               Port: 5000
               Index: walter-logs
         - Name: log_router
