@@ -204,9 +204,9 @@ Resources:
             LogDriver: awsfirelens
             Options:
               Name: es
-              Host: elk-docker-compose.hitwc.link
-              Port: !Ref ContainerPort
-              Index: users
+              Host: nr-elk.hitwc.link
+              Port: 9200
+              Index: walter-logs
         - Name: log_router
           Essential: 'true'
           Image: docker.io/amazon/aws-for-fluent-bit:latest
@@ -241,18 +241,18 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: elk-docker-compose.hitwc.link
-              Port: !Ref ContainerPort
-              Index: users
-        - Name: log_router
-          Essential: 'true'
-          Image: docker.io/amazon/aws-for-fluent-bit:latest
-          FirelensConfiguration:
-            Type: fluentbit  
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
@@ -283,18 +283,18 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: elk-docker-compose.hitwc.link
-              Port: !Ref ContainerPort
-              Index: users
-        - Name: log_router
-          Essential: 'true'
-          Image: docker.io/amazon/aws-for-fluent-bit:latest
-          FirelensConfiguration:
-            Type: fluentbit  
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
@@ -321,18 +321,18 @@ Resources:
               Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: elk-docker-compose.hitwc.link
-              Port: !Ref ContainerPort
-              Index: users
-        - Name: log_router
-          Essential: 'true'
-          Image: docker.io/amazon/aws-for-fluent-bit:latest
-          FirelensConfiguration:
-            Type: fluentbit  
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
