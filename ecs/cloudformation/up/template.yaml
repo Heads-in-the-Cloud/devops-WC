@@ -204,8 +204,8 @@ Resources:
             LogDriver: awsfirelens
             Options:
               Name: es
-              Host: nr-elk.hitwc.link
-              Port: 9200
+              Host: http://elk-docker-compose.hitwc.link/
+              Port: 5000
               Index: walter-logs
         - Name: log_router
           Essential: 'true'
@@ -614,8 +614,8 @@ Resources:
   #       FullyQualifiedDomainName: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
   #       RequestInterval: 30
   #       FailureThreshold: 3
-  myLogGroup: 
-    Type: AWS::Logs::LogGroup
-    Properties: 
-      LogGroupName: !Ref LogGroupName
-      RetentionInDays: 1
+  # myLogGroup: 
+  #   Type: AWS::Logs::LogGroup
+  #   Properties: 
+  #     LogGroupName: !Ref LogGroupName
+  #     RetentionInDays: 1
