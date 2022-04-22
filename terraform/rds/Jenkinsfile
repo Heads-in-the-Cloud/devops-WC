@@ -49,7 +49,7 @@ pipeline {
                     env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
                     env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
                     env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
-                    // env.ENVIRONMENT                 = env.TF_VAR_environment
+                    env.ENVIRONMENT                 = env.TF_VAR_environment
                 }
             }
         }
