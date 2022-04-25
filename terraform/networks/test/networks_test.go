@@ -14,7 +14,9 @@ var deployment_passed bool
 func TestTerraformNetworksTags(t *testing.T){
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
-		VarFiles: []string{"input.tfvars"},
+		// EnvVars: map[string]string{
+		// 	"AWS_DEFAULT_REGION": ExpectedS3.Tags.Region,
+		// },
 	})
 
 	terraform.InitAndApply(t, terraformOptions)
