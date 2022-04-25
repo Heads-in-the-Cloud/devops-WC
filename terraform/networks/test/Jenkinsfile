@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        go '1.18'
+    }
     // environment {
     //     env.ENVIRONMENT                  ="test"
     //     env.TF_VAR_environment           =env.ENVIRONMENT
@@ -24,11 +27,7 @@ pipeline {
         stage('test'){
             steps{
                 dir("terraform/networks/test") {
-                    root = tool type: 'go', name: 'Go 1.15'
-
-                    withEnv(["GOROOT=${root}", "PATH+GO=${root}/bin"]) {
-                        sh 'go version'
-                    }
+                    sh 'go version'
                 }
             }
         }
