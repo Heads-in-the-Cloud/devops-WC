@@ -14,7 +14,7 @@ pipeline {
             }
             post{
                 failure{
-                    'test failed'
+                    sh 'echo test failed'
                 }
             }
         }
