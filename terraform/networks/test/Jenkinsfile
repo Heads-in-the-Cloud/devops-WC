@@ -9,7 +9,7 @@ pipeline {
                 dir("terraform/networks/test") {
                     sh 'go version'
                     sh 'go mod tidy'
-                    sh 'go test network_test.go -v -timeout 10m'
+                    sh 'go test networks_test.go -v -timeout 10m'
                 }
             }
         }
