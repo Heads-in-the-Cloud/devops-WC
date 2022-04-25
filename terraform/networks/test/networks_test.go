@@ -11,7 +11,7 @@ import (
 )
 var deployment_passed bool
 
-func TestTerraformNetworksExample(t *testing.T){
+func TestTerraformNetworksTags(t *testing.T){
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
 		VarFiles: []string{"input.tfvars"},
@@ -31,12 +31,6 @@ func TestTerraformNetworksExample(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedVpcName, ActualVpcName)
 	}
 
-	if assert.Equal(t, true, false){
-		deployment_passed = true
-	} else {
-		deployment_passed = false
-		terraform.Destroy(t, terraformOptions)
-	}
 
 	defer terraform.Destroy(t, terraformOptions)
 

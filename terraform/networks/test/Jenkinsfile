@@ -3,7 +3,16 @@ pipeline {
     tools {
         go '1.18'
     }
+    environment{
+        env.ENVIRONMENT='testing'
+        env.REGION="${REGION_WC}"
+    }
     stages{
+        stage('configure s3 backend'){
+            steps{
+                sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+            }
+        }
         stage('test'){
             steps{
                 dir("terraform/networks/test") {
