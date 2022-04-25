@@ -22,7 +22,7 @@ func TestTerraformNetworksTags(t *testing.T){
 	terraform.InitAndApply(t, terraformOptions)
 
 	ActualVpcName := terraform.Output(t, terraformOptions, "vpc_name")
-	ExpectedVpcName := os.Getenv("TF_VAR_vpc_name ") + "-" + os.Getenv("TF_VAR_environment")
+	ExpectedVpcName := os.Getenv("TF_VAR_vpc_name") + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedVpcName, ActualVpcName){
 		deployment_passed = true
