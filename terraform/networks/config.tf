@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "utopia-bucket-wc"
-    key    = "terraform/${ENVIRONMENT}/${REGION_WC}/networks/terraform.tfstate"
+    key    = "terraform/testing/us-west-2/networks/terraform.tfstate"
     region = "us-west-2"
     dynamodb_table = "WC_terraform_state"
   }

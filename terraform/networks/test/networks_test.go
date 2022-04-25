@@ -1,29 +1,38 @@
-package test
+package networks_test
 
 import (
-	"fmt"
-	"time"
-	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	"github.com/stretchr/testify/assert" 
+	// "os"
+	// "fmt"
+	// "time"
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	// "github.com/gruntwork-io/terratest/modules/aws"
 )
+var deployment_passed bool
 
 func TestTerraformNetworksExample(t *testing.T){
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "../"
-
-		Vars: map[string]interface{}{
-			"region": "us-west-2",
-		},
+		TerraformDir: "../",
+		VarFiles: []string{"input.tfvars"},
 	})
 
 	terraform.InitAndApply(t, terraformOptions)
 
+	ActualVpcName := terraform.Output(t, terraformOptions, "vpc_name")
+	ExpectedVpcName := "wc-vpc-test"
+
+	if assert.Equal(t, ExpectedVpcName, ActualVpcName){
+		deployment_passed = true
+		t.Logf("PASS: The expected VPC name:%v matches the Actual VPC name:%v", ExpectedVpcName, ActualVpcName)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedVpcName, ActualVpcName)
+	}
+
+
 	defer terraform.Destroy(t, terraformOptions)
 
-	publicIp := terraform.Output(t, terraformOptions, "public_up")
 
-	url := fmt.Sprintf("http://%s:8080", publicIp)
-
-	http_helper.HttpGetWithRetry(t, url, nil, 200, "I made a terraform module", 30, 5*time.Second)
 }

@@ -51,7 +51,6 @@ pipeline {
                     env.TF_VAR_subnet3_cidr_block    = "10.10.3.0/24"
                     env.TF_VAR_subnet4_cidr_block    = "10.10.4.0/24"
                     env.TF_VAR_anywhere_ipv4         = "0.0.0.0/0"
-                    env.TF_VAR_vpc_name              = "WC-vpc"
                     env.TF_VAR_pc_name               = "WC-Jenkins-pc"
                     env.TF_VAR_peering_rt_name       = "JenkinsRoutes"
                     env.TF_VAR_internet_gw_name      = "WC-ig"
