@@ -24,10 +24,11 @@ pipeline {
         stage('test'){
             steps{
                 dir("terraform/networks/test") {
-                    // sh 'which go'
-                    sh '~/.go/bin/go mod init networks_test'
-                    // sh 'go mod tidy'
-                    // sh 'go test networks_test.go -v -timeout 10m'
+                    def root = tool type: 'go', name: 'Go 1.15'
+
+                    withEnv(["GOROOT=${root}", "PATH+GO=${root}/bin"]) {
+                        sh 'go version'
+                    }
                 }
             }
         }
