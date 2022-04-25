@@ -24,7 +24,7 @@ pipeline {
         stage('test'){
             steps{
                 dir("terraform/networks/test") {
-                    def root = tool type: 'go', name: 'Go 1.15'
+                    root = tool type: 'go', name: 'Go 1.15'
 
                     withEnv(["GOROOT=${root}", "PATH+GO=${root}/bin"]) {
                         sh 'go version'
