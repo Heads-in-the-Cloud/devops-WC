@@ -4,8 +4,8 @@ pipeline {
         go '1.18'
     }
     environment{
-        env.ENVIRONMENT='testing'
-        env.REGION="${REGION_WC}"
+        ENVIRONMENT='testing'
+        REGION="${REGION_WC}"
     }
     stages{
         stage('configure s3 backend'){
