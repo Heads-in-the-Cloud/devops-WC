@@ -12,6 +12,11 @@ pipeline {
                     sh 'go test networks_test.go -v -timeout 10m'
                 }
             }
+            post{
+                failure{
+                    'test failed'
+                }
+            }
         }
     }
 }
