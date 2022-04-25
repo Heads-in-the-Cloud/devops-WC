@@ -23,7 +23,7 @@ pipeline {
     stages{
         stage('test'){
             steps{
-                dir("terraform/networks") {
+                dir("terraform/networks/test") {
                     sh 'go mod init networks_test'
                     sh 'go mod tidy'
                     sh 'go test networks_test.go -v -timeout 10m'
