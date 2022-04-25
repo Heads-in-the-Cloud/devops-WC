@@ -5,7 +5,6 @@ pipeline {
     }
     environment{
         ENVIRONMENT='testing'
-        REGION="${REGION_WC}"
     }
     stages{
         stage('configure s3 backend'){
