@@ -8,6 +8,7 @@ pipeline {
             steps{
                 dir("terraform/networks/test") {
                     sh 'go version'
+                    sh 'go mod init'
                     sh 'go mod tidy'
                     sh 'go test networks_test.go -v -timeout 10m'
                 }
