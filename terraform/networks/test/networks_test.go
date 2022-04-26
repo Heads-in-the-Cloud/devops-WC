@@ -41,7 +41,6 @@ func TestTerraformNetworksTags(t *testing.T){
 
 	fmt.Println(ActualPublicSubnet1["id"])
 	fmt.Println(ActualPublicSubnet1["tags"])
-	fmt.Println(ActualPublicSubnet1["tags"]["Name"])
 
 	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Name){
 	// 	deployment_passed = true
