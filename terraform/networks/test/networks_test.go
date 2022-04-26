@@ -280,7 +280,7 @@ func TestTerraformNetworks(t *testing.T){
 	ActualPublicSubnetId1	:= gjson.Get(ActualPublicSubnet1Json, os.Getenv("id")).String()
 	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, os.Getenv("id")).String()
 
-	PublicSubnetMatchesSecret := false
+	bool PublicSubnetMatchesSecret
 
 	//Check if the public subnet id secret matches the actual value for public subnet1 or public subnet2
 	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
