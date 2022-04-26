@@ -68,7 +68,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet1Cluster, ActualPublicSubnet1Cluster)
 	}
 
-	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "kubernetes.io/role/internal-elb")
+	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "kubernetes.io/role/elb")
 	ExpectedPublicSubnet1Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPublicSubnet1Elb, ActualPublicSubnet1Elb){
@@ -164,6 +164,47 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet1Elb, ActualPrivateSubnet1Elb)
 	}
 
+	/********************************************************/
+	/***************** Test Private Subnet 2 *****************/
+	/********************************************************/
+
+	ActualPrivateSubnet2Json   := terraform.OutputJson(t, terraformOptions, "private_subnet2")
+
+	ActualPrivateSubnet2Name   := gjson.Get(ActualPrivateSubnet2Json, "tags.Name")
+	ExpectedPrivateSubnet2Name := "wc_private_subnet_2" + "-" + os.Getenv("TF_VAR_environment")
+
+	if assert.Equal(t, ExpectedPrivateSubnet2Name, ActualPrivateSubnet2Name){
+		deployment_passed = true
+		t.Logf("PASS: The expected subnet name:%v matches the actual subnet name:%v", ExpectedPrivateSubnet2Name, ActualPrivateSubnet2Name)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2Name, ActualPrivateSubnet2Name)
+	}
+
+	ActualPrivateSubnet2Cluster 	 := gjson.Get(ActualPrivateSubnet2Json, "kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
+	ExpectedPrivateSubnet2Cluster 	 := "shared"
+
+	if assert.Equal(t, ExpectedPrivateSubnet2Cluster, ActualPrivateSubnet2Cluster){
+		deployment_passed = true
+		t.Logf("PASS: The expected subnet cluster tag:%v matches the actual subnet cluster tag:%v", ExpectedPrivateSubnet2Cluster, ActualPrivateSubnet2Cluster)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2Cluster, ActualPrivateSubnet2Cluster)
+	}
+
+	ActualPrivateSubnet2Elb   	:= gjson.Get(ActualPrivateSubnet2Json, "kubernetes.io/role/internal-elb")
+	ExpectedPrivateSubnet2Elb 	:= 1
+
+	if assert.Equal(t, ExpectedPrivateSubnet2Elb, ActualPrivateSubnet2Elb){
+		deployment_passed = true
+		t.Logf("PASS: The expected subnet cluster tag:%v matches the actual subnet cluster tag:%v", ExpectedPrivateSubnet2Elb, ActualPrivateSubnet2Elb)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2Elb, ActualPrivateSubnet2Elb)
+	}
 
 	defer terraform.Destroy(t, terraformOptions)
 
