@@ -283,10 +283,16 @@ func TestTerraformNetworks(t *testing.T){
 
 	PublicSubnetMatchesSecret := false
 
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+	fmt.Println(PublicSubnetIdInSecret)
+	fmt.Println(ActualPublicSubnetId1)
+	fmt.Println(ActualPublicSubnetId2)
+	
 	//Check if the public subnet id secret matches the actual value for public subnet1 or public subnet2
 	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
 		PublicSubnetMatchesSecret = true
 	}
+	fmt.Println(PublicSubnetMatchesSecret)
 	if assert.Equal(t, true, PublicSubnetMatchesSecret){
 		deployment_passed = true
 		t.Logf("PASS: the public subnet id is stored in the secrets manager")
