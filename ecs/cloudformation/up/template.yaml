@@ -202,19 +202,21 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
             LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: nr-elk.hitwc.link
-              Port: 443
-              Index: walter-logs
+            # Options:
+            #   Name: es
+            #   Host: nr-elk.hitwc.link
+            #   Port: 443
+            #   Index: walter-logs
         - Name: log_router
           Essential: 'true'
           Image: docker.io/amazon/aws-for-fluent-bit:latest
           FirelensConfiguration:
             Type: fluentbit 
             Options:
-              config-file-type: asdf
-              config-file-value: .asdf
+              config-file-type: s3
+              config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
+          # LogConfiguration:
+          #   LogDriver: awsfirelens
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
