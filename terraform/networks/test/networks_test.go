@@ -68,7 +68,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet1Cluster, ActualPublicSubnet1Cluster)
 	}
 
-	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "tags.kubernetes\\.io/role/elb")
+	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "tags.kubernetes\\.io/role/elb").String()
 	ExpectedPublicSubnet1Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPublicSubnet1Elb, ActualPublicSubnet1Elb){
