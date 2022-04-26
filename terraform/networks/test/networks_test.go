@@ -19,12 +19,25 @@ func TestTerraformNetworks(t *testing.T){
 	})
 
 	/********************************************************/
+	/******************** Get TF Outputs ********************/
+	/********************************************************/
+
+	ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
+	ActualVpcJson 				:= terraform.OutputJson(t, terraformOptions, "vpc")
+	ActualPublicSubnet1Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet1")
+	ActualPublicSubnet2Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet2")
+	ActualPrivateSubnet2Json    := terraform.OutputJson(t, terraformOptions, "private_subnet2")
+	ActualPrivateSubnet1Json    := terraform.OutputJson(t, terraformOptions, "private_subnet1")
+	ActualSecretJson 			:= terraform.OutputJson(t, terraformOptions, "secret")
+
+
+
+	/********************************************************/
 	/***************** Test Resource Tags ******************/
 	/********************************************************/
 
 	terraform.InitAndApply(t, terraformOptions)
 
-	ActualVpcJson := terraform.OutputJson(t, terraformOptions, "vpc_name")
 
 	ActualVpcName := gjson.Get(ActualVpcJson, "tags.Name").String()
 	ExpectedVpcName := os.Getenv("TF_VAR_vpc_name") + "-" + os.Getenv("TF_VAR_environment")
@@ -42,7 +55,6 @@ func TestTerraformNetworks(t *testing.T){
 	/***************** Test Public Subnet 1 *****************/
 	/********************************************************/
 
-	ActualPublicSubnet1Json := terraform.OutputJson(t, terraformOptions, "public_subnet1")
 
 	ActualPublicSubnet1Name := gjson.Get(ActualPublicSubnet1Json, "tags.Name").String()
 	ExpectedPublicSubnet1Name := "wc_public_subnet_1" + "-" + os.Getenv("TF_VAR_environment")
@@ -95,8 +107,6 @@ func TestTerraformNetworks(t *testing.T){
 	/***************** Test Public Subnet 2 *****************/
 	/********************************************************/
 
-	ActualPublicSubnet2Json := terraform.OutputJson(t, terraformOptions, "public_subnet2")
-
 	ActualPublicSubnet2Name := gjson.Get(ActualPublicSubnet2Json, "tags.Name").String()
 	ExpectedPublicSubnet2Name := "wc_public_subnet_2" + "-" + os.Getenv("TF_VAR_environment")
 
@@ -146,8 +156,6 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 	/***************** Test Private Subnet 1 *****************/
 	/********************************************************/
-
-	ActualPrivateSubnet1Json   := terraform.OutputJson(t, terraformOptions, "private_subnet1")
 
 	ActualPrivateSubnet1Name   := gjson.Get(ActualPrivateSubnet1Json, "tags.Name").String()
 	ExpectedPrivateSubnet1Name := "wc_private_subnet_1" + "-" + os.Getenv("TF_VAR_environment")
@@ -201,8 +209,6 @@ func TestTerraformNetworks(t *testing.T){
 	/***************** Test Private Subnet 2 ****************/
 	/********************************************************/
 
-	ActualPrivateSubnet2Json   := terraform.OutputJson(t, terraformOptions, "private_subnet2")
-
 	ActualPrivateSubnet2Name   := gjson.Get(ActualPrivateSubnet2Json, "tags.Name").String()
 	ExpectedPrivateSubnet2Name := "wc_private_subnet_2" + "-" + os.Getenv("TF_VAR_environment")
 
@@ -254,21 +260,60 @@ func TestTerraformNetworks(t *testing.T){
 	/***************** Test Secrets Manager  ****************/
 	/********************************************************/
 
-	SecretJson 			:= terraform.OutputJson(t, terraformOptions, "secret")
-	SecretVersionJson 	:= terraform.OutputJson(t, terraformOptions, "secret_version")
 
-	SecretId 			:= gjson.Get(SecretJson, "id").String()
-	fmt.Println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
-	fmt.Println(SecretId)
+	//Get the Secret ID
+	SecretId 			:= gjson.Get(ActualSecretJson, "id").String()
+
+	//Use the aws module to extract Secret as a json string
 	SecretText          := aws.GetSecretValue(t, os.Getenv("TF_VAR_region"), SecretId)
-	fmt.Println(SecretText)
 
-	SecretVersionId    := gjson.Get(SecretVersionJson, "id").String()
-	fmt.Println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
-	fmt.Println(SecretVersionId)
-	SecretVersionText          := aws.GetSecretValue(t, os.Getenv("TF_VAR_region"), SecretVersionId)
-	fmt.Println(SecretVersionText)
-	
+	//Extract each Secret value from the json string
+	VpcIdInSecret			:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_vpc_id")).String()
+	SubnetGroupIdInSecret 	:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_subnet_group_id")).String()
+	PublicSubnetIdInSecret 	:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_public_subnet_id")).String()
+
+	//Get actual values from resources
+	ActualVpcId				:= gjson.Get(ActualVpcJson, os.Getenv("id")).String()
+	ActualSubnetGroupId		:= gjson.Get(ActualSubnetGroup, os.Getenv("id")).String()
+	ActualPublicSubnetId1	:= gjson.Get(ActualPublicSubnet1Json, os.Getenv("id")).String()
+	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, os.Getenv("id")).String()
+
+	PublicSubnetMatchesSecret := false
+
+	//Check if the public subnet id secret matches the actual value for public subnet1 or public subnet2
+	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
+		PublicSubnetMatchesSecret := true
+	}
+	if assert.Equal(t, true, PublicSubnetMatchesSecret){
+		deployment_passed = true
+		t.Logf("PASS: the public subnet id is stored in the secrets manager")
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: the public subnet id in the secrets manager does not match either public subnet ids created")
+	}
+
+	//Check that the VPC id in the secret manager matches the VPC id
+	if assert.Equal(t, ActualVpcId, VpcIdInSecret){
+		deployment_passed = true
+		t.Logf("PASS: VPC Id:%v matches the actual VPC Id:%v", ActualVpcId, VpcIdInSecret)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ActualVpcId, VpcIdInSecret)
+	}
+
+	//Check that the private subnet group in the secret manager matches the actual
+	if assert.Equal(t, ActualSubnetGroupId, SubnetGroupIdInSecret){
+		deployment_passed = true
+		t.Logf("PASS: VPC Id:%v matches the actual VPC Id:%v", ActualSubnetGroupId, SubnetGroupIdInSecret)
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: Expected %v, but found %v", ActualSubnetGroupId, SubnetGroupIdInSecret)
+	}
+
+
 
 	defer terraform.Destroy(t, terraformOptions)
 

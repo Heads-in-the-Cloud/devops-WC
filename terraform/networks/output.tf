@@ -1,4 +1,4 @@
-output "vpc_name"{
+output "vpc"{
     value=aws_vpc.my_vpc
 }
 
@@ -23,7 +23,6 @@ output "secret" {
     value=data.aws_secretsmanager_secret.secrets
 }
 
-output "secret_version" {
-    sensitive = true
-    value=aws_secretsmanager_secret_version.secret_string
+output "subnet_group"{
+    value=aws_db_subnet_group.private-subnet-group
 }

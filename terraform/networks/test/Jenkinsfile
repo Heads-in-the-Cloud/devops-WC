@@ -20,6 +20,9 @@ pipeline {
         TF_VAR_pc_name               = "WC-Jenkins-pc"
         TF_VAR_peering_rt_name       = "JenkinsRoutes"
         TF_VAR_internet_gw_name      = "WC-ig"
+        TF_VAR_secrets_key_vpc_id    = "vpc_id"
+        TF_VAR_secrets_key_subnet_group_id = "private_subnet_group_id"
+        TF_VAR_secrets_key_public_subnet_id = "public_subnet_id"
         TF_VAR_ssm_path              ="${WC_SECRETS_PATH_DEV}"
         TF_VAR_key_name              ="${SSH_GROUP_KEY}"
     }
