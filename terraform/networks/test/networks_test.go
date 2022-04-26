@@ -34,7 +34,7 @@ func TestTerraformNetworksTags(t *testing.T){
 	}
 	ActualPublicSubnet1 := terraform.OutputListOfObjects(t, terraformOptions, "public_subnet1")
 
-	t.Logf("%v", ActualPublicSubnet1)
+	// t.Logf("%v", ActualPublicSubnet1[0].tag.Name)
 	// ExpectedPublicSubnet1Name := os.Getenv("TF_VAR_vpc_name ")
 
 	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Tag.tags.Name){
