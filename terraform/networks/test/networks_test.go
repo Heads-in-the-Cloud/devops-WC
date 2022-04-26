@@ -3,7 +3,7 @@ package networks_test
 import (
 	"github.com/stretchr/testify/assert" 
 	"os"
-	"fmt"
+	// "fmt"
 	"github.com/tidwall/gjson"
 	// "encoding/json"
 	// "time"
@@ -38,7 +38,7 @@ func TestTerraformNetworksTags(t *testing.T){
 
 	ActualPublicSubnet1Json := terraform.OutputJson(t, terraformOptions, "public_subnet1")
 
-	ActualPublicSubnet1Name := gjson.Get(ActualPublicSubnet1, "tags.Name")
+	ActualPublicSubnet1Name := gjson.Get(ActualPublicSubnet1Json, "tags.Name")
 	ExpectedPublicSubnet1Name := "wc_public_subnet_1" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Name){
