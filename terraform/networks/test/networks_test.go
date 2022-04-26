@@ -22,6 +22,8 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Get TF Outputs ********************/
 	/********************************************************/
 
+	fmt.Println("Testing begins")
+	
 	ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
 	ActualVpcJson 				:= terraform.OutputJson(t, terraformOptions, "vpc")
 	ActualPublicSubnet1Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet1")
