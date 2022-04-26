@@ -3,13 +3,13 @@ package networks_test
 import (
 	"github.com/stretchr/testify/assert" 
 	"os"
-	// "fmt"
+	"fmt"
 	"github.com/tidwall/gjson"
 	// "encoding/json"
 	// "time"
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	// "github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/gruntwork-io/terratest/modules/aws"
 )
 var deployment_passed bool
 
@@ -250,6 +250,25 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2MapPublicIp, ActualPrivateSubnet2MapPublicIp)
 	}
 
+	/********************************************************/
+	/***************** Test Secrets Manager  ****************/
+	/********************************************************/
+
+	SecretJson 			:= terraform.OutputJson(t, terraformOptions, "secret")
+	SecretVersionJson 	:= terraform.OutputJson(t, terraformOptions, "secret_version")
+
+	SecretId 			:= gjson.Get(SecretJson, "id").String()
+	fmt.Println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+	fmt.Println(SecretId)
+	SecretText          := aws.GetSecretValue(t, os.Getenv("TF_VAR_region"), SecretId)
+	fmt.Println(SecretText)
+
+	SecretVersionId    := gjson.Get(SecretVersionJson, "id").String()
+	fmt.Println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+	fmt.Println(SecretVersionId)
+	SecretVersionText          := aws.GetSecretValue(t, os.Getenv("TF_VAR_region"), SecretVersionId)
+	fmt.Println(SecretVersionText)
+	
 
 	defer terraform.Destroy(t, terraformOptions)
 

@@ -17,3 +17,11 @@ output "private_subnet1" {
 output "private_subnet2" {
     value=aws_subnet.private_2
 }
+
+output "secret" {
+    value=data.aws_secretsmanager_secret.secrets
+}
+
+output "secret_version" {
+    value=aws_secretsmanager_secret_version.secret_string
+}
