@@ -286,6 +286,9 @@ func TestTerraformNetworks(t *testing.T){
 	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
 		PublicSubnetMatchesSecret := true
 	}
+	else{
+		PublicSubnetMatchesSecret := false
+	}
 	if assert.Equal(t, true, PublicSubnetMatchesSecret){
 		deployment_passed = true
 		t.Logf("PASS: the public subnet id is stored in the secrets manager")
