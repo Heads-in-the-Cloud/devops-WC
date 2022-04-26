@@ -306,7 +306,7 @@ func TestTerraformNetworks(t *testing.T){
 	//Check that the private subnet group in the secret manager matches the actual
 	if assert.Equal(t, ActualSubnetGroupId, SubnetGroupIdInSecret){
 		deployment_passed = true
-		t.Logf("PASS: VPC Id:%v matches the actual VPC Id:%v", ActualSubnetGroupId, SubnetGroupIdInSecret)
+		t.Logf("PASS: private subnet group id:%v matches the actual private subnet group id:%v", ActualSubnetGroupId, SubnetGroupIdInSecret)
 	} else {
 		deployment_passed = false
 		terraform.Destroy(t, terraformOptions)
