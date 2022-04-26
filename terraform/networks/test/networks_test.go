@@ -276,10 +276,10 @@ func TestTerraformNetworks(t *testing.T){
 	PublicSubnetIdInSecret 	:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_public_subnet_id")).String()
 
 	//Get actual values from resources
-	ActualVpcId				:= gjson.Get(ActualVpcJson, os.Getenv("id")).String()
-	ActualSubnetGroupId		:= gjson.Get(ActualSubnetGroupJson, os.Getenv("id")).String()
-	ActualPublicSubnetId1	:= gjson.Get(ActualPublicSubnet1Json, os.Getenv("id")).String()
-	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, os.Getenv("id")).String()
+	ActualVpcId				:= gjson.Get(ActualVpcJson, "id").String()
+	ActualSubnetGroupId		:= gjson.Get(ActualSubnetGroupJson, "id").String()
+	ActualPublicSubnetId1	:= gjson.Get(ActualPublicSubnet1Json, "id").String()
+	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, "id").String()
 
 	PublicSubnetMatchesSecret := false
 
