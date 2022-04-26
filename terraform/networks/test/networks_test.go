@@ -18,8 +18,12 @@ func TestTerraformNetworks(t *testing.T){
 		TerraformDir: "../",
 	})
 
+	/******************** Init and Apply ********************/
+	terraform.InitAndApply(t, terraformOptions)
+
+
 	/********************************************************/
-	/******************** Get TF Outputs ********************/
+	/*************** Store Terraform Outputs ****************/
 	/********************************************************/
 
 	fmt.Println("Testing begins")
@@ -37,9 +41,6 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 	/***************** Test Resource Tags ******************/
 	/********************************************************/
-
-	terraform.InitAndApply(t, terraformOptions)
-
 
 	ActualVpcName := gjson.Get(ActualVpcJson, "tags.Name").String()
 	ExpectedVpcName := os.Getenv("TF_VAR_vpc_name") + "-" + os.Getenv("TF_VAR_environment")
