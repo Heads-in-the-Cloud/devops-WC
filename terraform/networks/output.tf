@@ -19,9 +19,11 @@ output "private_subnet2" {
 }
 
 output "secret" {
+    sensitive = true
     value=data.aws_secretsmanager_secret.secrets
 }
 
 output "secret_version" {
+    sensitive = true
     value=aws_secretsmanager_secret_version.secret_string
 }
