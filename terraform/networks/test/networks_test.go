@@ -35,17 +35,20 @@ func TestTerraformNetworksTags(t *testing.T){
 	}
 
 
-	ActualPublicSubnet1 := terraform.OutputJson(t, terraformOptions, "public_subnet1")
-	var result map[string]interface{}
-	json.Unmarshal([]byte(ActualPublicSubnet1), &result)
-	// ActualPublicSubnet1Name := ActualPublicSubnet1["tags"]["Name"]
-	// ExpectedPublicSubnet1Name := "wc_public_subnet_1-testing"
-	fmt.Println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-	fmt.Println(result["tags"])
+	ActualPublicSubnet1 	:= terraform.OutputJson(t, terraformOptions, "public_subnet1")
 	fmt.Println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
-	fmt.Println(result)
-	// fmt.Println(result["tags"]["Name"])
+	fmt.Println(ActualPublicSubnet1)
+	// ActualPublicSubnet1Json := make(map[string]interface{})
+	// json.Unmarshal([]byte(ActualPublicSubnet1), &ActualPublicSubnet1Json)
+	// // ActualPublicSubnet1Name := ActualPublicSubnet1["tags"]["Name"]
+	// // ExpectedPublicSubnet1Name := "wc_public_subnet_1-testing"
+	// fmt.Println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+	// fmt.Println(ActualPublicSubnet1Json)
+	// fmt.Println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+
+	// fmt.Println(ActualPublicSubnet1Json)
+	// // fmt.Println(result["tags"]["Name"])
 
 	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Name){
 	// 	deployment_passed = true
