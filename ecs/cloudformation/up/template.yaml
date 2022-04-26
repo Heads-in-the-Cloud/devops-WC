@@ -214,7 +214,7 @@ Resources:
             Type: fluentbit 
             Options:
               config-file-type: s3
-              config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
+              config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash-1.conf
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
