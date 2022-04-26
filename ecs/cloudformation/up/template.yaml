@@ -3,6 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Conditions:
   CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
+  NotProdEnv: !Not [Condition: ProdEnv]
+
 
 Parameters:
   EnvType:
@@ -35,6 +37,9 @@ Parameters:
   ClusterName:
     Type: String
     Description: ECS cluster name
+  Region:
+    Type: String
+    Description: AWS region to deploy to
 
   #Task definition parameters
   UsersRepo:
@@ -64,19 +69,30 @@ Parameters:
   FrontendFamily:
     Type: String
     Description: Frontend task definition family
-  UsersContainer:
+  LogGroupName:
     Type: String
-    Description: Users container name
-  FlightsContainer:
+    Description: name of log group
+  CpuDev:
     Type: String
-    Description: Flights container name
-  BookingsContainer:
+    Description: task definition cpu usage
+    Default: "1vCPU"
+  CpuProd:
     Type: String
-    Description: Bookings container name
-  FrontendContainer:
+    Default: "2vCPU"
+  MemDev:
     Type: String
-    Description: Frontend container name
-
+    Description: task definition memory usage
+    Default: "2GB"
+  MemProd:
+    Type: String
+    Default: "4GB"
+  DevDesiredCount:
+    Type: Number
+    Description: desired count for the task definition
+    Default: 1
+  ProdDesiredCount:
+    Type: Number
+    Default: 2
   #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
   SSMSecretString:
     Type: String
@@ -123,11 +139,15 @@ Parameters:
   RecordName:
     Type: String
     Description: full DNS of our record
+  CertificateArn:
+    Type: String
+    Description: certificate arn for prod environment
 
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
+      ClusterName: !Ref ClusterName
       Tags:
         - Key: Name
           Value: !Ref ClusterName
@@ -136,30 +156,14 @@ Resources:
     Properties:
       GroupDescription: Alb Security Group
       VpcId: !Ref VpcId
-  AlbSecurityGroupHTTPinbound:
+  AlbSecurityGroupInbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
-      FromPort: 80
-      ToPort: 80
+      FromPort: !If [ ProdEnv, 443, 80 ]
+      ToPort: !If [ ProdEnv, 443, 80 ]
       CidrIp: 0.0.0.0/0
-  AlbSecurityGroupSSHinbound:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Properties:
-      GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      CidrIp: 0.0.0.0/0
-  AlbSecurityGroupALBports:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Properties:
-      GroupId: !Ref AlbSecurityGroup
-      IpProtocol: tcp
-      FromPort: 31000
-      ToPort: 61000
-      SourceSecurityGroupId: !Ref AlbSecurityGroup
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -170,8 +174,8 @@ Resources:
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
-      FromPort: 0
-      ToPort: 65535
+      FromPort: !Ref ContainerPort
+      ToPort: !Ref ContainerPort
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
@@ -180,33 +184,37 @@ Resources:
     Properties:
       Family: !Ref UsersFamily
       ContainerDefinitions:
-        - Name: !Ref UsersContainer
-          Cpu: '10'
+        - Name: !Ref UsersFamily
           Essential: 'true'
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref UsersRepo ]]
-          Memory: '300'
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
           Environment: 
             - Name: USERS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbHost, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
             - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbPassword, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref SecretKey, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
           LogConfiguration:
-            LogDriver: awslogs
+            LogDriver: awsfirelens
             Options:
-              awslogs-region: us-west-2
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /users-taskdef
-      Cpu: "1vCPU"
+              Name: es
+              Host: nr-elk.hitwc.link
+              Port: 5000
+              Index: walter-logs
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -217,10 +225,8 @@ Resources:
     Properties:
       Family: !Ref FlightsFamily
       ContainerDefinitions: 
-        - Name: !Ref FlightsContainer
+        - Name: !Ref FlightsFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -228,22 +234,28 @@ Resources:
             - Name: FLIGHTS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbHost, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
             - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbPassword, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: us-west-2
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /flights-taskdef
-      Cpu: "1vCPU"
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -255,10 +267,8 @@ Resources:
     Properties:
       Family: !Ref BookingsFamily
       ContainerDefinitions: 
-        - Name: !Ref BookingsContainer
+        - Name: !Ref BookingsFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -266,22 +276,28 @@ Resources:
             - Name: BOOKINGS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbHost, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
             - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbUser, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
             - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref DbPassword, '}}' ] ]
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: us-west-2
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /bookings-taskdef
-      Cpu: "1vCPU"
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -293,10 +309,8 @@ Resources:
     Properties:
       Family: !Ref FrontendFamily
       ContainerDefinitions: 
-        - Name: !Ref FrontendContainer
+        - Name: !Ref FrontendFamily
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
-          Cpu: '10'
-          Memory: '300'
           Essential: 'true'
           PortMappings: 
             - ContainerPort: !Ref ContainerPort
@@ -304,18 +318,24 @@ Resources:
             - Name: FRONTEND_PORT
               Value: !Ref ContainerPort
             - Name: HOST_DOMAIN
-              Value: !Join [ '', [ 'http://', !GetAtt ECSALB.DNSName ] ]
+              Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
             - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:', !Ref SSMSecretString, !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-region: us-west-2
-              awslogs-group: !Ref myLogGroup
-              awslogs-stream-prefix: /frontend-taskdef
-      Cpu: "1vCPU"
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: elk-docker-compose.hitwc.link
+        #       Port: !Ref ContainerPort
+        #       Index: users
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
+        #   FirelensConfiguration:
+        #     Type: fluentbit  
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: "2GB"
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -334,8 +354,21 @@ Resources:
         - !Ref PublicSubnet2
       SecurityGroups:
         - !Ref AlbSecurityGroup
-  ALBListener:
+  ALBListenerHTTPS:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: ProdEnv
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTG
+      Certificates: 
+        - CertificateArn: !Ref CertificateArn
+      LoadBalancerArn: !Ref ECSALB
+      Port: '443'
+      Protocol: HTTPS
+  ALBListenerHTTP:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: NotProdEnv
     Properties:
       DefaultActions:
         - Type: forward
@@ -354,7 +387,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref FlightsPath
-      ListenerArn: !Ref ALBListener
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 1
   BookingsListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -367,7 +400,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref BookingsPath
-      ListenerArn: !Ref ALBListener
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 2
   FrontendListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
@@ -380,7 +413,7 @@ Resources:
         - Field: path-pattern
           Values:
             - !Ref FrontendPath
-      ListenerArn: !Ref ALBListener
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 3
   UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
@@ -457,12 +490,17 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
+  ListenerRuleReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
   UsersService:
     Type: 'AWS::ECS::Service'
-    DependsOn: ALBListener
+    DependsOn: ListenerRuleReady
     Properties:
+      ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -473,7 +511,7 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
       LoadBalancers:
-        - ContainerName: !Ref UsersContainer
+        - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
       TaskDefinition: !Ref UsersTaskDef
@@ -485,8 +523,9 @@ Resources:
     Condition: CreateResources
     DependsOn: FlightsListenerRule
     Properties:
+      ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -497,7 +536,7 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
       LoadBalancers:
-        - ContainerName: !Ref FlightsContainer
+        - ContainerName: !Ref FlightsFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FlightsTG
       TaskDefinition: !Ref FlightsTaskDef
@@ -509,8 +548,9 @@ Resources:
     Condition: CreateResources
     DependsOn: BookingsListenerRule
     Properties:
+      ServiceName: !Ref BookingsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -521,7 +561,7 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
       LoadBalancers:
-        - ContainerName: !Ref BookingsContainer
+        - ContainerName: !Ref BookingsFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref BookingsTG
       TaskDefinition: !Ref BookingsTaskDef
@@ -533,8 +573,9 @@ Resources:
     Condition: CreateResources
     DependsOn: FrontendListenerRule
     Properties:
+      ServiceName: !Ref FrontendRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -545,7 +586,7 @@ Resources:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
       LoadBalancers:
-        - ContainerName: !Ref FrontendContainer
+        - ContainerName: !Ref FrontendFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FrontendTG
       TaskDefinition: !Ref FrontendTaskDef
@@ -561,22 +602,20 @@ Resources:
       Name: !Ref RecordName
       Type: 'CNAME'
       TTL: '300'
-  myLogGroup: 
-    Type: AWS::Logs::LogGroup
-    Properties: 
-      LogGroupName: wc/ecs
-      RetentionInDays: 1
-# Outputs:
-#   ecsservice:
-#     Value: !Ref service
-#   ecscluster:
-#     Value: !Ref ECSCluster
-#   ECSALB:
-#     Description: Your ALB DNS URL
-#     Value: !Join 
-#       - ''
-#       - - !GetAtt 
-#           - ECSALB
-#           - DNSName
-#   taskdef:
-#     Value: !Ref taskdefinition
+      # Weight: 1
+  # Route53HealthCheck: 
+  #   Type: 'AWS::Route53::HealthCheck'
+  #   Properties: 
+  #     HealthCheckConfig: 
+  #       # IPAddress: 192.0.2.44
+  #       Port: !If [ProdEnv, 443, 80 ]
+  #       Type: !If [ ProdEnv, HTTPS, HTTP ]
+  #       ResourcePath: !Ref UsersHealthCheck
+  #       FullyQualifiedDomainName: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
+  #       RequestInterval: 30
+  #       FailureThreshold: 3
+  # myLogGroup: 
+  #   Type: AWS::Logs::LogGroup
+  #   Properties: 
+  #     LogGroupName: !Ref LogGroupName
+  #     RetentionInDays: 1
