@@ -3,7 +3,7 @@ package networks_test
 import (
 	"github.com/stretchr/testify/assert" 
 	"os"
-	// "fmt"
+	"fmt"
 	// "time"
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -32,9 +32,9 @@ func TestTerraformNetworksTags(t *testing.T){
 		terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedVpcName, ActualVpcName)
 	}
-	ActualPublicSubnet1 := terraform.OutputListOfObjects(t, terraformOptions, "public_subnet1")
+	ActualPublicSubnet1 := terraform.OutputMap(t, terraformOptions, "public_subnet1")
 
-	// t.Logf("%v", ActualPublicSubnet1[0].tag.Name)
+	fmt.Println(ActualPublicSubnet1)
 	// ExpectedPublicSubnet1Name := os.Getenv("TF_VAR_vpc_name ")
 
 	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Tag.tags.Name){
