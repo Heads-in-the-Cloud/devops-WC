@@ -507,6 +507,7 @@ Resources:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
+      PlatformVersion: "1.4.0"
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
