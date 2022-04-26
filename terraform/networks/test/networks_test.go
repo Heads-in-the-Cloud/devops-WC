@@ -81,7 +81,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPublicSubnet1MapPublicIp 	:= gjson.Get(ActualPublicSubnet1Json, "map_public_ip_on_launch").String()
-	ExpectedPublicSubnet1MapPublicIp 	:= true
+	ExpectedPublicSubnet1MapPublicIp 	:= "true"
 	if assert.Equal(t, ExpectedPublicSubnet1MapPublicIp, ActualPublicSubnet1MapPublicIp){
 		deployment_passed = true
 		t.Logf("PASS: expected map_public_ip:%v matches the actual map_public_ip:%v", ExpectedPublicSubnet1MapPublicIp, ActualPublicSubnet1MapPublicIp)
@@ -134,7 +134,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPublicSubnet2MapPublicIp 	:= gjson.Get(ActualPublicSubnet2Json, "map_public_ip_on_launch").String()
-	ExpectedPublicSubnet2MapPublicIp 	:= true
+	ExpectedPublicSubnet2MapPublicIp 	:= "true"
 	if assert.Equal(t, ExpectedPublicSubnet2MapPublicIp, ActualPublicSubnet2MapPublicIp){
 		deployment_passed = true
 		t.Logf("PASS: expected map_public_ip:%v matches the actual map_public_ip:%v", ExpectedPublicSubnet2MapPublicIp, ActualPublicSubnet2MapPublicIp)
@@ -187,7 +187,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	
 	ActualPrivateSubnet1MapPublicIp 	:= gjson.Get(ActualPrivateSubnet1Json, "map_public_ip_on_launch").String()
-	ExpectedPrivateSubnet1MapPublicIp 	:= false
+	ExpectedPrivateSubnet1MapPublicIp 	:= "false"
 	if assert.Equal(t, ExpectedPrivateSubnet1MapPublicIp, ActualPrivateSubnet1MapPublicIp){
 		deployment_passed = true
 		t.Logf("PASS: expected map_public_ip:%v matches the actual map_public_ip:%v", ExpectedPrivateSubnet1MapPublicIp, ActualPrivateSubnet1MapPublicIp)
@@ -240,7 +240,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPrivateSubnet2MapPublicIp 	:= gjson.Get(ActualPrivateSubnet2Json, "map_public_ip_on_launch").String()
-	ExpectedPrivateSubnet2MapPublicIp 	:= false
+	ExpectedPrivateSubnet2MapPublicIp 	:= "false"
 	if assert.Equal(t, ExpectedPrivateSubnet2MapPublicIp, ActualPrivateSubnet2MapPublicIp){
 		deployment_passed = true
 		t.Logf("PASS: expected map_public_ip:%v matches the actual map_public_ip:%v", ExpectedPrivateSubnet2MapPublicIp, ActualPrivateSubnet2MapPublicIp)
