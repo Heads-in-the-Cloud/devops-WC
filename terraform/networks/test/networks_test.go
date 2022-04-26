@@ -23,7 +23,7 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 
 	fmt.Println("Testing begins")
-	
+
 	ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
 	ActualVpcJson 				:= terraform.OutputJson(t, terraformOptions, "vpc")
 	ActualPublicSubnet1Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet1")
@@ -276,7 +276,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	//Get actual values from resources
 	ActualVpcId				:= gjson.Get(ActualVpcJson, os.Getenv("id")).String()
-	ActualSubnetGroupId		:= gjson.Get(ActualSubnetGroup, os.Getenv("id")).String()
+	ActualSubnetGroupId		:= gjson.Get(ActualSubnetGroupJson, os.Getenv("id")).String()
 	ActualPublicSubnetId1	:= gjson.Get(ActualPublicSubnet1Json, os.Getenv("id")).String()
 	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, os.Getenv("id")).String()
 
