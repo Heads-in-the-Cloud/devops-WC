@@ -69,7 +69,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "tags.kubernetes\\.io/role/elb").String()
-	ExpectedPublicSubnet1Elb 	:= 1
+	ExpectedPublicSubnet1Elb 	:= "1"
 
 	if assert.Equal(t, ExpectedPublicSubnet1Elb, ActualPublicSubnet1Elb){
 		deployment_passed = true
@@ -122,7 +122,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPublicSubnet2Elb   	:= gjson.Get(ActualPublicSubnet2Json, "tags.kubernetes\\.io/role/elb").String()
-	ExpectedPublicSubnet2Elb 	:= 1
+	ExpectedPublicSubnet2Elb 	:= "1"
 
 	if assert.Equal(t, ExpectedPublicSubnet2Elb, ActualPublicSubnet2Elb){
 		deployment_passed = true
@@ -174,7 +174,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPrivateSubnet1Elb   	:= gjson.Get(ActualPrivateSubnet1Json, "tags.kubernetes\\.io/role/internal-elb").String()
-	ExpectedPrivateSubnet1Elb 	:= 1
+	ExpectedPrivateSubnet1Elb 	:= "1"
 
 	if assert.Equal(t, ExpectedPrivateSubnet1Elb, ActualPrivateSubnet1Elb){
 		deployment_passed = true
@@ -228,7 +228,7 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	ActualPrivateSubnet2Elb   	:= gjson.Get(ActualPrivateSubnet2Json, "tags.kubernetes\\.io/role/internal-elb").String()
-	ExpectedPrivateSubnet2Elb 	:= 1
+	ExpectedPrivateSubnet2Elb 	:= "1"
 
 	if assert.Equal(t, ExpectedPrivateSubnet2Elb, ActualPrivateSubnet2Elb){
 		deployment_passed = true
