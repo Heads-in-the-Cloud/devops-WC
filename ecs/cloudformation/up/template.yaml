@@ -214,7 +214,7 @@ Resources:
             Type: fluentbit 
             Options:
               config-file-type: file
-              config-file-value: ./ecs-logstash.conf
+              config-file-value: ./easdfcs-logstash.conf
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
