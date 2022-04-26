@@ -26,7 +26,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	ActualVpcJson := terraform.OutputJson(t, terraformOptions, "vpc_name")
 
-	ActualVpcName := gjson.Get(ActualVpcJson, "tags.Name")
+	ActualVpcName := gjson.Get(ActualVpcJson, "tags.Name").String()
 	ExpectedVpcName := os.Getenv("TF_VAR_vpc_name") + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedVpcName, ActualVpcName){
@@ -44,7 +44,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	ActualPublicSubnet1Json := terraform.OutputJson(t, terraformOptions, "public_subnet1")
 
-	ActualPublicSubnet1Name := gjson.Get(ActualPublicSubnet1Json, "tags.Name")
+	ActualPublicSubnet1Name := gjson.Get(ActualPublicSubnet1Json, "tags.Name").String()
 	ExpectedPublicSubnet1Name := "wc_public_subnet_1" + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Name){
@@ -56,7 +56,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet1Name, ActualPublicSubnet1Name)
 	}
 
-	ActualPublicSubnet1Cluster 	 := gjson.Get(ActualPublicSubnet1Json, "kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
+	ActualPublicSubnet1Cluster 	 := gjson.Get(ActualPublicSubnet1Json, "tags.kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
 	ExpectedPublicSubnet1Cluster := "shared"
 
 	if assert.Equal(t, ExpectedPublicSubnet1Cluster, ActualPublicSubnet1Cluster){
@@ -68,7 +68,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet1Cluster, ActualPublicSubnet1Cluster)
 	}
 
-	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "kubernetes.io/role/elb")
+	ActualPublicSubnet1Elb   	:= gjson.Get(ActualPublicSubnet1Json, "tags.kubernetes.io/role/elb")
 	ExpectedPublicSubnet1Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPublicSubnet1Elb, ActualPublicSubnet1Elb){
@@ -86,7 +86,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	ActualPublicSubnet2Json := terraform.OutputJson(t, terraformOptions, "public_subnet2")
 
-	ActualPublicSubnet2Name := gjson.Get(ActualPublicSubnet2Json, "tags.Name")
+	ActualPublicSubnet2Name := gjson.Get(ActualPublicSubnet2Json, "tags.Name").String()
 	ExpectedPublicSubnet2Name := "wc_public_subnet_2" + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedPublicSubnet2Name, ActualPublicSubnet2Name){
@@ -98,7 +98,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet2Name, ActualPublicSubnet2Name)
 	}
 
-	ActualPublicSubnet2Cluster 	 := gjson.Get(ActualPublicSubnet2Json, "kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
+	ActualPublicSubnet2Cluster 	 := gjson.Get(ActualPublicSubnet2Json, "tags.kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name")).String()
 	ExpectedPublicSubnet2Cluster := "shared"
 
 	if assert.Equal(t, ExpectedPublicSubnet2Cluster, ActualPublicSubnet2Cluster){
@@ -110,7 +110,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet2Cluster, ActualPublicSubnet2Cluster)
 	}
 
-	ActualPublicSubnet2Elb   	:= gjson.Get(ActualPublicSubnet2Json, "kubernetes.io/role/elb")
+	ActualPublicSubnet2Elb   	:= gjson.Get(ActualPublicSubnet2Json, "tags.kubernetes.io/role/elb").String()
 	ExpectedPublicSubnet2Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPublicSubnet2Elb, ActualPublicSubnet2Elb){
@@ -128,7 +128,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	ActualPrivateSubnet1Json   := terraform.OutputJson(t, terraformOptions, "private_subnet1")
 
-	ActualPrivateSubnet1Name   := gjson.Get(ActualPrivateSubnet1Json, "tags.Name")
+	ActualPrivateSubnet1Name   := gjson.Get(ActualPrivateSubnet1Json, "tags.Name").String()
 	ExpectedPrivateSubnet1Name := "wc_private_subnet_1" + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedPrivateSubnet1Name, ActualPrivateSubnet1Name){
@@ -140,7 +140,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet1Name, ActualPrivateSubnet1Name)
 	}
 
-	ActualPrivateSubnet1Cluster 	 := gjson.Get(ActualPrivateSubnet1Json, "kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
+	ActualPrivateSubnet1Cluster 	 := gjson.Get(ActualPrivateSubnet1Json, "tags.kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name")).String()
 	ExpectedPrivateSubnet1Cluster 	 := "shared"
 
 	if assert.Equal(t, ExpectedPrivateSubnet1Cluster, ActualPrivateSubnet1Cluster){
@@ -152,7 +152,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet1Cluster, ActualPrivateSubnet1Cluster)
 	}
 
-	ActualPrivateSubnet1Elb   	:= gjson.Get(ActualPrivateSubnet1Json, "kubernetes.io/role/internal-elb")
+	ActualPrivateSubnet1Elb   	:= gjson.Get(ActualPrivateSubnet1Json, "tags.kubernetes.io/role/internal-elb").String()
 	ExpectedPrivateSubnet1Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPrivateSubnet1Elb, ActualPrivateSubnet1Elb){
@@ -170,7 +170,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	ActualPrivateSubnet2Json   := terraform.OutputJson(t, terraformOptions, "private_subnet2")
 
-	ActualPrivateSubnet2Name   := gjson.Get(ActualPrivateSubnet2Json, "tags.Name")
+	ActualPrivateSubnet2Name   := gjson.Get(ActualPrivateSubnet2Json, "tags.Name").String()
 	ExpectedPrivateSubnet2Name := "wc_private_subnet_2" + "-" + os.Getenv("TF_VAR_environment")
 
 	if assert.Equal(t, ExpectedPrivateSubnet2Name, ActualPrivateSubnet2Name){
@@ -182,7 +182,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2Name, ActualPrivateSubnet2Name)
 	}
 
-	ActualPrivateSubnet2Cluster 	 := gjson.Get(ActualPrivateSubnet2Json, "kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name"))
+	ActualPrivateSubnet2Cluster 	 := gjson.Get(ActualPrivateSubnet2Json, "tags.kubernetes.io/cluster/"+os.Getenv("TF_VAR_cluster_name")).String()
 	ExpectedPrivateSubnet2Cluster 	 := "shared"
 
 	if assert.Equal(t, ExpectedPrivateSubnet2Cluster, ActualPrivateSubnet2Cluster){
@@ -194,7 +194,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPrivateSubnet2Cluster, ActualPrivateSubnet2Cluster)
 	}
 
-	ActualPrivateSubnet2Elb   	:= gjson.Get(ActualPrivateSubnet2Json, "kubernetes.io/role/internal-elb")
+	ActualPrivateSubnet2Elb   	:= gjson.Get(ActualPrivateSubnet2Json, "tags.kubernetes.io/role/internal-elb").String()
 	ExpectedPrivateSubnet2Elb 	:= 1
 
 	if assert.Equal(t, ExpectedPrivateSubnet2Elb, ActualPrivateSubnet2Elb){
