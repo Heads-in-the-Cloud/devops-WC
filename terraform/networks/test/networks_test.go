@@ -32,18 +32,24 @@ func TestTerraformNetworksTags(t *testing.T){
 		terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedVpcName, ActualVpcName)
 	}
+
+
 	ActualPublicSubnet1 := terraform.OutputMap(t, terraformOptions, "public_subnet1")
 
-	fmt.Println(ActualPublicSubnet1)
-	// ExpectedPublicSubnet1Name := os.Getenv("TF_VAR_vpc_name ")
+	// ActualPublicSubnet1Name := ActualPublicSubnet1["tags"]["Name"]
+	// ExpectedPublicSubnet1Name := "wc_public_subnet_1-testing"
 
-	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Tag.tags.Name){
+	fmt.Println(ActualPublicSubnet1["id"])
+	fmt.Println(ActualPublicSubnet1["tags"])
+	fmt.Println(ActualPublicSubnet1["tags"]["Name"])
+
+	// if assert.Equal(t, ExpectedPublicSubnet1Name, ActualPublicSubnet1Name){
 	// 	deployment_passed = true
-	// 	t.Logf("PASS: The expected VPC name:%v matches the Actual VPC name:%v", ExpectedVpcName, ActualVpcName)
+	// 	t.Logf("PASS: The expected VPC name:%v matches the Actual VPC name:%v", ExpectedPublicSubnet1Name, ActualPublicSubnet1Name)
 	// } else {
 	// 	deployment_passed = false
 	// 	terraform.Destroy(t, terraformOptions)
-	// 	t.Fatalf("FAIL: Expected %v, but found %v", ExpectedVpcName, ActualVpcName)
+	// 	t.Fatalf("FAIL: Expected %v, but found %v", ExpectedPublicSubnet1Name, ActualPublicSubnet1Name)
 	// }
 
 
