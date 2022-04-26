@@ -209,7 +209,7 @@ Resources:
             #   Index: walter-logs
         - Name: log_router
           Essential: 'true'
-          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
           FirelensConfiguration:
             Type: fluentbit 
             Options:
