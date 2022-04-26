@@ -213,8 +213,8 @@ Resources:
           FirelensConfiguration:
             Type: fluentbit 
             Options:
-              config-file-type: s3
-              config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash-1.conf
+              config-file-type: file
+              config-file-value: ./ecs-logstash.conf
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
