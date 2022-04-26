@@ -24,13 +24,13 @@ func TestTerraformNetworks(t *testing.T){
 
 	fmt.Println("Testing begins")
 
-	ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
 	ActualVpcJson 				:= terraform.OutputJson(t, terraformOptions, "vpc")
 	ActualPublicSubnet1Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet1")
 	ActualPublicSubnet2Json 	:= terraform.OutputJson(t, terraformOptions, "public_subnet2")
 	ActualPrivateSubnet2Json    := terraform.OutputJson(t, terraformOptions, "private_subnet2")
 	ActualPrivateSubnet1Json    := terraform.OutputJson(t, terraformOptions, "private_subnet1")
 	ActualSecretJson 			:= terraform.OutputJson(t, terraformOptions, "secret")
+	ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
 
 
 
@@ -285,8 +285,6 @@ func TestTerraformNetworks(t *testing.T){
 	//Check if the public subnet id secret matches the actual value for public subnet1 or public subnet2
 	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
 		PublicSubnetMatchesSecret = true
-	} else{
-		PublicSubnetMatchesSecret = false
 	}
 	if assert.Equal(t, true, PublicSubnetMatchesSecret){
 		deployment_passed = true
