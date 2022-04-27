@@ -1,9 +1,11 @@
 {
-"taskDefinition": {
     "networkMode": "awsvpc",
-	"family": "WC-ecs-users",
+	"family": "users-api",
+    "requiresCompatibilities": ["FARGATE"],
 	"taskRoleArn": "arn:aws:iam::026390315914:role/WC-ecs-task-iam-role",
 	"executionRoleArn": "arn:aws:iam::026390315914::role/ecsTaskExecutionRole",
+    "cpu": "1vCPU",
+    "memory": "2GB",
 	"containerDefinitions": [
 		{
 			"essential": true,
@@ -16,12 +18,6 @@
 					"config-file-value": "arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf"
 				}
 			},
-			"mountPoints" : [
-				{
-					"containerPath" : "/var/log/",
-					"sourceVolume" : "var-log"
-				}
-			],
 			"logConfiguration": {
 				"logDriver": "awslogs",
 				"options": {
@@ -37,12 +33,6 @@
 			 "essential": true,
 			 "image": "026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-users-api",
 			 "name": "app",
-			 "mountPoints" : [
- 				{
- 					"containerPath" : "/var/log/",
- 					"sourceVolume" : "var-log"
- 				}
- 			],
 			 "logConfiguration": {
 				 "logDriver":"awsfirelens"
 			},
@@ -54,5 +44,4 @@
 			"name" : "var-log"
 		}
     ]
-}
 }
