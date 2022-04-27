@@ -200,8 +200,8 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
+          # LogConfiguration:
+          #   LogDriver: awsfirelens
             # Options:
             #   Name: es
             #   Host: nr-elk.hitwc.link
