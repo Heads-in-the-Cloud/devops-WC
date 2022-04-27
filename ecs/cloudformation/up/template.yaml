@@ -200,34 +200,34 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: nr-elk.hitwc.link
-              Port: 443
-              Index: walter-logs
-        - Name: log_router
-          Essential: 'true'
-          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-          FirelensConfiguration:
-            Type: fluentbit 
-            Options:
-              config-file-type: s3
-              config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "true"
-              awslogs-group: /ecs/wc-logs/dev
-              awslogs-region: !Ref Region
-              awslogs-stream-prefix: !Ref UsersFamily
-      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+          # LogConfiguration:
+          #   LogDriver: awsfirelens
+          #   Options:
+          #     Name: es
+          #     Host: nr-elk.hitwc.link
+          #     Port: 443
+          #     Index: walter-logs
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          # FirelensConfiguration:
+          #   Type: fluentbit 
+          #   Options:
+          #     config-file-type: s3
+          #     config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
+          # LogConfiguration:
+          #   LogDriver: awslogs
+          #   Options:
+          #     awslogs-create-group: "true"
+          #     awslogs-group: /ecs/wc-logs/dev
+          #     awslogs-region: !Ref Region
+          #     awslogs-stream-prefix: !Ref UsersFamily
+      # Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      # Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       ExecutionRoleArn: !Ref IamRole
-      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
+      # RequiresCompatibilities: 
+      #   - "FARGATE"
       TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   # FlightsTaskDef:
   #   Type: 'AWS::ECS::TaskDefinition'
