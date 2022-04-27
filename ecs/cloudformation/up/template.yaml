@@ -510,7 +510,7 @@ Resources:
       # PlatformVersion: "1.4.0"
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
+          # AssignPublicIp: "ENABLED"
           SecurityGroups: 
             - !Ref EcsSecurityGroup
           Subnets: 
@@ -535,7 +535,7 @@ Resources:
       # LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
+          # AssignPublicIp: "ENABLED"
           SecurityGroups: 
             - !Ref EcsSecurityGroup
           Subnets: 
@@ -560,7 +560,7 @@ Resources:
       # LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
+          # AssignPublicIp: "ENABLED"
           SecurityGroups: 
             - !Ref EcsSecurityGroup
           Subnets: 
@@ -585,7 +585,7 @@ Resources:
       # LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
+          # AssignPublicIp: "ENABLED"
           SecurityGroups: 
             - !Ref EcsSecurityGroup
           Subnets: 
