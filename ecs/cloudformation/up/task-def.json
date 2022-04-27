@@ -1,7 +1,9 @@
 {
-	"family": "wc-users-api-dev",
-	"taskRoleArn": "arn:aws:iam::XXXXXXXXXXXX:role/ecs_task_iam_role",
-	"executionRoleArn": "arn:aws:iam::XXXXXXXXXXXX:role/ecs_task_execution_role",
+"taskDefinition": {
+    "networkMode": "awsvpc",
+	"family": "WC-ecs-users",
+	"taskRoleArn": "arn:aws:iam::026390315914:role/WC-ecs-task-iam-role",
+	"executionRoleArn": "arn:aws:iam::026390315914::role/ecsTaskExecutionRole",
 	"containerDefinitions": [
 		{
 			"essential": true,
@@ -11,7 +13,7 @@
 				"type": "fluentbit",
 				"options": {
 					"config-file-type": "s3",
-					"config-file-value": "arn:aws:s3:::yourbucket/yourdirectory/tail.conf"
+					"config-file-value": "arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf"
 				}
 			},
 			"mountPoints" : [
@@ -23,8 +25,8 @@
 			"logConfiguration": {
 				"logDriver": "awslogs",
 				"options": {
-					"awslogs-group": "firelens-container",
-					"awslogs-region": "us-east-1",
+					"awslogs-group": "/ecs/wc-logs/dev",
+					"awslogs-region": "us-east-2",
 					"awslogs-create-group": "true",
 					"awslogs-stream-prefix": "firelens"
 				}
@@ -33,7 +35,7 @@
 		 },
 		 {
 			 "essential": true,
-			 "image": "my-app:latest",
+			 "image": "026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-users-api",
 			 "name": "app",
 			 "mountPoints" : [
  				{
@@ -42,7 +44,7 @@
  				}
  			],
 			 "logConfiguration": {
-				 "logDriver":"awsfirelens",
+				 "logDriver":"awsfirelens"
 			},
 			"memoryReservation": 100
 		}
@@ -52,4 +54,5 @@
 			"name" : "var-log"
 		}
     ]
+}
 }
