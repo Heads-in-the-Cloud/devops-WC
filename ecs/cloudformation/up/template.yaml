@@ -381,63 +381,63 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
-  FlightsListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref FlightsTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref FlightsPath
-      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-      Priority: 1
-  BookingsListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref BookingsTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref BookingsPath
-      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-      Priority: 2
-  FrontendListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref FrontendTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - !Ref FrontendPath
-      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-      Priority: 3
-  # UsersTG:
-  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-  #   DependsOn: ECSALB
+  # FlightsListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
   #   Properties:
-  #     HealthCheckIntervalSeconds: 10
-  #     HealthCheckPath: !Ref UsersHealthCheck
-  #     HealthCheckProtocol: HTTP
-  #     HealthCheckTimeoutSeconds: 5
-  #     HealthyThresholdCount: 2
-  #     Name: UsersTG
-  #     Port: 80
-  #     Protocol: HTTP
-  #     UnhealthyThresholdCount: 2
-  #     VpcId: !Ref VpcId
-  #     TargetType: ip
-  #   CreationPolicy:
-  #     ResourceSignal:
-  #       Timeout: PT15M
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref FlightsTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref FlightsPath
+  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+  #     Priority: 1
+  # BookingsListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref BookingsTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref BookingsPath
+  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+  #     Priority: 2
+  # FrontendListenerRule:
+  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+  #   Condition: CreateResources
+  #   Properties:
+  #     Actions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref FrontendTG
+  #     Conditions:
+  #       - Field: path-pattern
+  #         Values:
+  #           - !Ref FrontendPath
+  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+  #     Priority: 3
+  UsersTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref UsersHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: UsersTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
   # FlightsTG:
   #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
   #   Condition: CreateResources
