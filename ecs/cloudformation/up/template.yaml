@@ -179,51 +179,51 @@ Resources:
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
 
-  # UsersTaskDef:
-  #   Type: 'AWS::ECS::TaskDefinition'
-  #   Properties:
-  #     Family: !Ref UsersFamily
-  #     ContainerDefinitions:
-  #       - Name: !Ref UsersFamily
-  #         Essential: 'true'
-  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-  #         PortMappings: 
-  #           - ContainerPort: !Ref ContainerPort
-  #         Environment: 
-  #           - Name: USERS_PORT
-  #             Value: !Ref ContainerPort
-  #           - Name: DB_HOST
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-  #           - Name: DB_USER
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-  #           - Name: DB_USER_PASSWORD
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-  #           - Name: SECRET_KEY
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-  #         LogConfiguration:
-  #           LogDriver: awsfirelens
-  #           # Options:
-  #           #   Name: es
-  #           #   Host: nr-elk.hitwc.link
-  #           #   Port: 443
-  #           #   Index: walter-logs
-  #       - Name: log_router
-  #         Essential: 'true'
-  #         Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-  #         FirelensConfiguration:
-  #           Type: fluentbit 
-  #           Options:
-  #             config-file-type: s3
-  #             config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
-  #         # LogConfiguration:
-  #         #   LogDriver: awslogs
-  #     Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-  #     ExecutionRoleArn: !Ref IamRole
-  #     Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-  #     NetworkMode: "awsvpc"
-  #     RequiresCompatibilities: 
-  #       - "FARGATE"
-  #     TaskRoleArn: arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+  UsersTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: !Ref UsersFamily
+      ContainerDefinitions:
+        - Name: !Ref UsersFamily
+          Essential: 'true'
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: USERS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            # Options:
+            #   Name: es
+            #   Host: nr-elk.hitwc.link
+            #   Port: 443
+            #   Index: walter-logs
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit 
+            # Options:
+            #   config-file-type: s3
+            #   config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
+          # LogConfiguration:
+          #   LogDriver: awslogs
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   # FlightsTaskDef:
   #   Type: 'AWS::ECS::TaskDefinition'
   #   Condition: CreateResources
@@ -520,7 +520,7 @@ Resources:
         - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
-      # TaskDefinition: !Ref UsersTaskDef
+      TaskDefinition: !Ref UsersTaskDef
       Tags:
         - Key: Name
           Value: UsersService
