@@ -223,7 +223,7 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
-      TaskRoleArn: arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   FlightsTaskDef:
     Type: 'AWS::ECS::TaskDefinition'
     Condition: CreateResources
@@ -507,7 +507,6 @@ Resources:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
-      # PlatformVersion: "1.4.0"
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
