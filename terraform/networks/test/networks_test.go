@@ -3,6 +3,7 @@ package networks_test
 import (
 	"github.com/stretchr/testify/assert" 
 	"os"
+	"os/exec"
 	"fmt"
 	"github.com/tidwall/gjson"
 	// "encoding/json"
@@ -322,7 +323,7 @@ func TestTerraformNetworks(t *testing.T){
 	/*******************************************************/
 
 	PeeringRouteTableName := os.Getenv("TF_VAR_peering_rt_name")
-    cmd := os.exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName)
+    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName)
     stdout, err := cmd.Output()
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
