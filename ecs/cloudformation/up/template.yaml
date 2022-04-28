@@ -274,11 +274,11 @@ Resources:
               Retry_Limit: False
               tls: On
               Match: "*"
-        # - Name: log_router
-        #   Essential: 'true'
-        #   Image: docker.io/amazon/aws-for-fluent-bit:latest
-        #   FirelensConfiguration:
-        #     Type: fluentbit  
+        - Name: log_router
+          Essential: 'true'
+          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          FirelensConfiguration:
+            Type: fluentbit  
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
