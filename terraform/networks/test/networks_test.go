@@ -323,15 +323,17 @@ func TestTerraformNetworks(t *testing.T){
 	/*******************************************************/
 
 	PeeringRouteTableName := os.Getenv("TF_VAR_peering_rt_name")
-    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName ) //, "--query", "RouteTables[].Routes[]")
+    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName, "--query", "RouteTables[].Routes[]")
     stdout, err := cmd.Output()
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
-	fmt.Println(string(stdout))
+	// fmt.Println(string(stdout))
 
-	// var ints []interface
-    // err := json.Unmarshal([]byte(str), &ints)
-
+	var Routes []string
+    err := json.Unmarshal([]byte(string(stdout)), &Routes)
+	for Route := range Routes {
+		fmt.Println(Route)
+	}
 	Route := gjson.Get(string(stdout), "RouteTables.Routes")
 	// PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
 	fmt.Println(Route)
