@@ -328,10 +328,11 @@ func TestTerraformNetworks(t *testing.T){
     stdout, err := cmd.Output()
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
-	// fmt.Println(string(stdout))
+	fmt.Println(string(stdout))
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 
 	var Routes []string
-    json.Unmarshal([]byte(string(stdout)), &Routes)
+    json.Unmarshal([]byte(stdout), &Routes)
 	fmt.Println(Routes)
 
 	// for i, Route := range Routes {
