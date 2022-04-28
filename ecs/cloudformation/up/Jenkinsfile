@@ -79,8 +79,7 @@ pipeline {
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
 
-                    env.ELK_USERNAME        = credentials("ELK_USERNAME")
-                    env.ELK_PASSWORD        = credentials("ELK_PASSWORD")
+                    env.ELK_LOGIN           = credentials("NR_ELK_LOGIN")
                 }
             }
         }
@@ -189,8 +188,8 @@ pipeline {
                         CertificateArn=${CERTIFICATE_ARN} \
                         ElasticSearchHost=${ELK_URL} \
                         ElasticPort=443 \
-                        ElasticUser=elastic \
-                        ElasticPassword=FENclta65S0n7ncrjuK2 \
+                        ElasticUser=${ELK_LOGIN_USR} \
+                        ElasticPassword=${ELK_LOGIN_PSW} \
                         LogstashPrefix=wc-logstash- \
                         ElasticPath=/elasticsearch \
                         DbHost=db_host \
