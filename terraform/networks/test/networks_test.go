@@ -333,7 +333,7 @@ func TestTerraformNetworks(t *testing.T){
     // err := json.Unmarshal([]byte(str), &ints)
 
 	Route := gjson.Get(string(stdout), "RouteTables.Routes")
-	PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
+	// PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
 	fmt.Println(Route)
 
     if err != nil {
