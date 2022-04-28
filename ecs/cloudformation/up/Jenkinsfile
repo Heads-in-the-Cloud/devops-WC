@@ -1,6 +1,8 @@
 pipeline {
     agent any 
-
+    environment {
+        ELK_LOGIN = credentials("NR_ELK_LOGIN")
+    }
     stages {
         stage('Setup parameters') {
             steps {
@@ -79,7 +81,7 @@ pipeline {
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
 
-                    ELK_LOGIN               = credentials("NR_ELK_LOGIN")
+                    // ELK_LOGIN               = credentials("NR_ELK_LOGIN")
                 }
             }
         }
