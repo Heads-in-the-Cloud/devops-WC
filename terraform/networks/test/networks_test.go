@@ -335,7 +335,7 @@ func TestTerraformNetworks(t *testing.T){
     json.Unmarshal([]byte(stdout), &Routes)
 	fmt.Println(Routes)
 
-	for i, Route := range Routes {
+	for Route := range Routes {
 		fmt.Println(Route)
 	}
 	Route := gjson.Get(string(stdout), "RouteTables.Routes")
