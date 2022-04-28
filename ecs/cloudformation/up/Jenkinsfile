@@ -79,7 +79,7 @@ pipeline {
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
 
-                    ELK_LOGIN           = credentials("NR_ELK_LOGIN")
+                    ELK_LOGIN               = credentials("NR_ELK_LOGIN")
                 }
             }
         }
@@ -153,6 +153,8 @@ pipeline {
             }
             steps{
                 dir('ecs/cloudformation/up'){
+                    sh "echo ${ELK_LOGIN_PSW}"
+                    sh "echo ${ELK_LOGIN_USR}"
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
