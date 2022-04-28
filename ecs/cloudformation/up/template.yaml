@@ -210,7 +210,7 @@ Resources:
               HTTP_User: elastic
               HTTP_Passwd: FENclta65S0n7ncrjuK2
               Logstash_Format: On
-              Logstash_Prefix_Key: wc-logstash-users-
+              Logstash_Prefix: wc-logstash-users-
               Replace_Dots: On
               Retry_Limit: False
               tls: On
@@ -269,7 +269,7 @@ Resources:
               HTTP_User: elastic
               HTTP_Passwd: FENclta65S0n7ncrjuK2HELLO
               Logstash_Format: On
-              Logstash_Prefix_Key: wc-logstash-flights-
+              Logstash_Prefix: wc-logstash-flights-
               Replace_Dots: On
               Retry_Limit: False
               tls: On
