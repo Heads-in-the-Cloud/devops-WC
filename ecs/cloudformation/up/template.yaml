@@ -206,15 +206,23 @@ Resources:
               Name: es
               Host: nr-elk.hitwc.link
               Port: 443
-              Index: walter-logs
+              Path: /elasticsearch
+              HTTP_User: elastic
+              HTTP_Passwd: FENclta65S0n7ncrjuK2
+              Logstash_Format: On
+              Logstash_Prefix_Key: logstash-
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
         - Name: log_router
           Essential: 'true'
           Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
           FirelensConfiguration:
             Type: fluentbit 
             # Options:
-            #   config-file-type: s3
-            #   config-file-value: arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
+            #   config-file-type: file
+            #   config-file-value: ecs-logstash.conf #arn:aws:s3:::utopia-bucket-wc/ecs-logstash.conf
           LogConfiguration:
             LogDriver: awslogs
             Options:
