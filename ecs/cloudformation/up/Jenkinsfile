@@ -79,7 +79,7 @@ pipeline {
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
 
-                    env.ELK_LOGIN           = credentials("NR_ELK_LOGIN")
+                    ELK_LOGIN           = credentials("NR_ELK_LOGIN")
                 }
             }
         }
