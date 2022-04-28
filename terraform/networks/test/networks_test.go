@@ -2,7 +2,7 @@ package networks_test
 
 import (
 	"github.com/stretchr/testify/assert" 
-	"os"
+	"os/exec"
 	"fmt"
 	"github.com/tidwall/gjson"
 	// "encoding/json"
@@ -321,13 +321,17 @@ func TestTerraformNetworks(t *testing.T){
 	/*************** Test Peering Connection ***************/
 	/*******************************************************/
 
-    // cmd := exec.Command(app, arg0, arg1, arg2, arg3)
-    // stdout, err := cmd.Output()
+	PeeringRouteTableName := os.Getenv("TF_VAR_peering_rt_name")
+    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName)
+    stdout, err := cmd.Output()
 
-    // if err != nil {
-    //     fmt.Println(err.Error())
-    //     return
-    // }
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
+	fmt.Println(stdout)
+
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
 
 	defer terraform.Destroy(t, terraformOptions)
 
