@@ -26,3 +26,7 @@ output "secret" {
 output "subnet_group"{
     value=aws_db_subnet_group.private-subnet-group
 }
+
+output "peering_connection"{
+    value=aws_vpc_peering_connection.pc
+}

@@ -36,7 +36,7 @@ func TestTerraformNetworks(t *testing.T){
 	// ActualPrivateSubnet1Json    := terraform.OutputJson(t, terraformOptions, "private_subnet1")
 	// ActualSecretJson 			:= terraform.OutputJson(t, terraformOptions, "secret")
 	// ActualSubnetGroupJson 		:= terraform.OutputJson(t, terraformOptions, "subnet_group")
-
+	// ActualPeeringConnection		:= terraform.OutputJson(t, terraformOptions, "peering_connection")
 
 
 	// /********************************************************/
@@ -323,15 +323,19 @@ func TestTerraformNetworks(t *testing.T){
 	/*******************************************************/
 
 	PeeringRouteTableName := os.Getenv("TF_VAR_peering_rt_name")
-    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName, "--query", "RouteTables[].Routes[]")
+    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName ) //, "--query", "RouteTables[].Routes[]")
     stdout, err := cmd.Output()
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	fmt.Println(string(stdout))
-	
-	Route := gjson.Get(string(stdout), "")
+
+	// var ints []interface
+    // err := json.Unmarshal([]byte(str), &ints)
+
+	Route := gjson.Get(string(stdout), "RouteTables.Routes")
+	PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
 	fmt.Println(Route)
-	
+
     if err != nil {
         fmt.Println(err.Error())
         return
