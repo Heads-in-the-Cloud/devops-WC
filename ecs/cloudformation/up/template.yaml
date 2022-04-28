@@ -511,10 +511,10 @@ Resources:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
-      # LaunchType: "FARGATE"
+      LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # AssignPublicIp: "ENABLED"
+          AssignPublicIp: "ENABLED"
           SecurityGroups: 
             - !Ref EcsSecurityGroup
           Subnets: 
