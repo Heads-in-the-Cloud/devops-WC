@@ -2,7 +2,8 @@ package networks_test
 
 import (
 	"github.com/stretchr/testify/assert" 
-	"os/exec"
+	"os"
+	"exec"
 	"fmt"
 	"github.com/tidwall/gjson"
 	// "encoding/json"
