@@ -153,6 +153,7 @@ pipeline {
             }
             steps{
                 dir('ecs/cloudformation/up'){
+                    sh "echo ${ELK_LOGIN}"
                     sh "echo ${ELK_LOGIN_PSW}"
                     sh "echo ${ELK_LOGIN_USR}"
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
