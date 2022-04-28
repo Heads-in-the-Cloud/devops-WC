@@ -331,7 +331,7 @@ func TestTerraformNetworks(t *testing.T){
 	// fmt.Println(string(stdout))
 
 	var Routes []string
-    new_err := json.Unmarshal([]byte(stdout), &Routes)
+    json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
 
 	// for i, Route := range Routes {
