@@ -329,7 +329,7 @@ func TestTerraformNetworks(t *testing.T){
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	fmt.Println(string(stdout))
 	
-	// Route := gjson.Get(string(stdout), )
+	Route := gjson.Get(string(stdout), "")
 
     if err != nil {
         fmt.Println(err.Error())
