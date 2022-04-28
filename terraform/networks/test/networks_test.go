@@ -282,11 +282,6 @@ func TestTerraformNetworks(t *testing.T){
 	ActualPublicSubnetId2	:= gjson.Get(ActualPublicSubnet2Json, "id").String()
 
 	PublicSubnetMatchesSecret := false
-
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-	fmt.Println(PublicSubnetIdInSecret)
-	fmt.Println(ActualPublicSubnetId1)
-	fmt.Println(ActualPublicSubnetId2)
 	
 	//Check if the public subnet id secret matches the actual value for public subnet1 or public subnet2
 	if PublicSubnetIdInSecret == ActualPublicSubnetId1 || PublicSubnetIdInSecret == ActualPublicSubnetId2 {
@@ -322,7 +317,17 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ActualSubnetGroupId, SubnetGroupIdInSecret)
 	}
 
+	/*******************************************************/
+	/*************** Test Peering Connection ***************/
+	/*******************************************************/
 
+    // cmd := exec.Command(app, arg0, arg1, arg2, arg3)
+    // stdout, err := cmd.Output()
+
+    // if err != nil {
+    //     fmt.Println(err.Error())
+    //     return
+    // }
 
 	defer terraform.Destroy(t, terraformOptions)
 
