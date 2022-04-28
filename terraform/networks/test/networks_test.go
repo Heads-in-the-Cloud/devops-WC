@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"fmt"
-	// "github.com/tidwall/gjson"
+	"github.com/tidwall/gjson"
 	// "encoding/json"
 	// "time"
 	"testing"
@@ -323,11 +323,13 @@ func TestTerraformNetworks(t *testing.T){
 	/*******************************************************/
 
 	PeeringRouteTableName := os.Getenv("TF_VAR_peering_rt_name")
-    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName)
+    cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName, "--query", "RouteTables[].Routes[]")
     stdout, err := cmd.Output()
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	fmt.Println(string(stdout))
+	
+	// Route := gjson.Get(string(stdout), )
 
     if err != nil {
         fmt.Println(err.Error())
