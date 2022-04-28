@@ -154,7 +154,6 @@ pipeline {
             }
             steps{
                 dir('ecs/cloudformation/up'){
-     
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
