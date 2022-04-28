@@ -276,9 +276,16 @@ Resources:
               Match: "*"
         - Name: log_router
           Essential: 'true'
-          Image: docker.io/amazon/aws-for-fluent-bit:latest
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
           FirelensConfiguration:
-            Type: fluentbit  
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref FlightsFamily
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       ExecutionRoleArn: !Ref IamRole
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
