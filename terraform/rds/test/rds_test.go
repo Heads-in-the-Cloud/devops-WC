@@ -26,7 +26,7 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 
 	fmt.Println("Testing begins")
-	ActualBastionHost := := terraform.OutputJson(t, terraformOptions, "bastion_host_instance")
+	ActualBastionHost := terraform.OutputJson(t, terraformOptions, "bastion_host_instance")
 
 	/**************************************************/
 	/*************** Test Bastion Host ****************/
