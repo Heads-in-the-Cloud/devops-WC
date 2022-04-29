@@ -339,33 +339,32 @@ func TestTerraformNetworks(t *testing.T){
 	//Route interface required to unmarshall array of maps
 	type Route struct {
 		VpcPeeringConnectionId string
-		State string
 	}
 
-	fmt.Println(gjson.Get(ActualPeeringConnection, "id"))
-	// PeeringConnectionMatches := false
+	PeeringConnectionMatches := false
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	Routes := []Route{}
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
 	for _, Route := range Routes {
 		fmt.Println(Route.VpcPeeringConnectionId)
-		// if gjson.Get(ActualPeeringConnection, "id").String() == Route.Id {
-		// 	PeeringConnectionMatches = true
-		// 	break;
-		// }
+		if gjson.Get(ActualPeeringConnection, "id").String() == Route.VpcPeeringConnectionId {
+			PeeringConnectionMatches = true
+			break;
+		}
 	}
-	// fmt.Println(Routes[0].GatewayId)
+
+	fmt.Println(PeeringConnectionMatches)
 
 
-	// if assert.Equal(t, true, PublicSubnetMatchesSecret){
-	// 	deployment_passed = true
-	// 	t.Logf("PASS: the public subnet id is stored in the secrets manager")
-	// } else {
-	// 	deployment_passed = false
-	// 	terraform.Destroy(t, terraformOptions)
-	// 	t.Fatalf("FAIL: the public subnet id in the secrets manager does not match either public subnet ids created")
-	// }
+	if assert.Equal(t, true, PublicSubnetMatchesSecret){
+		deployment_passed = true
+		t.Logf("PASS: the peering connection route is found in the default VPC route tables")
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: none of the routes in the peering connection route table contained the peering connection route")
+	}
 	defer terraform.Destroy(t, terraformOptions)
 
 
