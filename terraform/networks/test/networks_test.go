@@ -327,13 +327,11 @@ func TestTerraformNetworks(t *testing.T){
     cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName, "--query", "RouteTables[].Routes[]")
     stdout, err := cmd.Output()
 
-	type Route struct {
-		GatewayId string 
-	}
+
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	fmt.Println(string(stdout))
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
-	var Routes []Route
+	var Routes
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
 
