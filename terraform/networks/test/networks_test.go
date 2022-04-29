@@ -335,7 +335,7 @@ func TestTerraformNetworks(t *testing.T){
 	var Routes []interface{}
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
-	fmt.Println(reflect.TypeOf(Routes[0]))
+	fmt.Println(reflect.TypeOf(Routes[0]["GatewayId"]))
 	for Route := range Routes {
 		fmt.Println(Route)
 	}
