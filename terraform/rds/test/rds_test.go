@@ -131,8 +131,7 @@ func TestTerraformNetworks(t *testing.T){
 			"key_pair_name": KeyPairName,
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
-			"db_password": ExpectedPassword
-
+			"db_password": ExpectedPassword,
 		},
 	})
 
