@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"fmt"
 	"encoding/json"
+	"reflect"
 	// "github.com/tidwall/gjson"
 	// "encoding/json"
 	// "time"
@@ -329,11 +330,10 @@ func TestTerraformNetworks(t *testing.T){
 
 
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
-	fmt.Println(string(stdout))
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	var Routes []interface{}
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
+	fmt.Println(reflect.TypeOf(Routes[0]))
 	for Route := range Routes {
 		fmt.Println(Route)
 	}
