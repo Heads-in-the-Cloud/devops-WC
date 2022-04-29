@@ -28,10 +28,10 @@ func TestTerraformNetworks(t *testing.T){
 	fmt.Println("Testing begins")
 
 	ActualBastionHostJson		 := terraform.OutputJson(t, terraformOptions, "bastion_host_instance")
-	ActualSecretJson  			 := terraform.OutputJson(t, terraformOptions, "secrets")
-	ActualRandomPasswordJson 	 := terraform.OutputJson(t, terraformOptions, "random_password")
-	ActualRandomJwtKeyJson	 	 := terraform.OutputJson(t, terraformOptions, "random_jwt_key")
-	ActualRdsJson				 := terraform.OutputJson(t, terraformOptions, "rds")
+	// ActualSecretJson  			 := terraform.OutputJson(t, terraformOptions, "secrets")
+	// ActualRandomPasswordJson 	 := terraform.OutputJson(t, terraformOptions, "random_password")
+	// ActualRandomJwtKeyJson	 	 := terraform.OutputJson(t, terraformOptions, "random_jwt_key")
+	// ActualRdsJson				 := terraform.OutputJson(t, terraformOptions, "rds")
 
 	/**************************************************/
 	/*************** Test Bastion Host ****************/
