@@ -39,7 +39,7 @@ pipeline {
             steps{
                 script{
                     env.ENVIRONMENT                  ="dev"
-                    env.TF_VAR_environment           ="dev"
+                    env.TF_VAR_environment           ="${ENVIRONMENT}"
                     env.TF_VAR_region                ="${REGION_WC}"
                     env.TF_VAR_cluster_name          ="${CLUSTER_NAME_WC}"
                     env.TF_VAR_vpc_name              ="${WC_vpc_name}"
@@ -65,7 +65,6 @@ pipeline {
             steps {
                 dir("terraform/networks") {
                     sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-                    sh 'cat config.tf'
                     sh 'terraform init'
                 }
             }
