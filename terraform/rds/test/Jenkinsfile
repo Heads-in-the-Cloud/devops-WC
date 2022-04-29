@@ -33,7 +33,7 @@ pipeline {
         stage('test'){
             steps{
                 dir("terraform/rds/test") {
-                    sh 'go version'
+                    sh 'go mod init'
                     sh 'go mod tidy'
                     sh 'go test rds_test.go -v -timeout 10m'
                 }
