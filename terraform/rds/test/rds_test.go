@@ -8,6 +8,7 @@ import (
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/gruntwork-io/terratest/modules/ssh"
 )
 var deployment_passed bool
 
@@ -108,7 +109,34 @@ func TestTerraformNetworks(t *testing.T){
 		terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedHost, DbHostInSecret)
 	}
-	defer terraform.Destroy(t, terraformOptions)
 
+	/********************************************************/
+	/**************** Test Connection to RDS ****************/
+	/********************************************************/
+
+	//Create an SSH key pair
+	KeyPairName		:= "Testing-Key-WC"
+	KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, awsRegion, KeyPairName
+
+	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		// The path to where our Terraform code is located
+		TerraformDir: "./",
+
+		// Variables to pass to our Terraform code using -var options
+		Vars: map[string]interface{}{
+			"aws_region":    os.Getenv("TF_VAR_region"),
+			"instance_name": "terratest-instance",
+			"instance_type": "t2.micro",
+			"key_pair_name": keyPairName,
+		},
+	})
+
+	/******************** Init and Apply ********************/
+	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
+
+
+
+	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
+	defer terraform.Destroy(t, terraformOptions)
 
 }
