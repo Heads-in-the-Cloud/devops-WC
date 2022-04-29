@@ -13,7 +13,8 @@ if [[ $ENVIRONMENT=='prod' ]]
 then
     echo 'prod'
     sudo shutdown now -h
-else
+elif [[ $ENVIRONMENT=='dev']]
+then
     echo 'dev'
     poweroff
 fi

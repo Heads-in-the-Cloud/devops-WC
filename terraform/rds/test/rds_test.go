@@ -26,14 +26,19 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 
 	fmt.Println("Testing begins")
-	ActualBastionHost := terraform.OutputJson(t, terraformOptions, "bastion_host_instance")
+
+	ActualBastionHostJson		 := terraform.OutputJson(t, terraformOptions, "bastion_host_instance")
+	ActualSecretJson  			 := terraform.OutputJson(t, terraformOptions, "secrets")
+	ActualRandomPasswordJson 	 := terraform.OutputJson(t, terraformOptions, "random_password")
+	ActualRandomJwtKeyJson	 	 := terraform.OutputJson(t, terraformOptions, "random_jwt_key")
+	ActualRdsJson				 := terraform.OutputJson(t, terraformOptions, "rds")
 
 	/**************************************************/
 	/*************** Test Bastion Host ****************/
 	/**************************************************/
 
 	//Check if the actual SSH key name matches the given one
-	ActualKeyName 	:= gjson.Get(ActualBastionHost, "key_name")
+	ActualKeyName 	:= gjson.Get(ActualBastionHostJson, "key_name")
 	ExpectedKeyName := os.Getenv("TF_VAR_key_name")
 
 	if assert.Equal(t, ExpectedKeyName, ActualKeyName){
@@ -45,6 +50,28 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: Expected %v, but found %v", ExpectedKeyName, ActualKeyName)
 	}
 
+	/********************************************************/
+	/***************** Test Secrets Manager  ****************/
+	/********************************************************/
+
+
+	// //Get the Secret ID
+	// SecretId 			:= gjson.Get(ActualSecretJson, "id").String()
+
+	// //Use the aws module to extract Secret as a json string
+	// SecretText          := aws.GetSecretValue(t, os.Getenv("TF_VAR_region"), SecretId)
+
+	// //Extract each Secret value from the json string
+	// PasswordInSecret			:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_password")).String()
+	// DbHostInSecret 				:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_host")).String()
+	// DbUserInSecret 				:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_user")).String()
+	// JwtKeyInSecret 				:= gjson.Get(SecretText, os.Getenv("TF_VAR_secrets_key_jwt_key")).String()
+
+	// //Get the expected values from the outputs
+	// ExpectedPassword			:= gjson.Get(ActualRandomPasswordJson, "result")
+	// ExpectedJwtKey				:= gjson.Get(ActualRandomJwtKeyJson, "result")
+	// ExpectedUser				:= gjson.Get(ActualRdsJson, "username")
+	// ExpectedHost				:= gjson.Get(ActualRdsJson, "address")
 
 	defer terraform.Destroy(t, terraformOptions)
 
