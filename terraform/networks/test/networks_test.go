@@ -330,7 +330,7 @@ func TestTerraformNetworks(t *testing.T){
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	fmt.Println(string(stdout))
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
-	str := "[{'abcdefg'},15,23]"
+	str := "[2,15,23]"
 	var Routes []string
     json.Unmarshal([]byte(str), &Routes)
 	fmt.Println(Routes)
