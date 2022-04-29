@@ -338,8 +338,7 @@ func TestTerraformNetworks(t *testing.T){
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 	//Route interface required to unmarshall array of maps
 	type Route struct {
-		DestinationCidrBlock string
-		GatewayId string
+		VpcPeeringConnectionId string
 		State string
 	}
 
@@ -350,7 +349,7 @@ func TestTerraformNetworks(t *testing.T){
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
 	for _, Route := range Routes {
-		fmt.Println(Route)
+		fmt.Println(Route.VpcPeeringConnectionId)
 		// if gjson.Get(ActualPeeringConnection, "id").String() == Route.Id {
 		// 	PeeringConnectionMatches = true
 		// 	break;
