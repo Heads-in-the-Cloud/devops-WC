@@ -31,6 +31,7 @@ resource "aws_instance" "bastion_host" {
   ami                       = data.aws_ami.amazon_linux.id
   instance_type             = var.instance_type
   key_name                  = var.key_pair_name
+  vpc_security_group_ids    = [ aws_security_group.ssh_sg.id ]
   subnet_id                 = aws_subnet.test_subnet.id
   user_data                 = templatefile("${path.root}/test_mysql_connection.sh", {
     RDS_MYSQL_ENDPOINT      = var.db_host
@@ -40,5 +41,27 @@ resource "aws_instance" "bastion_host" {
   })
   tags = {
     Name                    = "test-ssh-instance"
+  }
+}
+
+resource "aws_security_group" "ssh_sg" {
+  name        = "wc-terratest-ssh-sg"
+  description = "ssh_sh"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description      = "allow ssh"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 }
