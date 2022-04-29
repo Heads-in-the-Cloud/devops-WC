@@ -13,6 +13,9 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 resource "aws_vpc" "vpc" {
   cidr_block = "10.10.0.0/16"
@@ -29,6 +32,7 @@ resource "aws_subnet" "test_subnet" {
 
 resource "aws_instance" "bastion_host" {
   ami                       = data.aws_ami.amazon_linux.id
+  availability_zone         = data.aws_availability_zones.available.names[0]
   instance_type             = var.instance_type
   key_name                  = var.key_pair_name
   vpc_security_group_ids    = [ aws_security_group.ssh_sg.id ]
