@@ -13,7 +13,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
 )
-// var deployment_passed bool
+var deployment_passed bool
 
 func TestTerraformNetworks(t *testing.T){
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
