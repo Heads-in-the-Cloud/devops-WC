@@ -8,7 +8,7 @@ import (
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
-	// "github.com/gruntwork-io/terratest/modules/ssh"
+	"github.com/gruntwork-io/terratest/modules/ssh"
 )
 var deployment_passed bool
 
@@ -136,7 +136,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
 	TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
-	
+
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip")
 	
 	fmt.Println(TestVpcJson)
