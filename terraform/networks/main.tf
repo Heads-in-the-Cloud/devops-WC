@@ -29,7 +29,7 @@ data "aws_secretsmanager_secret_version" "secrets" {
 }
 
 locals {
-  secrets = jsondecode(
+  existing_secrets = jsondecode(
     data.aws_secretsmanager_secret_version.secrets.secret_string
   )
 }
@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_string = jsonencode(merge({"private_subnet_group_id" = aws_db_subnet_group.private-subnet-group.id},
                                    {"vpc_id"                  = aws_vpc.my_vpc.id},
                                    {"public_subnet_id"        = aws_subnet.public_1.id},
-                                   locals.secrets
+                                   locals.existing_secrets
                                    ))
 }
 
