@@ -335,9 +335,9 @@ func TestTerraformNetworks(t *testing.T){
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
 
-	// for Route := range Routes {
-	// 	fmt.Println(Route)
-	// }
+	for Route := range Routes {
+		fmt.Println(Route["GatewayId"])
+	}
 	Route := gjson.Get(string(stdout), "[0]")
 	// PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
 	fmt.Println(Route)
