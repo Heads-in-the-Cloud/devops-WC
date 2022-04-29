@@ -165,7 +165,7 @@ func TestTerraformNetworks(t *testing.T){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 
 		if err != nil {
-			terraform.Destroy(t, terraformOptionsConnectionTesting)
+			return "", err
 		}
 
 		if strings.TrimSpace(actualText) != expectedText {
