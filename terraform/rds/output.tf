@@ -4,7 +4,7 @@ output "bastion_host_instance" {
 }
 
 output "secrets" {
-    value = aws_secretsmanager_secret.secrets
+    value = data.aws_secretsmanager_secret.secrets
     sensitive = true
 }
 
