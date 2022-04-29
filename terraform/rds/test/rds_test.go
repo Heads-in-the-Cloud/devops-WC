@@ -3,6 +3,7 @@ package rds_test
 import (
 	"github.com/stretchr/testify/assert" 
 	"os"
+	"time"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"testing"
@@ -128,6 +129,10 @@ func TestTerraformNetworks(t *testing.T){
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
 			"key_pair_name": KeyPairName,
+			"db_host": ExpectedHost,
+			"db_user": ExpectedUser,
+			"db_password": ExpectedPassword
+
 		},
 	})
 
@@ -146,6 +151,26 @@ func TestTerraformNetworks(t *testing.T){
 		SshKeyPair:  KeyPair.KeyPair,
 		SshUserName: "ec2-user",
 	}
+
+	expectedText := "Hello, World"
+	command := fmt.Sprintf("echo -n '%s'", expectedText)
+	maxRetries := 30
+	timeBetweenRetries := 5 * time.Second
+	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
+	// Verify that we can SSH to the Instance and run commands
+	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+
+		if err != nil {
+			return "", err
+		}
+
+		if strings.TrimSpace(actualText) != expectedText {
+			return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
+		}
+
+		return "", nil
+	})
 
 	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	defer terraform.Destroy(t, terraformOptions)
