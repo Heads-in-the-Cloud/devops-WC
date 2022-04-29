@@ -116,7 +116,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	//Create an SSH key pair
 	KeyPairName		:= "Testing-Key-WC"
-	KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
+	// KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
 
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
@@ -127,7 +127,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": keyPairName,
+			"key_pair_name": KeyPairName,
 		},
 	})
 
