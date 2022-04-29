@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/tidwall/gjson"
-	"github.com/stretchr/testify/assert" 
+	"github.com/stretchr/testify/assert"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/ssh"
