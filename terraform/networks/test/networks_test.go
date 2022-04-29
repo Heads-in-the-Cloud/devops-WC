@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"encoding/json"
 	"github.com/tidwall/gjson"
-	// "encoding/json"
-	// "time"
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
@@ -334,18 +332,20 @@ func TestTerraformNetworks(t *testing.T){
         terraform.Destroy(t, terraformOptions)
 		t.Fatalf("Error with aws ec2 describe-route-tables command. Could not describe route tables.")
     }
-	fmt.Println(string(stdout))
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+
+	
 	//Route interface required to unmarshall array of maps
 	type Route struct {
 		VpcPeeringConnectionId string
 	}
 
-	PeeringConnectionMatches := false
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
+	//Unmarshal the output from the AWS CLI command into an array of struct Routes
 	Routes := []Route{}
     json.Unmarshal([]byte(string(stdout)), &Routes)
-	fmt.Println(Routes)
+
+	//Store whether the peering connection ID is in one of the Routes condition into a boolean
+	PeeringConnectionMatches := false
+
 	for _, Route := range Routes {
 		fmt.Println(Route.VpcPeeringConnectionId)
 		if gjson.Get(ActualPeeringConnection, "id").String() == Route.VpcPeeringConnectionId {
@@ -354,10 +354,8 @@ func TestTerraformNetworks(t *testing.T){
 		}
 	}
 
-	fmt.Println(PeeringConnectionMatches)
-
-
-	if assert.Equal(t, true, PublicSubnetMatchesSecret){
+	//Check if the peering connection matches any of the Routes 
+	if assert.Equal(t, true, PeeringConnectionMatches){
 		deployment_passed = true
 		t.Logf("PASS: the peering connection route is found in the default VPC route tables")
 	} else {
