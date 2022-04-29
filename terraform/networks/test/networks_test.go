@@ -338,7 +338,7 @@ func TestTerraformNetworks(t *testing.T){
 	// for Route := range Routes {
 	// 	fmt.Println(Route)
 	// }
-	Route := gjson.Get(string(stdout), "[0][0]")
+	Route := gjson.Get(string(stdout), "[0].State")
 	// PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
 	fmt.Println(Route)
 
