@@ -328,6 +328,14 @@ func TestTerraformNetworks(t *testing.T){
     cmd := exec.Command("aws", "ec2", "describe-route-tables", "--filters", "Name=tag:Name,Values="+ PeeringRouteTableName, "--query", "RouteTables[].Routes[]")
     stdout, err := cmd.Output()
 
+    if err != nil {
+        fmt.Println(err.Error())
+		deployment_passed = false
+        terraform.Destroy(t, terraformOptions)
+		t.Fatalf("Error with aws ec2 describe-route-tables command. Could not describe route tables.")
+    }
+	fmt.Println(string(stdout))
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 	//Route interface required to unmarshall array of maps
 	type Route struct {
 		DestinationCidrBlock string
@@ -335,23 +343,30 @@ func TestTerraformNetworks(t *testing.T){
 		State string
 	}
 
-	fmt.Println(ActualPeeringConnection)
+	fmt.Println(gjson.Get(ActualPeeringConnection, "id"))
+	// PeeringConnectionMatches := false
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
 	Routes := []Route{}
     json.Unmarshal([]byte(string(stdout)), &Routes)
 	fmt.Println(Routes)
-	for Route := range Routes {
+	for _, Route := range Routes {
 		fmt.Println(Route)
+		// if gjson.Get(ActualPeeringConnection, "id").String() == Route.Id {
+		// 	PeeringConnectionMatches = true
+		// 	break;
+		// }
 	}
-	fmt.Println(Routes[0].GatewayId)
-	// Route := gjson.Get(string(stdout), "[0]")
-	// PeeringConnectionId := gjson.Get(ActualPeeringConnection, "id")
+	// fmt.Println(Routes[0].GatewayId)
 
-    if err != nil {
-        fmt.Println(err.Error())
-        return
-    }
 
+	// if assert.Equal(t, true, PublicSubnetMatchesSecret){
+	// 	deployment_passed = true
+	// 	t.Logf("PASS: the public subnet id is stored in the secrets manager")
+	// } else {
+	// 	deployment_passed = false
+	// 	terraform.Destroy(t, terraformOptions)
+	// 	t.Fatalf("FAIL: the public subnet id in the secrets manager does not match either public subnet ids created")
+	// }
 	defer terraform.Destroy(t, terraformOptions)
 
 
