@@ -53,6 +53,22 @@ variable "ssm_path" {
     type=string 
 }
 
+variable "secrets_key_password" {
+    type=string
+}
+
+variable "secrets_key_host" {
+    type=string
+}
+
+variable "secrets_key_user" {
+    type=string
+}
+
+variable "secrets_key_jwt_key" {
+    type=string
+}
+
 variable "ecs_log_prefix" {
     type=string
 }

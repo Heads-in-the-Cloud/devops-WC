@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    tools {
+        go '1.18'
+    }
+    environment{
+        ENVIRONMENT='testing'
+        TF_VAR_environment           ="${ENVIRONMENT}"
+        TF_VAR_region                ="${REGION_WC}"
+        TF_VAR_cluster_name          ="${CLUSTER_NAME_WC}"
+        TF_VAR_vpc_name              ="${WC_vpc_name}"
+        TF_VAR_peering_vpc_name      = "${JENKINS_VPC}"
+        TF_VAR_aws_account_id        = "${ORG_ACCOUNT_NUM}"
+        TF_VAR_vpc_cidr_block        = "10.10.0.0/16"
+        TF_VAR_subnet1_cidr_block    = "10.10.1.0/24"
+        TF_VAR_subnet2_cidr_block    = "10.10.2.0/24"
+        TF_VAR_subnet3_cidr_block    = "10.10.3.0/24"
+        TF_VAR_subnet4_cidr_block    = "10.10.4.0/24"
+        TF_VAR_anywhere_ipv4         = "0.0.0.0/0"
+        TF_VAR_pc_name               = "WC-Jenkins-pc"
+        TF_VAR_peering_rt_name       = "JenkinsRoutes"
+        TF_VAR_internet_gw_name      = "WC-ig"
+        TF_VAR_secrets_key_vpc_id    = "vpc_id"
+        TF_VAR_secrets_key_subnet_group_id = "private_subnet_group_id"
+        TF_VAR_secrets_key_public_subnet_id = "public_subnet_id"
+        TF_VAR_ssm_path              ="${WC_SECRETS_PATH_DEV}"
+        TF_VAR_key_name              ="${SSH_GROUP_KEY}"
+    }
+    stages{
+        stage('configure s3 backend'){
+            steps{
+                dir("terraform/networks") {
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                    sh 'cat config.tf'
+                }
+            }
+        }
+        stage('test'){
+            steps{
+                dir("terraform/networks/test") {
+                    sh 'go version'
+                    sh 'go mod tidy'
+                    sh 'go test networks_test.go -v -timeout 10m'
+                }
+            }
+            post{
+                failure{
+                    sh 'echo test failed'
+                }
+            }
+        }
+    }
+}

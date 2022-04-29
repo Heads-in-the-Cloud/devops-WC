@@ -31,10 +31,10 @@ data "aws_secretsmanager_secret_version" "secrets" {
 
 resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_id     = data.aws_secretsmanager_secret.secrets.id
-  secret_string = jsonencode(merge({"private_subnet_group_id" = aws_db_subnet_group.private-subnet-group.id},
-                                   {"vpc_id"                  = aws_vpc.my_vpc.id},
-                                   {"public_subnet_id"        = aws_subnet.public_1.id},
-                                   {"cert_manager_arn"        = jsondecode(data.aws_secretsmanager_secret_version.secrets.secret_string)["cert_manager_arn"]}))
+  secret_string = jsonencode(merge({"${var.secrets_key_subnet_group_id}"  = aws_db_subnet_group.private-subnet-group.id},
+                                   {"${var.secrets_key_vpc_id}"           = aws_vpc.my_vpc.id},
+                                   {"${var.secrets_key_public_subnet_id}" = aws_subnet.public_1.id},
+                                   {"${var.secrets_key_cert_arn}"         = jsondecode(data.aws_secretsmanager_secret_version.secrets.secret_string)["${var.secrets_key_cert_arn}"]}))
 }
 
 resource "aws_vpc" "my_vpc" {

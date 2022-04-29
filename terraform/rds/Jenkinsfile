@@ -49,6 +49,10 @@ pipeline {
                     env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
                     env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
                     env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+                    env.TF_VAR_secrets_key_password = "db_password"
+                    env.TF_VAR_secrets_key_host     = "db_host"
+                    env.TF_VAR_secrets_key_user     = "db_user"
+                    env.TF_VAR_secrets_key_jwt_key  = "secret_key"
                     env.ENVIRONMENT                 = env.TF_VAR_environment
                 }
             }

@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    tools {
+        go '1.18'
+    }
+    environment{
+        ENVIRONMENT='testing'
+        TF_VAR_db_engine            ="mysql"
+        TF_VAR_environment          ="testing"
+        TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
+        TF_VAR_eks_log_prefix       ="${WC_EKS_LOGS}"
+        TF_VAR_region               ="${REGION_WC}"
+        TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
+        TF_VAR_vpc_name             ="${WC_vpc_name}"
+        TF_VAR_peering_vpc_name     = "${JENKINS_VPC}"
+        TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
+        TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
+        TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+        TF_VAR_secrets_key_password = "db_password"
+        TF_VAR_secrets_key_host     = "db_host"
+        TF_VAR_secrets_key_user     = "db_user"
+        TF_VAR_secrets_key_jwt_key  = "secret_key"
+    }
+    stages{
+        stage('configure s3 backend'){
+            steps{
+                dir("terraform/rds") {
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                    sh 'cat config.tf'
+                }
+            }
+        }
+        stage('test'){
+            steps{
+                dir("terraform/rds/test") {
+                    sh 'go mod tidy'
+                    sh 'go test rds_test.go -v -timeout 10m'
+                }
+            }
+            post{
+                failure{
+                    sh 'echo test failed'
+                }
+            }
+        }
+    }
+}

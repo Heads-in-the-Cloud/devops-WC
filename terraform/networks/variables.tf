@@ -30,6 +30,14 @@ variable "aws_account_id" { type = string }
 
 variable "ssm_path" { type=string }
 
+variable "secrets_key_subnet_group_id" { type=string }
+
+variable "secrets_key_vpc_id" { type=string }
+
+variable "secrets_key_public_subnet_id" { type=string }
+
+variable "secrets_key_cert_arn" { type=string }
+
 variable "aws_home_region" { 
     type=string
     default = "us-west-2"
