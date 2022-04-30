@@ -163,14 +163,14 @@ func TestTerraformNetworks(t *testing.T){
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
-	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	retry.DoWithRetryableErrors(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
 		if strings.TrimSpace(actualText) == expectedText {
 			RdsConnectionFromOutsideVPC = false
 			t.Logf("Actual text matches expected text from command")
-			return "", ""
+			return "", fmt.Errorf("Stop retry")
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
