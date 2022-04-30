@@ -18,7 +18,7 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block = "172.31.0.0/16"
+  cidr_block = "10.10.0.0/16"
   tags = {
     Name = "test-vpc-wc"
   }
@@ -26,9 +26,22 @@ resource "aws_vpc" "vpc" {
 
 resource "aws_subnet" "test_subnet" {
   vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = "172.31.0.0/20"
+  cidr_block              = "10.10.0.0/24"
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
+}
+
+resource "aws_internet_gateway" "default" {
+  vpc_id = aws_vpc.vpc.id
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.aws.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.default.id
+  }
 }
 
 resource "aws_instance" "bastion_host" {
