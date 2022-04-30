@@ -132,7 +132,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": KeyPairName,
+			"key_pair_name": "KeyPairName",
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
@@ -155,8 +155,8 @@ func TestTerraformNetworks(t *testing.T){
 		SshUserName: "ec2-user",
 	}
 
-	expectedText := "Hello, World"
-	command := fmt.Sprintf("echo -n '%s'", expectedText)
+	// expectedText := "Hello, World"
+	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	maxRetries := 30
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
@@ -169,16 +169,18 @@ func TestTerraformNetworks(t *testing.T){
 			return "", err
 		}
 
-		if strings.TrimSpace(actualText) != expectedText {
-			return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
-		}
+		fmt.Println(actualText)
+
+		// if strings.TrimSpace(actualText) != expectedText {
+		// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
+		// }
 
 		return "", nil
 	})
 
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
-	// defer terraform.Destroy(t, terraformOptionsConnectionTesting)
+	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
 
 }
