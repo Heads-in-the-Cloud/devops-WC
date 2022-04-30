@@ -157,21 +157,21 @@ func TestTerraformNetworks(t *testing.T){
 	expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
-	RdsConnectionFromOutsideVPC := true
+	RdsReachableFromOutsideVPC := true
 	maxRetries 					:= 8
 	timeBetweenRetries 			:= 5 * time.Second
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
-	Conn := retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
 		if strings.TrimSpace(actualText) == expectedText {
-			RdsConnectionFromOutsideVPC = false
+			RdsReachableFromOutsideVPC = false
 			
 			t.Logf("Actual text matches expected text from command")
-			return "", retry.FatalError{}
+			return "", err
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
@@ -181,7 +181,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	fmt.Println(Conn)
 
-	if assert.Equal(t, false, RdsConnectionFromOutsideVPC){
+	if assert.Equal(t, false, RdsReachableFromOutsideVPC){
 		deployment_passed = true
 		t.Logf("PASS: the MySQL database is not accessible from a different VPC")
 	} else {
