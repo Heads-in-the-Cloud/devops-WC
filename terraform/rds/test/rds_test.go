@@ -156,31 +156,36 @@ func TestTerraformNetworks(t *testing.T){
 
 	expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
-	// command := fmt.Sprintf("echo hello")
-	fmt.Println(command)
 
-	maxRetries := 10
-	timeBetweenRetries := 5 * time.Second
-	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
-	fmt.Println(expectedText)
+	RdsConnectionFromOutsideVPC := true
+	maxRetries 					:= 10
+	timeBetweenRetries 			:= 5 * time.Second
+	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
+
 	// Verify that we can SSH to the Instance and run commands
 	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
 		if strings.TrimSpace(actualText) == expectedText {
+			RdsConnectionFromOutsideVPC = false
 			t.Logf("Actual text matches expected text from command")
-			return "", err
+			break;
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
 		}
-
-
-
-
 		return "", nil
 	})
+
+	if assert.Equal(t, false, RdsConnectionFromOutsideVPC){
+		deployment_passed = true
+		t.Logf("PASS: the MySQL database is not accessible from a different VPC")
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
+	}
 
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
