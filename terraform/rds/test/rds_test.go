@@ -182,6 +182,6 @@ func TestTerraformNetworks(t *testing.T){
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
 	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
-	// defer terraform.Destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 }
