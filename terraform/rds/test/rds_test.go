@@ -148,11 +148,11 @@ func TestTerraformNetworks(t *testing.T){
 	
 	fmt.Println(TestVpcJson)
 	fmt.Println(TestInstanceJson)
-	publicHost := ssh.Host{
-		Hostname:    publicInstanceIP,
-		SshKeyPair:  KeyPair.KeyPair,
-		SshUserName: "ec2-user",
-	}
+	// publicHost := ssh.Host{
+	// 	Hostname:    publicInstanceIP,
+	// 	SshKeyPair:  KeyPair.KeyPair,
+	// 	SshUserName: "ec2-user",
+	// }
 
 	// expectedText := "Hello, World"
 	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
