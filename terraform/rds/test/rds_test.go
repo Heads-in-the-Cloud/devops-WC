@@ -158,7 +158,7 @@ func TestTerraformNetworks(t *testing.T){
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsReachableFromOutsideVPC := true
-	maxRetries 					:= 8
+	maxRetries 					:= 10
 	timeBetweenRetries 			:= 5 * time.Second
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
@@ -171,7 +171,7 @@ func TestTerraformNetworks(t *testing.T){
 			RdsReachableFromOutsideVPC = false
 			
 			t.Logf("Actual text matches expected text from command")
-			return "", err
+			return "", retry.MaxRetriesExceeded{}
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
