@@ -131,7 +131,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": KeyPairName,
+			"key_pair_name": "terratestkey",
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
@@ -146,8 +146,6 @@ func TestTerraformNetworks(t *testing.T){
 
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
-	fmt.Println(TestVpcJson)
-	fmt.Println(TestInstanceJson)
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
 		SshKeyPair:  KeyPair.KeyPair,
