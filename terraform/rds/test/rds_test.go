@@ -158,25 +158,29 @@ func TestTerraformNetworks(t *testing.T){
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsConnectionFromOutsideVPC := true
-	maxRetries 					:= 10
+	maxRetries 					:= 8
 	timeBetweenRetries 			:= 5 * time.Second
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
-	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	Conn, ConnErr := retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
 		if strings.TrimSpace(actualText) == expectedText {
 			RdsConnectionFromOutsideVPC = false
+			
 			t.Logf("Actual text matches expected text from command")
-			return "", fmt.Errorf("Stop retry")
+			return "", retry.FatalError{}
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
 		}
 		return "", nil
 	})
+
+	fmt.Println(Conn)
+	fmt.Println(ConnErr)
 
 	if assert.Equal(t, false, RdsConnectionFromOutsideVPC){
 		deployment_passed = true
