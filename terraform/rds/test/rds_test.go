@@ -159,7 +159,7 @@ func TestTerraformNetworks(t *testing.T){
 	// command := fmt.Sprintf("echo hello")
 	fmt.Println(command)
 
-	maxRetries := 30
+	maxRetries := 1
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
