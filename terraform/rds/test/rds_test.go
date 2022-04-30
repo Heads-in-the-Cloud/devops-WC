@@ -155,8 +155,8 @@ func TestTerraformNetworks(t *testing.T){
 	}
 
 	// expectedText := "ERROR 2003 (HY000): Can't connect to MySQL server on 'database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com' (110)"
-	// command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
-	command := fmt.Sprintf("echo hello")
+	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
+	// command := fmt.Sprintf("echo hello")
 	fmt.Println(command)
 
 	maxRetries := 30
