@@ -3,7 +3,7 @@ package rds_test
 import (
 	"os"
 	"time"
-	// "strings"
+	"strings"
 	"fmt"
 	"testing"
 
@@ -154,7 +154,7 @@ func TestTerraformNetworks(t *testing.T){
 		SshUserName: "ec2-user",
 	}
 
-	// expectedText := "ERROR 2003 (HY000): Can't connect to MySQL server on 'database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com' (110)"
+	expectedText := Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
 	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	// command := fmt.Sprintf("echo hello")
 	fmt.Println(command)
@@ -162,22 +162,22 @@ func TestTerraformNetworks(t *testing.T){
 	maxRetries := 10
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
-
+	fmt.Println(expectedText)
 	// Verify that we can SSH to the Instance and run commands
 	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
-
-		if err != nil {
+		
+		if strings.TrimSpace(actualText) == expectedText {
 			fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+			return "", fmt.Printf("Actual text matches expected text from command")
+		} else if err != nil {
 			fmt.Println(err)
 			return "", err
 		}
 
 
-		// if strings.TrimSpace(actualText) != expectedText {
-		// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
-		// }
+
 
 		return "", nil
 	})
