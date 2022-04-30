@@ -26,7 +26,7 @@ pipeline {
             steps{
                 dir("terraform/rds") {
                     sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-                    // sh 'envsubst < ./test/config.tf > temp && rm ./test/config.tf && mv temp ./test/config.tf'
+                    sh 'envsubst < ./test/config.tf > temp && rm ./test/config.tf && mv temp ./test/config.tf'
                     sh 'cat config.tf'
                 }
             }
