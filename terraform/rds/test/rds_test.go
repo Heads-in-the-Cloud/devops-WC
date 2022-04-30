@@ -179,7 +179,6 @@ func TestTerraformNetworks(t *testing.T){
 		return "", nil
 	})
 
-	fmt.Println(Conn)
 
 	if assert.Equal(t, false, RdsReachableFromOutsideVPC){
 		deployment_passed = true
