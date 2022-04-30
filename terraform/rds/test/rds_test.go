@@ -141,7 +141,7 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Init and Apply ********************/
 	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
 
-	TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
+	// TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
 	TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
 
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
