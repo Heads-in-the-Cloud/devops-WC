@@ -120,7 +120,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	//Create an SSH key pair
 	KeyPairName		:= "Testing-Key-WC"
-	// KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
+	KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
 
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
@@ -138,48 +138,47 @@ func TestTerraformNetworks(t *testing.T){
 			"db_password": ExpectedPassword,
 		},
 	})
-	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 
 	/******************** Init and Apply ********************/
-	// terraform.InitAndApply(t, terraformOptionsConnectionTesting)
+	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
 
-	// TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
-	// TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
+	TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
+	TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
 
-	// publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
+	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
-	// fmt.Println(TestVpcJson)
-	// fmt.Println(TestInstanceJson)
-	// publicHost := ssh.Host{
-	// 	Hostname:    publicInstanceIP,
-	// 	SshKeyPair:  KeyPair.KeyPair,
-	// 	SshUserName: "ec2-user",
-	// }
+	fmt.Println(TestVpcJson)
+	fmt.Println(TestInstanceJson)
+	publicHost := ssh.Host{
+		Hostname:    publicInstanceIP,
+		SshKeyPair:  KeyPair.KeyPair,
+		SshUserName: "ec2-user",
+	}
 
-	// expectedText := "Hello, World"
-	// command := fmt.Sprintf("echo -n '%s'", expectedText)
-	// maxRetries := 30
-	// timeBetweenRetries := 5 * time.Second
-	// description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
+	expectedText := "Hello, World"
+	command := fmt.Sprintf("echo -n '%s'", expectedText)
+	maxRetries := 30
+	timeBetweenRetries := 5 * time.Second
+	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
-	// // Verify that we can SSH to the Instance and run commands
-	// retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
-	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+	// Verify that we can SSH to the Instance and run commands
+	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
+		if err != nil {
+			return "", err
+		}
 
-	// 	if strings.TrimSpace(actualText) != expectedText {
-	// 		return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
-	// 	}
+		if strings.TrimSpace(actualText) != expectedText {
+			return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
+		}
 
-	// 	return "", nil
-	// })
+		return "", nil
+	})
 
-	// aws.DeleteEC2KeyPair(t, KeyPair)
+	aws.DeleteEC2KeyPair(t, KeyPair)
 
-	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
+	// defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
 
 }
