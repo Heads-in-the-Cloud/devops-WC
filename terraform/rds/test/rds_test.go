@@ -160,7 +160,7 @@ func TestTerraformNetworks(t *testing.T){
 	maxRetries := 30
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
-	
+
 	// Verify that we can SSH to the Instance and run commands
 	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
@@ -178,7 +178,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
-	// defer terraform.Destroy(t, terraformOptionsConnectionTesting)
+	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
 
 }
