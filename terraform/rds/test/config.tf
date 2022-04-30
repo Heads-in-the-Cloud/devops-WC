@@ -5,11 +5,4 @@ terraform {
     region = "us-west-2"
     dynamodb_table = "WC_terraform_state"
   }
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-  }
 }
