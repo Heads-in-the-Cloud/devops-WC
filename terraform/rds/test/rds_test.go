@@ -2,7 +2,7 @@ package rds_test
 
 import (
 	"os"
-	"time"
+	// "time"
 	// "strings"
 	"fmt"
 	"testing"
@@ -157,27 +157,27 @@ func TestTerraformNetworks(t *testing.T){
 	// expectedText := "Hello, World"
 	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	fmt.Println(command)
-	maxRetries := 3
-	timeBetweenRetries := 5 * time.Second
-	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
+	// maxRetries := 3
+	// timeBetweenRetries := 5 * time.Second
+	// description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
-	// Verify that we can SSH to the Instance and run commands
-	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
-		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+	// // Verify that we can SSH to the Instance and run commands
+	// retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 
-		if err != nil {
-			return "", err
-		}
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
 
-		fmt.Println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
-		fmt.Println(actualText)
+	// 	fmt.Println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
+	// 	fmt.Println(actualText)
 
-		// if strings.TrimSpace(actualText) != expectedText {
-		// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
-		// }
+	// 	// if strings.TrimSpace(actualText) != expectedText {
+	// 	// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
+	// 	// }
 
-		return "", nil
-	})
+	// 	return "", nil
+	// })
 
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
