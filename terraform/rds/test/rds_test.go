@@ -170,7 +170,7 @@ func TestTerraformNetworks(t *testing.T){
 		
 		if strings.TrimSpace(actualText) == expectedText {
 			t.Logf("Actual text matches expected text from command")
-			return ""
+			return "", err
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
