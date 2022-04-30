@@ -36,7 +36,7 @@ resource "aws_internet_gateway" "default" {
 }
 
 resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.aws.id
+  vpc_id = aws_vpc.vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
