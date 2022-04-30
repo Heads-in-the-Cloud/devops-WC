@@ -169,6 +169,7 @@ func TestTerraformNetworks(t *testing.T){
 			return "", err
 		}
 
+		fmt.Println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
 		fmt.Println(actualText)
 
 		// if strings.TrimSpace(actualText) != expectedText {
