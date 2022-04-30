@@ -163,7 +163,7 @@ func TestTerraformNetworks(t *testing.T){
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
-	Conn, ConnErr := retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	Conn := retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
@@ -180,7 +180,6 @@ func TestTerraformNetworks(t *testing.T){
 	})
 
 	fmt.Println(Conn)
-	fmt.Println(ConnErr)
 
 	if assert.Equal(t, false, RdsConnectionFromOutsideVPC){
 		deployment_passed = true
