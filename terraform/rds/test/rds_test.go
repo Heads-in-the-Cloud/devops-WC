@@ -131,12 +131,14 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": "terratestkey",
+			"key_pair_name": KeyPairName,
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
 		},
 	})
+
+	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 
 	/******************** Init and Apply ********************/
 	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
