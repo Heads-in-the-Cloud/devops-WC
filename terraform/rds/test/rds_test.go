@@ -159,13 +159,14 @@ func TestTerraformNetworks(t *testing.T){
 	// command := fmt.Sprintf("echo hello")
 	fmt.Println(command)
 
-	maxRetries := 1
+	maxRetries := 10
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
 	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+		fmt.Println(actualText)
 
 		if err != nil {
 			fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
@@ -173,7 +174,6 @@ func TestTerraformNetworks(t *testing.T){
 			return "", err
 		}
 
-		fmt.Println(actualText)
 
 		// if strings.TrimSpace(actualText) != expectedText {
 		// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
