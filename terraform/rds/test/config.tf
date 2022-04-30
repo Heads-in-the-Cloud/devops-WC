@@ -13,9 +13,3 @@ terraform {
     }
   }
 }
-
-# Configure the AWS Provider
-provider "aws" {
-  region                  =  var.region
-  shared_credentials_file = "$HOME/.aws/credentials"
-}
