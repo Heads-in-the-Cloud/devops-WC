@@ -131,7 +131,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": KeyPairName,
+			"key_pair_name": "terratestkey",
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
@@ -157,7 +157,7 @@ func TestTerraformNetworks(t *testing.T){
 	// expectedText := "Hello, World"
 	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	fmt.Println(command)
-	maxRetries := 30
+	maxRetries := 3
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
