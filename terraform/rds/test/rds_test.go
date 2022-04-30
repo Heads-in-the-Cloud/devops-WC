@@ -3,7 +3,7 @@ package rds_test
 import (
 	"os"
 	"time"
-	"strings"
+	// "strings"
 	"fmt"
 	"testing"
 
