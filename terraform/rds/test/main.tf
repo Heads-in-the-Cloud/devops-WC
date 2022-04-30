@@ -35,7 +35,7 @@ resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.vpc.id
 }
 
-resource "aws_route_table" "rt" {
+data "aws_route_table" "rt" {
   subnet_id = aws_subnet.test_subnet.id
 }
 
