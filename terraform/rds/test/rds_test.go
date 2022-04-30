@@ -170,7 +170,7 @@ func TestTerraformNetworks(t *testing.T){
 		if strings.TrimSpace(actualText) == expectedText {
 			RdsConnectionFromOutsideVPC = false
 			t.Logf("Actual text matches expected text from command")
-			break;
+			return "", ""
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
