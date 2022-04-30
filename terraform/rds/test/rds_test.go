@@ -163,7 +163,7 @@ func TestTerraformNetworks(t *testing.T){
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	// Verify that we can SSH to the Instance and run commands
-	retry.DoWithRetryableErrors(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	retry.DoWithRetry(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 		fmt.Println(actualText)
 		
