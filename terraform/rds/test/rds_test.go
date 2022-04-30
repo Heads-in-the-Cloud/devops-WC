@@ -156,8 +156,9 @@ func TestTerraformNetworks(t *testing.T){
 
 	// expectedText := "ERROR 2003 (HY000): Can't connect to MySQL server on 'database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com' (110)"
 	// command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
-	fmt.Println(command)
 	command := fmt.Sprintf("echo hello")
+	fmt.Println(command)
+
 	maxRetries := 10
 	timeBetweenRetries := 5 * time.Second
 	description := fmt.Sprintf("SSH to public host %s", publicInstanceIP)
