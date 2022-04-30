@@ -2,8 +2,8 @@ package rds_test
 
 import (
 	"os"
-	// "time"
-	// "strings"
+	"time"
+	"strings"
 	"fmt"
 	"testing"
 
@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
-	// "github.com/gruntwork-io/terratest/modules/ssh"
-	// "github.com/gruntwork-io/terratest/modules/retry"
+	"github.com/gruntwork-io/terratest/modules/ssh"
+	"github.com/gruntwork-io/terratest/modules/retry"
 
 )
 var deployment_passed bool
