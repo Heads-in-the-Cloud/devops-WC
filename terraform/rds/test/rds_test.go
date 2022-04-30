@@ -125,7 +125,6 @@ func TestTerraformNetworks(t *testing.T){
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: "./",
-		MigrateState: true,
 
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
