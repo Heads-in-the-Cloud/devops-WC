@@ -154,8 +154,8 @@ func TestTerraformNetworks(t *testing.T){
 		SshUserName: "ec2-user",
 	}
 
-	expectedText := Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
-	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
+	expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
+	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	// command := fmt.Sprintf("echo hello")
 	fmt.Println(command)
 
@@ -169,8 +169,8 @@ func TestTerraformNetworks(t *testing.T){
 		fmt.Println(actualText)
 		
 		if strings.TrimSpace(actualText) == expectedText {
-			fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-			return "", fmt.Printf("Actual text matches expected text from command")
+			t.Logf("Actual text matches expected text from command")
+			return ""
 		} else if err != nil {
 			fmt.Println(err)
 			return "", err
