@@ -154,7 +154,7 @@ func TestTerraformNetworks(t *testing.T){
 	// 	SshUserName: "ec2-user",
 	// }
 
-	// expectedText := "Hello, World"
+	// expectedText := "ERROR 2003 (HY000): Can't connect to MySQL server on 'database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com' (110)"
 	command := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 	fmt.Println(command)
 	// maxRetries := 3
@@ -166,22 +166,22 @@ func TestTerraformNetworks(t *testing.T){
 	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 
 	// 	if err != nil {
+	// 		fmt.Println(err)
 	// 		return "", err
 	// 	}
 
-	// 	fmt.Println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
 	// 	fmt.Println(actualText)
 
-	// 	// if strings.TrimSpace(actualText) != expectedText {
-	// 	// 	return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
-	// 	// }
+	// 	if strings.TrimSpace(actualText) != expectedText {
+	// 		return "", fmt.Errorf("Expected SSH command to return '%s' but got '%s'", expectedText, actualText)
+	// 	}
 
 	// 	return "", nil
 	// })
 
 	aws.DeleteEC2KeyPair(t, KeyPair)
 
-	// defer terraform.Destroy(t, terraformOptionsConnectionTesting)
+	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
 
 }
