@@ -160,7 +160,11 @@ func TestTerraformNetworks(t *testing.T){
 	RdsReachableFromOutsideVPC := true
 	maxRetries 					:= 10
 	timeBetweenRetries 			:= 5 * time.Second
+	timeoutLimit				:= 200 * time.Second
+
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
+	fmt.Println(KeyPair.KeyPair)
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 	// Verify that we can SSH to the Instance and run commands
 	retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
@@ -179,6 +183,11 @@ func TestTerraformNetworks(t *testing.T){
 		return "", nil
 	})
 
+	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
+		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+		fmt.Println(actualText)
+		return actualText, err
+	})
 
 	if assert.Equal(t, false, RdsReachableFromOutsideVPC){
 		deployment_passed = true
