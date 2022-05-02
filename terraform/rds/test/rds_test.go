@@ -18,6 +18,11 @@ import (
 var deployment_passed bool
 
 func TestTerraformNetworks(t *testing.T){
+
+	//Create an SSH key pair for testing
+	KeyPairName		:= os.Getenv("TF_VAR_key_name_test")
+	KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
 	})
@@ -118,10 +123,9 @@ func TestTerraformNetworks(t *testing.T){
 	/**************** Test Connection to RDS ****************/
 	/********************************************************/
 
-	//Create an SSH key pair
-	// KeyPairName		:= "Testing-Key-WC"
-	// KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
-
+	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+	fmt.Println(KeyPair.KeyPair.PrivateKey)
+	fmt.Println(KeyPair.KeyPair.PublicKey)
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: "./",
@@ -131,7 +135,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": os.Getenv("Terratest-Key-WC"),
+			"key_pair_name": os.Getenv("TF_VAR_key_name_test"),
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
@@ -151,7 +155,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
-		SshKeyPair:  &KeyPair,
+		SshKeyPair:  KeyPair.KeyPair,
 		SshUserName: "ec2-user",
 	}
 
@@ -164,7 +168,6 @@ func TestTerraformNetworks(t *testing.T){
 	timeoutLimit				:= 200 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 	//Wait for the instance to install MySQL
 	time.Sleep(200 * time.Second)
@@ -188,6 +191,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+		fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 		fmt.Println(actualText)
 		return actualText, err
 	})
@@ -198,7 +202,7 @@ func TestTerraformNetworks(t *testing.T){
 	} else {
 		deployment_passed = false
 		terraform.Destroy(t, terraformOptionsConnectionTesting)
-		terraform.Destroy(t, terraformOptions)
+		// terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
 	}
 
