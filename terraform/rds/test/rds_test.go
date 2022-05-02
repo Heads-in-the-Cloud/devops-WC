@@ -151,15 +151,13 @@ func TestTerraformNetworks(t *testing.T){
 
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
-	// KeyPair := ssh.KeyPair{PrivateKey: os.Getenv("SSH_KEY")}
-
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
 		SshKeyPair:  KeyPair.KeyPair,
 		SshUserName: "ec2-user",
 	}
 
-	// expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
+	expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsReachableFromOutsideVPC := true
@@ -177,8 +175,8 @@ func TestTerraformNetworks(t *testing.T){
 	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
 	// 	fmt.Println(actualText)
 		
-	// 	if strings.TrimSpace(actualText) == expectedText {
-	// 		RdsReachableFromOutsideVPC = false
+		// if strings.TrimSpace(actualText) == expectedText {
+		// 	RdsReachableFromOutsideVPC = false
 			
 	// 		t.Logf("Actual text matches expected text from command")
 	// 		return "", retry.MaxRetriesExceeded{}
@@ -189,9 +187,16 @@ func TestTerraformNetworks(t *testing.T){
 	// 	return "", nil
 	// })
 
+
+	/*************************************************************************/
+	/******************** Try to Connect From Outside VPC ********************/
+	/*************************************************************************/
+
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
-		fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+		if strings.TrimSpace(actualText) == expectedText {
+			RdsReachableFromOutsideVPC = false
+		}
 		fmt.Println(actualText)
 		return actualText, err
 	})
@@ -205,6 +210,12 @@ func TestTerraformNetworks(t *testing.T){
 		// terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
 	}
+
+	/*************************************************************************/
+	/******************** Try to Connect From Within VPC *********************/
+	/*************************************************************************/
+
+	
 
 	// aws.DeleteEC2KeyPair(t, KeyPair)
 
