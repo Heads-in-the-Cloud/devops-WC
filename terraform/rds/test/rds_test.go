@@ -197,20 +197,20 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Try to Connect From Within VPC *********************/
 	/*************************************************************************/
 
-	// publicInstanceIP 	= gjson.Get(ActualBastionHostJson, "public_ip").String()
+	publicInstanceIP 	= gjson.Get(ActualBastionHostJson, "public_ip").String()
 	
-	// publicHost = ssh.Host{
-	// 	Hostname:    publicInstanceIP,
-	// 	SshKeyPair:  KeyPair.KeyPair,
-	// 	SshUserName: "ec2-user",
-	// }
+	publicHost = ssh.Host{
+		Hostname:    publicInstanceIP,
+		SshKeyPair:  KeyPair.KeyPair,
+		SshUserName: "ec2-user",
+	}
 
-	// retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
-	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
-	// 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-	// 	fmt.Println(actualText)
-	// 	return actualText, err
-	// })
+	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
+		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+		fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+		fmt.Println(actualText)
+		return actualText, err
+	})
 
 	defer aws.DeleteEC2KeyPair(t, KeyPair)
 
