@@ -123,9 +123,6 @@ func TestTerraformNetworks(t *testing.T){
 	/**************** Test Connection to RDS ****************/
 	/********************************************************/
 
-	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-	fmt.Println(KeyPair.KeyPair.PrivateKey)
-	fmt.Println(KeyPair.KeyPair.PublicKey)
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: "./",
@@ -141,8 +138,6 @@ func TestTerraformNetworks(t *testing.T){
 			"db_password": ExpectedPassword,
 		},
 	})
-
-	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 
 	/******************** Init and Apply ********************/
 	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
@@ -205,12 +200,27 @@ func TestTerraformNetworks(t *testing.T){
 		SshUserName: "ec2-user",
 	}
 
+	RdsReachableFromWithinVPC := true
+
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
-		fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-		fmt.Println(actualText)
+		
+		if err != nil {
+			RdsReachableFromWithinVPC = false
+		}
+
 		return actualText, err
 	})
+
+	if assert.Equal(t, true, RdsReachableFromOutsideVPC){
+		deployment_passed = true
+		t.Logf("PASS: the MySQL database is accessible from the bastion host")
+	} else {
+		deployment_passed = false
+		terraform.Destroy(t, terraformOptionsConnectionTesting)
+		terraform.Destroy(t, terraformOptions)
+		t.Fatalf("FAIL: there was an error when trying to connect to the database")
+	}
 
 	defer aws.DeleteEC2KeyPair(t, KeyPair)
 
