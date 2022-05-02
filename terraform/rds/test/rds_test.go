@@ -151,7 +151,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
-		SshKeyPair:  KeyPair,
+		SshKeyPair:  &KeyPair,
 		SshUserName: "ec2-user",
 	}
 
