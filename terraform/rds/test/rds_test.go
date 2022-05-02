@@ -3,7 +3,7 @@ package rds_test
 import (
 	"os"
 	"time"
-	"strings"
+	// "strings"
 	"fmt"
 	"testing"
 
@@ -154,12 +154,12 @@ func TestTerraformNetworks(t *testing.T){
 		SshUserName: "ec2-user",
 	}
 
-	expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
+	// expectedText := fmt.Sprintf("ERROR 2003 (HY000): Can't connect to MySQL server on '%s' (110)", ExpectedHost)
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsReachableFromOutsideVPC := true
-	maxRetries 					:= 10
-	timeBetweenRetries 			:= 5 * time.Second
+	// maxRetries 					:= 10
+	// timeBetweenRetries 			:= 5 * time.Second
 	timeoutLimit				:= 200 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
