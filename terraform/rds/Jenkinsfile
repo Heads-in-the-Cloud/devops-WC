@@ -91,7 +91,7 @@ pipeline {
                     dir("terraform/rds") {
                         sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                         sh 'cat config.tf'
-                        sh 'terraform init -migrate-state'
+                        sh 'terraform init -migrate-state -force-copy'
                     }
                 }
             }
