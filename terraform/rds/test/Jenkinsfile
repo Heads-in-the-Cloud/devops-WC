@@ -5,7 +5,6 @@ pipeline {
     }
     environment{
         ENVIRONMENT='testing'
-        SSH_KEY                     = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."test_ssh_group_key"', returnStdout: true).trim()
         TF_VAR_db_engine            ="mysql"
         TF_VAR_environment          ="testing"
         TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
