@@ -86,11 +86,13 @@ pipeline {
         stage('Terraform init') {
 
             steps {
-                env.ENVIRONMENT = "dev"
-                env.TF_VAR_environment = "${ENVIRONMENT}"
-                dir("terraform/rds") {
-                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-                    sh 'terraform init'
+                script {
+                    env.ENVIRONMENT = "dev"
+                    env.TF_VAR_environment = "${ENVIRONMENT}"
+                    dir("terraform/rds") {
+                        sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                        sh 'terraform init'
+                    }
                 }
             }
         }
