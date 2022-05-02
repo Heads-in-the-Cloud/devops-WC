@@ -163,25 +163,27 @@ func TestTerraformNetworks(t *testing.T){
 	timeoutLimit				:= 200 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
-	fmt.Println(KeyPair.KeyPair)
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
+	//Wait for the instance to install MySQL
+	time.Sleep(30 * time.Second)
+
 	// Verify that we can SSH to the Instance and run commands
-	retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
-		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
-		fmt.Println(actualText)
+	// retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
+	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+	// 	fmt.Println(actualText)
 		
-		if strings.TrimSpace(actualText) == expectedText {
-			RdsReachableFromOutsideVPC = false
+	// 	if strings.TrimSpace(actualText) == expectedText {
+	// 		RdsReachableFromOutsideVPC = false
 			
-			t.Logf("Actual text matches expected text from command")
-			return "", retry.MaxRetriesExceeded{}
-		} else if err != nil {
-			fmt.Println(err)
-			return "", err
-		}
-		return "", nil
-	})
+	// 		t.Logf("Actual text matches expected text from command")
+	// 		return "", retry.MaxRetriesExceeded{}
+	// 	} else if err != nil {
+	// 		fmt.Println(err)
+	// 		return "", err
+	// 	}
+	// 	return "", nil
+	// })
 
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)

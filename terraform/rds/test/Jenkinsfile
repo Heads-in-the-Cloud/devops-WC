@@ -5,6 +5,7 @@ pipeline {
     }
     environment{
         ENVIRONMENT='testing'
+        SSH_GROUP_KEY               = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."ssh_group_key"', returnStdout: true).trim()
         TF_VAR_db_engine            ="mysql"
         TF_VAR_environment          ="testing"
         TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
@@ -25,6 +26,7 @@ pipeline {
         stage('configure s3 backend'){
             steps{
                 dir("terraform/rds") {
+                    sh 'echo ${SSH_GROUP_KEY}'
                     sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                     sh 'envsubst < ./test/config.tf > temp && rm ./test/config.tf && mv temp ./test/config.tf'
                     sh 'cat ./test/config.tf'
