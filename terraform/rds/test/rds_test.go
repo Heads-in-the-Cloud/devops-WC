@@ -212,7 +212,7 @@ func TestTerraformNetworks(t *testing.T){
 		return actualText, err
 	})
 
-	if assert.Equal(t, true, RdsReachableFromOutsideVPC){
+	if assert.Equal(t, true, RdsReachableFromWithinVPC){
 		deployment_passed = true
 		t.Logf("PASS: the MySQL database is accessible from the bastion host")
 	} else {
