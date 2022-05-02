@@ -151,7 +151,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
-	KeyPair := ssh.KeyPair{PrivateKey: os.Getenv("SSH_KEY")}
+	// KeyPair := ssh.KeyPair{PrivateKey: os.Getenv("SSH_KEY")}
 
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
