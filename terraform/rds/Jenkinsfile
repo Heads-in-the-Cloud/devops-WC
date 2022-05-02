@@ -74,7 +74,7 @@ pipeline {
                     sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                     sh 'cat config.tf'
                     sh 'go mod tidy'
-                    sh 'go test rds_test.go -v -timeout 20m'
+                    sh 'go test rds_test.go -v -timeout 30m'
                 }
             }
             post{
