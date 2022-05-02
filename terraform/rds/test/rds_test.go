@@ -25,6 +25,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
+		migrateState: true,
 	})
 
 	/******************** Init and Apply ********************/
