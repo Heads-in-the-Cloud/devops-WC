@@ -49,7 +49,7 @@ func TestTerraformNetworks(t *testing.T){
 
 	//Check if the actual SSH key name matches the given one
 	ActualKeyName 	:= gjson.Get(ActualBastionHostJson, "key_name").String()
-	ExpectedKeyName := os.Getenv("TF_VAR_key_name")
+	ExpectedKeyName := os.Getenv("TF_VAR_key_name_test")
 
 	if assert.Equal(t, ExpectedKeyName, ActualKeyName){
 		deployment_passed = true
