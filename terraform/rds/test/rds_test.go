@@ -149,6 +149,12 @@ func TestTerraformNetworks(t *testing.T){
 
 	TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
 
+
+
+	/*************************************************************************/
+	/******************** Try to Connect From Outside VPC ********************/
+	/*************************************************************************/
+
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
 	publicHost := ssh.Host{
@@ -161,36 +167,12 @@ func TestTerraformNetworks(t *testing.T){
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsReachableFromOutsideVPC := true
-	// maxRetries 					:= 10
-	// timeBetweenRetries 			:= 2 * time.Second
 	timeoutLimit				:= 200 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	//Wait for the instance to install MySQL
 	time.Sleep(200 * time.Second)
-
-	// Verify that we can SSH to the Instance and run commands
-	// retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
-	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
-	// 	fmt.Println(actualText)
-		
-		// if strings.TrimSpace(actualText) == expectedText {
-		// 	RdsReachableFromOutsideVPC = false
-			
-	// 		t.Logf("Actual text matches expected text from command")
-	// 		return "", retry.MaxRetriesExceeded{}
-	// 	} else if err != nil {
-	// 		fmt.Println(err)
-	// 		return "", err
-	// 	}
-	// 	return "", nil
-	// })
-
-
-	/*************************************************************************/
-	/******************** Try to Connect From Outside VPC ********************/
-	/*************************************************************************/
 
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
@@ -207,7 +189,7 @@ func TestTerraformNetworks(t *testing.T){
 	} else {
 		deployment_passed = false
 		terraform.Destroy(t, terraformOptionsConnectionTesting)
-		// terraform.Destroy(t, terraformOptions)
+		terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
 	}
 
@@ -215,11 +197,24 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Try to Connect From Within VPC *********************/
 	/*************************************************************************/
 
+	// publicInstanceIP 	= gjson.Get(ActualBastionHostJson, "public_ip").String()
+	
+	// publicHost = ssh.Host{
+	// 	Hostname:    publicInstanceIP,
+	// 	SshKeyPair:  KeyPair.KeyPair,
+	// 	SshUserName: "ec2-user",
+	// }
 
+	// retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
+	// 	actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
+	// 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+	// 	fmt.Println(actualText)
+	// 	return actualText, err
+	// })
 
 	defer aws.DeleteEC2KeyPair(t, KeyPair)
 
 	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
-	// defer terraform.Destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 }
