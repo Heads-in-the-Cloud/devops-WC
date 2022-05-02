@@ -167,12 +167,12 @@ func TestTerraformNetworks(t *testing.T){
 	command 	 := fmt.Sprintf("mysql -h %s -u %s -p%s -D %s", ExpectedHost, ExpectedUser, ExpectedPassword,"utopia")
 
 	RdsReachableFromOutsideVPC := true
-	timeoutLimit				:= 200 * time.Second
+	timeoutLimit				:= 120 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 
 	//Wait for the instance to install MySQL
-	time.Sleep(200 * time.Second)
+	time.Sleep(120 * time.Second)
 
 	retry.DoWithTimeoutE(t, description, timeoutLimit, func() (string, error){
 		actualText, err := ssh.CheckSshCommandE(t, publicHost, command)
