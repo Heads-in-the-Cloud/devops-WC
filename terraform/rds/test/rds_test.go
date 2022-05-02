@@ -159,14 +159,14 @@ func TestTerraformNetworks(t *testing.T){
 
 	RdsReachableFromOutsideVPC := true
 	// maxRetries 					:= 10
-	// timeBetweenRetries 			:= 5 * time.Second
+	// timeBetweenRetries 			:= 2 * time.Second
 	timeoutLimit				:= 200 * time.Second
 
 	description 				:= fmt.Sprintf("SSH to public host %s", publicInstanceIP)
 	fmt.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
 	//Wait for the instance to install MySQL
-	time.Sleep(30 * time.Second)
+	time.Sleep(200 * time.Second)
 
 	// Verify that we can SSH to the Instance and run commands
 	// retry.DoWithRetryE(t, description, maxRetries, timeBetweenRetries, func() (string, error) {
