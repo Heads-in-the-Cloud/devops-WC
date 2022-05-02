@@ -200,7 +200,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
 	}
 
-	aws.DeleteEC2KeyPair(t, KeyPair)
+	// aws.DeleteEC2KeyPair(t, KeyPair)
 
 	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
