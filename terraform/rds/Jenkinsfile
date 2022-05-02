@@ -37,44 +37,50 @@ pipeline {
                     }
                 }
         }
-        // stage('Set up environment'){
-        //     steps{
-        //         script{
-        //             env.TF_VAR_db_engine            ="mysql"
-        //             env.TF_VAR_environment          ="testing"
-        //             env.TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
-        //             env.TF_VAR_eks_log_prefix       ="${WC_EKS_LOGS}"
-        //             env.TF_VAR_region               ="${REGION_WC}"
-        //             env.TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
-        //             env.TF_VAR_vpc_name             ="${WC_vpc_name}"
-        //             env.TF_VAR_peering_vpc_name     = "${JENKINS_VPC}"
-        //             env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
-        //             env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
-        //             env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
-        //             env.TF_VAR_key_name_test        ="Terratest-Key-WC"
-        //             env.TF_VAR_secrets_key_password = "db_password"
-        //             env.TF_VAR_secrets_key_host     = "db_host"
-        //             env.TF_VAR_secrets_key_user     = "db_user"
-        //             env.TF_VAR_secrets_key_jwt_key  = "secret_key"
-        //             env.ENVIRONMENT                 = env.TF_VAR_environment
-        //         }
-        //     }
-        // }
+        stage('Set up environment'){
+            steps{
+                script{
+                    env.TF_VAR_db_engine            ="mysql"
+                    env.TF_VAR_environment          ="testing"
+                    env.TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
+                    env.TF_VAR_eks_log_prefix       ="${WC_EKS_LOGS}"
+                    env.TF_VAR_region               ="${REGION_WC}"
+                    env.TF_VAR_cluster_name         ="${CLUSTER_NAME_WC}"
+                    env.TF_VAR_vpc_name             ="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name     = "${JENKINS_VPC}"
+                    env.TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
+                    env.TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
+                    env.TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+                    env.TF_VAR_key_name_test        ="Terratest-Key-WC"
+                    env.TF_VAR_secrets_key_password = "db_password"
+                    env.TF_VAR_secrets_key_host     = "db_host"
+                    env.TF_VAR_secrets_key_user     = "db_user"
+                    env.TF_VAR_secrets_key_jwt_key  = "secret_key"
+                    env.ENVIRONMENT                 = env.TF_VAR_environment
+                }
+            }
+        }
 
-        // stage('Run Terratest'){
-        //     steps{
-        //         dir("terraform/rds/test") {
-        //             sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-        //             sh 'go mod tidy'
-        //             sh 'go test rds_test.go -v -timeout 20m'
-        //         }
-        //     }
-        //     post{
-        //         failure{
-        //             sh 'echo test failed'
-        //         }
-        //     }
-        // }
+        stage('Run Terratest'){
+            when {
+                allOf{
+                    expression { return params.Test }
+                    expression { return params.action == 'apply'}
+                }
+            }
+            steps{
+                dir("terraform/rds/test") {
+                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                    sh 'go mod tidy'
+                    sh 'go test rds_test.go -v -timeout 20m'
+                }
+            }
+            post{
+                failure{
+                    sh 'echo test failed'
+                }
+            }
+        }
         // stage('Terraform init') {
 
         //     steps {
