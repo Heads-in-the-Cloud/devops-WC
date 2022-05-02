@@ -1,13 +1,14 @@
 package networks_test
 
 import (
-	"github.com/stretchr/testify/assert" 
 	"os"
 	"os/exec"
 	"fmt"
 	"encoding/json"
-	"github.com/tidwall/gjson"
 	"testing"
+	
+	"github.com/stretchr/testify/assert" 
+	"github.com/tidwall/gjson"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
 )
