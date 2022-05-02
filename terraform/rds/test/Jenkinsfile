@@ -5,7 +5,7 @@ pipeline {
     }
     environment{
         ENVIRONMENT='testing'
-        SSH_KEY                     = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."ssh_group_key"', returnStdout: true).trim()
+        SSH_KEY                     = sh ( script: 'aws secretsmanager get-secret-value --secret-id $WC_SECRETS_PATH_DEV --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."test_ssh_group_key"', returnStdout: true).trim()
         TF_VAR_db_engine            ="mysql"
         TF_VAR_environment          ="testing"
         TF_VAR_ecs_log_prefix       ="${WC_ECS_LOGS}"
@@ -17,6 +17,7 @@ pipeline {
         TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
         TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
         TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+        TF_VAR_key_name_test        ="Terratest-Key-WC"
         TF_VAR_secrets_key_password = "db_password"
         TF_VAR_secrets_key_host     = "db_host"
         TF_VAR_secrets_key_user     = "db_user"

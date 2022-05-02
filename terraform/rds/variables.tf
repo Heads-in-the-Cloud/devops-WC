@@ -45,6 +45,10 @@ variable "key_name" {
     type=string
 }
 
+variable "key_name_test"{
+    type=string
+}
+
 variable "environment" {
     type=string
 }

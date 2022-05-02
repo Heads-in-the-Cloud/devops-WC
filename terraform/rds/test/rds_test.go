@@ -119,8 +119,8 @@ func TestTerraformNetworks(t *testing.T){
 	/********************************************************/
 
 	//Create an SSH key pair
-	KeyPairName		:= "Testing-Key-WC"
-	KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
+	// KeyPairName		:= "Testing-Key-WC"
+	// KeyPair 		:= aws.CreateAndImportEC2KeyPair(t, os.Getenv("TF_VAR_region"), KeyPairName)
 
 	terraformOptionsConnectionTesting := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		// The path to where our Terraform code is located
@@ -131,7 +131,7 @@ func TestTerraformNetworks(t *testing.T){
 			"aws_region":    os.Getenv("TF_VAR_region"),
 			"instance_name": "terratest-instance",
 			"instance_type": "t2.micro",
-			"key_pair_name": KeyPairName,
+			"key_pair_name": os.Getenv("Terratest-Key-WC"),
 			"db_host": ExpectedHost,
 			"db_user": ExpectedUser,
 			"db_password": ExpectedPassword,
@@ -143,14 +143,13 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Init and Apply ********************/
 	terraform.InitAndApply(t, terraformOptionsConnectionTesting)
 
-	// TestVpcJson 		:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "vpc")
 	TestInstanceJson	:= terraform.OutputJson(t, terraformOptionsConnectionTesting, "instance")
 
 	publicInstanceIP 	:= gjson.Get(TestInstanceJson, "public_ip").String()
 	
 	publicHost := ssh.Host{
 		Hostname:    publicInstanceIP,
-		SshKeyPair:  KeyPair.KeyPair,
+		SshKeyPair:  os.Getenv("SSH_KEY"),
 		SshUserName: "ec2-user",
 	}
 
@@ -196,6 +195,7 @@ func TestTerraformNetworks(t *testing.T){
 		t.Logf("PASS: the MySQL database is not accessible from a different VPC")
 	} else {
 		deployment_passed = false
+		terraform.Destroy(t, terraformOptionsConnectionTesting)
 		terraform.Destroy(t, terraformOptions)
 		t.Fatalf("FAIL: did not receieve the expected response when trying to connect to the MySQL database")
 	}

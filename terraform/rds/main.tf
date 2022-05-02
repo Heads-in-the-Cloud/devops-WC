@@ -130,7 +130,7 @@ data "aws_ami" "amazon_linux" {
 resource "aws_instance" "bastion_host" {
   ami                       = data.aws_ami.amazon_linux.id
   instance_type             = var.instance_type
-  key_name                  = var.key_name
+  key_name                  = var.environment == "testing" ? var.key_name_test : var.key_name
   vpc_security_group_ids    = [ aws_security_group.ec2_sg.id ]
   subnet_id                 = local.secrets.public_subnet_id
   iam_instance_profile      = aws_iam_instance_profile.bastion_host_profile.name
