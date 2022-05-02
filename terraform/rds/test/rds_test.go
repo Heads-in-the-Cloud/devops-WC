@@ -3,7 +3,7 @@ package rds_test
 import (
 	"os"
 	"time"
-	// "strings"
+	"strings"
 	"fmt"
 	"testing"
 
@@ -215,9 +215,9 @@ func TestTerraformNetworks(t *testing.T){
 	/******************** Try to Connect From Within VPC *********************/
 	/*************************************************************************/
 
-	
 
-	// aws.DeleteEC2KeyPair(t, KeyPair)
+
+	defer aws.DeleteEC2KeyPair(t, KeyPair)
 
 	defer terraform.Destroy(t, terraformOptionsConnectionTesting)
 	// defer terraform.Destroy(t, terraformOptions)
