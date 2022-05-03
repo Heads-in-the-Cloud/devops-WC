@@ -93,7 +93,7 @@ pipeline {
                     dir("terraform/networks") {
                         sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                         sh 'cat config.tf'
-                        sh 'terraform init'
+                        sh 'terraform init -migrate-state -force-copy'
                     }
                 }
             }
