@@ -21,13 +21,14 @@ data "aws_route_table" "peering_vpc_rt" {
 }
 
 data "aws_secretsmanager_secret" "secrets" {
-  name = ssm_path
+  name = var.ssm_path
 }
 
 data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
 }
 
+asdf
 
 resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_id     = data.aws_secretsmanager_secret.secrets.id
