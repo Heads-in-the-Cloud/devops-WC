@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert" 
 	"github.com/tidwall/gjson"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -17,6 +17,7 @@ var deployment_passed bool
 func TestTerraformNetworks(t *testing.T){
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
+		MigrateState: true,
 	})
 
 	/******************** Init and Apply ********************/
