@@ -28,8 +28,6 @@ data "aws_secretsmanager_secret_version" "secrets" {
   secret_id = var.ssm_path
 }
 
-asdf
-
 resource "aws_secretsmanager_secret_version" "secret_string" {
   secret_id     = data.aws_secretsmanager_secret.secrets.id
   secret_string = jsonencode(merge({"${var.secrets_key_subnet_group_id}"  = aws_db_subnet_group.private-subnet-group.id},
