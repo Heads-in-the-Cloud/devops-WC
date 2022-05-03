@@ -1,13 +1,15 @@
 pipeline {
-
     agent any
-
+    tools {
+        go '1.18'
+    }
     stages {
         stage('Setup parameters') {
             steps {
                 script {
                     properties([
                         parameters([
+                            booleanParam(name: 'Test', defaultValue: true, description: ''),
                             [$class: 'ChoiceParameter', 
                                 choiceType: 'PT_SINGLE_SELECT', 
                                 description: 'Select the action', 
@@ -38,37 +40,60 @@ pipeline {
         stage('Set up environment'){
             steps{
                 script{
-                    env.ENVIRONMENT                     ="dev"
-                    env.TF_VAR_environment              ="${ENVIRONMENT}"
-                    env.TF_VAR_region                   ="${REGION_WC}"
-                    env.TF_VAR_cluster_name             ="${CLUSTER_NAME_WC}"
-                    env.TF_VAR_vpc_name                 ="${WC_vpc_name}"
-                    env.TF_VAR_peering_vpc_name         = "${JENKINS_VPC}"
-                    env.TF_VAR_aws_account_id           = "${ORG_ACCOUNT_NUM}"
-                    env.TF_VAR_vpc_cidr_block           = "10.10.0.0/16"
-                    env.TF_VAR_subnet1_cidr_block       = "10.10.1.0/24"
-                    env.TF_VAR_subnet2_cidr_block       = "10.10.2.0/24"
-                    env.TF_VAR_subnet3_cidr_block       = "10.10.3.0/24"
-                    env.TF_VAR_subnet4_cidr_block       = "10.10.4.0/24"
-                    env.TF_VAR_anywhere_ipv4            = "0.0.0.0/0"
-                    env.TF_VAR_pc_name                  = "WC-Jenkins-pc"
-                    env.TF_VAR_peering_rt_name          = "JenkinsRoutes"
-                    env.TF_VAR_internet_gw_name         = "WC-ig"
-                    env.TF_VAR_ssm_path                 ="${WC_SECRETS_PATH_DEV}"
-                    env.TF_VAR_key_name                 ="${SSH_GROUP_KEY}"
+                    env.ENVIRONMENT                         ="dev"
+                    env.TF_VAR_environment                  ="dev"
+                    env.TF_VAR_region                       ="${REGION_WC}"
+                    env.TF_VAR_cluster_name                 ="${CLUSTER_NAME_WC}"
+                    env.TF_VAR_vpc_name                     ="${WC_vpc_name}"
+                    env.TF_VAR_peering_vpc_name             = "${JENKINS_VPC}"
+                    env.TF_VAR_aws_account_id               = "${ORG_ACCOUNT_NUM}"
+                    env.TF_VAR_vpc_cidr_block               = "10.10.0.0/16"
+                    env.TF_VAR_subnet1_cidr_block           = "10.10.1.0/24"
+                    env.TF_VAR_subnet2_cidr_block           = "10.10.2.0/24"
+                    env.TF_VAR_subnet3_cidr_block           = "10.10.3.0/24"
+                    env.TF_VAR_subnet4_cidr_block           = "10.10.4.0/24"
+                    env.TF_VAR_anywhere_ipv4                = "0.0.0.0/0"
+                    env.TF_VAR_pc_name                      = "WC-Jenkins-pc"
+                    env.TF_VAR_peering_rt_name              = "JenkinsRoutes"
+                    env.TF_VAR_internet_gw_name             = "WC-ig"
                     env.TF_VAR_secrets_key_vpc_id           = "vpc_id"
                     env.TF_VAR_secrets_key_subnet_group_id  = "private_subnet_group_id"
                     env.TF_VAR_secrets_key_public_subnet_id = "public_subnet_id"
-                    env.TF_VAR_secrets_key_cert_arn         = "cert_manager_arn"
+                    env.TF_VAR_ssm_path                     ="${WC_SECRETS_PATH_DEV}"
+                    env.TF_VAR_key_name                     ="${SSH_GROUP_KEY}"
+                }
+            }
+        }
+        stage('Run Terratest'){
+            when {
+                allOf{
+                    expression { return params.Test }
+                    expression { return params.action == 'apply'}
+                }
+            }
+            steps{
+                dir("terraform/networks/test") {
+                    sh 'envsubst < ../config.tf > temp && rm ../config.tf && mv temp ../config.tf'
+                    sh 'go mod tidy'
+                    sh 'go test networks_test.go -v -timeout 20m'
+                }
+            }
+            post{
+                failure{
+                    sh 'echo test failed'
                 }
             }
         }
         stage('Terraform init') {
-
             steps {
-                dir("terraform/networks") {
-                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-                    sh 'terraform init'
+                script {
+                    env.ENVIRONMENT = "dev"
+                    env.TF_VAR_environment = "${ENVIRONMENT}"
+                    dir("terraform/networks") {
+                        sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
+                        sh 'cat config.tf'
+                        sh 'terraform init -migrate-state -force-copy'
+                    }
                 }
             }
         }

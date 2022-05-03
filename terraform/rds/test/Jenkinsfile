@@ -16,6 +16,7 @@ pipeline {
         TF_VAR_aws_account_id       = "${ORG_ACCOUNT_NUM}"
         TF_VAR_ssm_path             ="${WC_SECRETS_PATH_DEV}"
         TF_VAR_key_name             ="${SSH_GROUP_KEY}"
+        TF_VAR_key_name_test        ="Terratest-Key-WC"
         TF_VAR_secrets_key_password = "db_password"
         TF_VAR_secrets_key_host     = "db_host"
         TF_VAR_secrets_key_user     = "db_user"
@@ -25,8 +26,10 @@ pipeline {
         stage('configure s3 backend'){
             steps{
                 dir("terraform/rds") {
+                    sh 'echo ${SSH_GROUP_KEY}'
                     sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
-                    sh 'cat config.tf'
+                    sh 'envsubst < ./test/config.tf > temp && rm ./test/config.tf && mv temp ./test/config.tf'
+                    sh 'cat ./test/config.tf'
                 }
             }
         }
@@ -34,7 +37,7 @@ pipeline {
             steps{
                 dir("terraform/rds/test") {
                     sh 'go mod tidy'
-                    sh 'go test rds_test.go -v -timeout 10m'
+                    sh 'go test rds_test.go -v -timeout 20m'
                 }
             }
             post{
