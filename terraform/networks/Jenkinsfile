@@ -65,6 +65,12 @@ pipeline {
                 }
             }
         }
+        stage('Run Terraform linter'){
+            steps{
+                sh 'tflint init'
+                sh 'tflint'
+            }
+        }
         stage('Run Terratest'){
             when {
                 allOf{
