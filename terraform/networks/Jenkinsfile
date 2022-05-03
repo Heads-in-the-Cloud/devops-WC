@@ -72,6 +72,11 @@ pipeline {
                     sh 'tflint'
                 }
             }
+            post {
+                success{
+                    echo 'tflint passed'
+                }
+            }
         }
         stage('Run Terratest'){
             when {
