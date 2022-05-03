@@ -595,6 +595,9 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
       TaskDefinition: !Ref UsersTaskDef
+
+      DeploymentController:
+        Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: UsersService
