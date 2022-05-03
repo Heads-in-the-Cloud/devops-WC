@@ -74,7 +74,6 @@ pipeline {
             steps{
                 dir("terraform/networks/test") {
                     sh 'envsubst < ../config.tf > temp && rm ../config.tf && mv temp ../config.tf'
-                    sh 'envsubst < config.tf > temp && rm config.tf && mv temp config.tf'
                     sh 'go mod tidy'
                     sh 'go test rds_test.go -v -timeout 20m'
                 }
