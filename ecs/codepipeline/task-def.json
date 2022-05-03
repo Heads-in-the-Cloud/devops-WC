@@ -1,0 +1,40 @@
+{
+    "networkMode": "awsvpc",
+	"family": "users-api",
+    "requiresCompatibilities": ["FARGATE"],
+	"taskRoleArn": "arn:aws:iam::026390315914::role/ecsTaskExecutionRole",
+	"executionRoleArn": "arn:aws:iam::026390315914::role/ecsTaskExecutionRole",
+    "cpu": "1vCPU",
+    "memory": "2GB",
+	"containerDefinitions": [
+		 {
+			 "essential": true,
+			 "image": "026390315914.dkr.ecr.us-west-2.amazonaws.com/wc-users-api",
+			 "name": "app",
+             "portMappings": [ {"containerPort" : 5000 }],
+             "environment": [
+                 { "name": "USERS_PORT",
+                    "value": "5000"},
+                 { "name": "DB_HOST",
+                    "value": "database-wc.cfld1kyecklc.us-west-2.rds.amazonaws.com"},
+                 { "name": "DB_USER",
+                    "value": "wc_db_admin"},
+                 { "name": "DB_USER_PASSWORD",
+                    "value": "IqgEyjQQXdo8EQro"},
+                 { "name": "SECRET_KEY",
+                    "value": "VEws6cqm3BOVCOqZ"}
+             ],
+			 "logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-group": "/ecs/wc-logs/dev",
+					"awslogs-region": "us-east-2",
+					"awslogs-create-group": "true",
+					"awslogs-stream-prefix": "firelens"
+				}
+			},
+			"memoryReservation": 100
+		}
+	],
+	"volumes" : []
+}
