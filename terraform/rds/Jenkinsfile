@@ -60,7 +60,19 @@ pipeline {
                 }
             }
         }
-
+        stage('Run Terraform linter'){
+            steps{
+                dir("terraform/networks"){
+                    sh 'tflint --init'
+                    sh 'tflint'
+                }
+            }
+            post {
+                success{
+                    echo 'tflint passed'
+                }
+            }
+        }
         stage('Run Terratest'){
             when {
                 allOf{
