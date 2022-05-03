@@ -67,9 +67,10 @@ pipeline {
         }
         stage('Run Terraform linter'){
             steps{
-                dir("terraform/networks")
-                sh 'tflint init'
-                sh 'tflint'
+                dir("terraform/networks"){
+                    sh 'tflint init'
+                    sh 'tflint'
+                }
             }
         }
         stage('Run Terratest'){
