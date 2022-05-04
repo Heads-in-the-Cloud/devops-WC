@@ -24,6 +24,7 @@ Hooks:
               - BlueTaskDefinition
             TaskSets:
               - BlueTaskSet
+              - GreenTaskSet
             TrafficRouting:
               ProdTrafficRoute:
                 Type: 'AWS::ElasticLoadBalancingV2::Listener'
@@ -251,7 +252,7 @@ Resources:
   #       Unit: PERCENT
   #       Value: 100
   #     Service: !Ref UsersService
-  #     TaskDefinition: !Ref BlueTaskDefinition
+  #     TaskDefinition: !Ref GreenTaskDefinition
   #     LoadBalancers:
   #       - ContainerName: !Ref UsersFamily
   #         ContainerPort: !Ref ContainerPort
