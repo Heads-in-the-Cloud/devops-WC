@@ -22,6 +22,10 @@ Hooks:
           ECSAttributes:
             TaskDefinitions:
               - UsersTaskDef
+              - ALBTargetGroupGreen
+            TaskSets:
+              - BlueTaskSet
+              - GreenTaskSet
             TrafficRouting:
               ProdTrafficRoute:
                 Type: 'AWS::ElasticLoadBalancingV2::Listener'
@@ -190,6 +194,55 @@ Parameters:
     Description: certificate arn for prod environment
 
 Resources:
+  ExampleSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security group for ec2 access
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  BlueTaskSet:
+    Type: 'AWS::ECS::TaskSet'
+    Properties:
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsVpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ExampleSecurityGroup
+          Subnets:
+            - !Ref PublicSubnet1
+            - !Ref PublicSubnet2
+      PlatformVersion: 1.4.0
+      Scale:
+        Unit: PERCENT
+        Value: 100
+      Service: !Ref UsersService
+      TaskDefinition: !Ref UsersTaskDef
+      LoadBalancers:
+        - ContainerName: !Ref UsersFamily
+          ContainerPort: 80
+          TargetGroupArn: !Ref UsersTG
+  PrimaryTaskSet:
+    Type: 'AWS::ECS::PrimaryTaskSet'
+    Properties:
+      Cluster: !Ref ECSCluster
+      Service: !Ref UsersService
+      TaskSetId: !GetAtt 
+        - BlueTaskSet
+        - Id
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
@@ -535,6 +588,25 @@ Resources:
             - !Ref FrontendPath
       ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
       Priority: 3
+  ALBTargetGroupGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 5
+      HealthCheckPath: '/health'
+      HealthCheckPort: '80'
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 2
+      HealthyThresholdCount: 2
+      Matcher:
+        HttpCode: '200'
+      Port: 80
+      Protocol: HTTP
+      Tags:
+        - Key: Group
+          Value: Example
+      TargetType: ip
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
   UsersTG:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
