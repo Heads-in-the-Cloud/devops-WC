@@ -149,9 +149,9 @@ pipeline {
             }
         }
         stage('create'){
-            when{
-                environment name: 'STACK_EXISTS', value: 'false'
-            }
+            // when{
+            //     environment name: 'STACK_EXISTS', value: 'false'
+            // }
             steps{
                 dir('ecs/cloudformation/up'){
                     sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./template.yaml --parameter-overrides \
