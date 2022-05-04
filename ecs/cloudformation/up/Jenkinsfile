@@ -150,7 +150,7 @@ pipeline {
         }
         stage('blue/green'){
             steps{
-                    sh "aws cloudformation update-stack --stack-name wc-utopia-cf-dev --use-previous-template --parameters \
+                    sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
                             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
                             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
