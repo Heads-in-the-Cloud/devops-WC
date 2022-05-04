@@ -706,7 +706,6 @@ Resources:
         - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
-      TaskDefinition: !Ref UsersTaskDef
       DeploymentController:
         Type: EXTERNAL
       Tags:
