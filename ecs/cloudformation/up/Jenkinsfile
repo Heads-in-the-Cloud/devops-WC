@@ -151,7 +151,7 @@ pipeline {
         stage('blue/green'){
             steps{
                 script{
-                    sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template true --parameters UsePreviousValue=true"
+                    sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters UsePreviousValue=true"
                 }
             }
         }
