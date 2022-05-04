@@ -21,8 +21,8 @@ Hooks:
             LogicalID: UsersService
           ECSAttributes:
             TaskDefinitions:
-              - UsersTaskDef
-              - ALBTargetGroupGreen
+              - BlueTaskDefinition
+              - GreenTaskDefinition
             TaskSets:
               - BlueTaskSet
               - GreenTaskSet
@@ -31,7 +31,7 @@ Hooks:
                 Type: 'AWS::ElasticLoadBalancingV2::Listener'
                 LogicalID: ALBListenerHTTP
               TargetGroups:
-                - UsersTG
+                - ALBTargetGroupBlue
                 - ALBTargetGroupGreen
     Type: 'AWS::CodeDeploy::BlueGreen'
 
@@ -230,11 +230,11 @@ Resources:
         Unit: PERCENT
         Value: 100
       Service: !Ref UsersService
-      TaskDefinition: !Ref UsersTaskDef
+      TaskDefinition: !Ref BlueTaskDefinition
       LoadBalancers:
         - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref UsersTG
+          TargetGroupArn: !Ref ALBTargetGroupBlue
   GreenTaskSet:
     Type: 'AWS::ECS::TaskSet'
     Properties:
@@ -313,7 +313,7 @@ Resources:
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
-  UsersTaskDef:
+  BlueTaskDefinition:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
       Family: !Ref UsersFamily
@@ -613,7 +613,7 @@ Resources:
     Properties:
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref UsersTG
+          TargetGroupArn: !Ref ALBTargetGroupBlue
       Certificates: 
         - CertificateArn: !Ref CertificateArn
       LoadBalancerArn: !Ref ECSALB
@@ -625,7 +625,7 @@ Resources:
     Properties:
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref UsersTG
+          TargetGroupArn: !Ref ALBTargetGroupBlue
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
@@ -687,7 +687,7 @@ Resources:
       TargetType: ip
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
-  UsersTG:
+  ALBTargetGroupBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -696,7 +696,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: UsersTG
+      Name: ALBTargetGroupBlue
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
