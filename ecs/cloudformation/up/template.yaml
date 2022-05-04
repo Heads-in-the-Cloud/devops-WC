@@ -203,8 +203,8 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 8080
-          ToPort: 8080
+          FromPort: 5000
+          ToPort: 5000
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
@@ -219,7 +219,7 @@ Resources:
         AwsVpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref EcsSecurityGroup
+            - !Ref ExampleSecurityGroup
           Subnets:
             - !Ref PublicSubnet1
             - !Ref PublicSubnet2
