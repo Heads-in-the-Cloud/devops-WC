@@ -51,10 +51,10 @@ Parameters:
     Type: 'AWS::EC2::VPC::Id'
     Description: Select a VPC that allows instances to access the Internet.
   PublicSubnet1:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: Public subnets for the load balancer
   PublicSubnet2:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1:
     Type: String
     Description: Private subnets for the services
