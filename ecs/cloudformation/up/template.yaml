@@ -256,12 +256,12 @@ Resources:
   #       - ContainerName: !Ref UsersFamily
   #         ContainerPort: !Ref ContainerPort
   #         TargetGroupArn: !Ref ALBTargetGroupGreen
-  # PrimaryTaskSet:
-  #   Type: 'AWS::ECS::PrimaryTaskSet'
-  #   Properties:
-  #     Cluster: !Ref ECSCluster
-  #     Service: !Ref UsersService
-  #     TaskSetId: !GetAtt BlueTaskSet.Id
+  PrimaryTaskSet:
+    Type: 'AWS::ECS::PrimaryTaskSet'
+    Properties:
+      Cluster: !Ref ECSCluster
+      Service: !Ref UsersService
+      TaskSetId: !GetAtt BlueTaskSet.Id
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
