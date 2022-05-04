@@ -221,7 +221,7 @@ Resources:
         AwsVpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref ExampleSecurityGroup
+            - !Ref AlbSecurityGroup
           Subnets:
             - !Ref PublicSubnet1
             - !Ref PublicSubnet2
