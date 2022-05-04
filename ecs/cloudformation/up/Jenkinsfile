@@ -150,8 +150,8 @@ pipeline {
         }
         stage('blue/green'){
             steps{
-                script{
-                    aws cloudformation update-stack --stack-name wc-utopia-cf-dev --use-previous-template --parameters \
+                
+                    sh "aws cloudformation update-stack --stack-name $STACK_NAME --use-previous-template --parameters \
                         ParameterKey=VpcId,UsePreviousValue=true \
                         ParameterKey=PublicSubnet1,UsePreviousValue=true \
                         ParameterKey=PublicSubnet2,UsePreviousValue=true \
@@ -193,8 +193,8 @@ pipeline {
                         ParameterKey=DbHost,UsePreviousValue=true \
                         ParameterKey=DbUser,UsePreviousValue=true \
                         ParameterKey=DbPassword,UsePreviousValue=true \
-                        ParameterKey=SecretKey,UsePreviousValue=true
-                }
+                        ParameterKey=SecretKey,UsePreviousValue=true"
+                
             }
         }
         stage('create'){
