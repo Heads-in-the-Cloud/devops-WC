@@ -330,33 +330,33 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: !Ref ElasticSearchHost
-              Port: !Ref ElasticPort
-              Path: !Ref ElasticPath
-              HTTP_User: !Ref ElasticUser
-              HTTP_Passwd: !Ref ElasticPassword
-              Logstash_Format: On
-              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
-              Replace_Dots: On
-              Retry_Limit: False
-              tls: On
-              Match: "*"
-        - Name: log_router
-          Essential: 'true'
-          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-          FirelensConfiguration:
-            Type: fluentbit
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "true"
-              awslogs-group: /ecs/wc-logs/dev
-              awslogs-region: !Ref Region
-              awslogs-stream-prefix: !Ref UsersFamily
+        #   LogConfiguration:
+        #     LogDriver: awsfirelens
+        #     Options:
+        #       Name: es
+        #       Host: !Ref ElasticSearchHost
+        #       Port: !Ref ElasticPort
+        #       Path: !Ref ElasticPath
+        #       HTTP_User: !Ref ElasticUser
+        #       HTTP_Passwd: !Ref ElasticPassword
+        #       Logstash_Format: On
+        #       Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
+        #       Replace_Dots: On
+        #       Retry_Limit: False
+        #       tls: On
+        #       Match: "*"
+        # - Name: log_router
+        #   Essential: 'true'
+        #   Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+        #   FirelensConfiguration:
+        #     Type: fluentbit
+        #   LogConfiguration:
+        #     LogDriver: awslogs
+        #     Options:
+        #       awslogs-create-group: "true"
+        #       awslogs-group: /ecs/wc-logs/dev
+        #       awslogs-region: !Ref Region
+        #       awslogs-stream-prefix: !Ref UsersFamily
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       ExecutionRoleArn: !GetAtt 
