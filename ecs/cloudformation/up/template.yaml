@@ -233,7 +233,7 @@ Resources:
       TaskDefinition: !Ref UsersTaskDef
       LoadBalancers:
         - ContainerName: !Ref UsersFamily
-          ContainerPort: 80
+          ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
   PrimaryTaskSet:
     Type: 'AWS::ECS::PrimaryTaskSet'
