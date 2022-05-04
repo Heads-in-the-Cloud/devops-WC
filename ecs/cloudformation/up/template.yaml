@@ -693,14 +693,6 @@ Resources:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "ENABLED"
-          SecurityGroups: 
-            - !Ref EcsSecurityGroup
-          Subnets: 
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
       DeploymentController:
         Type: EXTERNAL
       Tags:
