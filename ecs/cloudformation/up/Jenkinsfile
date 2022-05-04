@@ -168,7 +168,7 @@ pipeline {
                             ParameterKey=BookingsRepo,ParameterValue=${BOOKING_REPO_WC} \
                             ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
                             ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
-                            ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment}\
+                            ParameterKey=UsersFamily,ParameterValue=hello \
                             ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
                             ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
                             ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
