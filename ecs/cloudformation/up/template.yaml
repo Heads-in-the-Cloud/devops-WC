@@ -5,6 +5,32 @@ Conditions:
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   NotProdEnv: !Not [Condition: ProdEnv]
 
+Transform:
+  - 'AWS::CodeDeployBlueGreen'
+Hooks:
+  CodeDeployBlueGreenHook:
+    Properties:
+      TrafficRoutingConfig:
+        Type: TimeBasedCanary
+        TimeBasedCanary:
+          StepPercentage: 15
+          BakeTimeMins: 5
+      Applications:
+        - Target:
+            Type: 'AWS::ECS::Service'
+            LogicalID: UsersService
+          ECSAttributes:
+            TaskDefinitions:
+              - UsersTaskDef
+            TrafficRouting:
+              ProdTrafficRoute:
+                Type: 'AWS::ElasticLoadBalancingV2::Listener'
+                LogicalID: ALBListenerHTTP
+              TargetGroups:
+                - UsersTG
+                - ALBTargetGroupGreen
+    Type: 'AWS::CodeDeploy::BlueGreen'
+
 
 Parameters:
   EnvType:
@@ -198,7 +224,19 @@ Resources:
       ToPort: !Ref ContainerPort
       SourceSecurityGroupId: !Ref AlbSecurityGroup
 
-
+  ECSTaskExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
   UsersTaskDef:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
@@ -249,7 +287,9 @@ Resources:
               awslogs-stream-prefix: !Ref UsersFamily
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-      ExecutionRoleArn: !Ref IamRole
+      ExecutionRoleArn: !GetAtt 
+        - ECSTaskExecutionRole
+        - Arn      
       NetworkMode: "awsvpc"
       RequiresCompatibilities: 
         - "FARGATE"
@@ -595,9 +635,8 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref UsersTG
       TaskDefinition: !Ref UsersTaskDef
-
       DeploymentController:
-        Type: CODE_DEPLOY
+        Type: EXTERNAL
       Tags:
         - Key: Name
           Value: UsersService
