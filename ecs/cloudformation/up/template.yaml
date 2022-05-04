@@ -314,7 +314,7 @@ Resources:
     Properties:
       Family: !Ref UsersFamily
       ContainerDefinitions:
-        - Name: !Ref UsersFamily
+        - Name: "someting new"
           Essential: 'true'
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
           PortMappings: 
