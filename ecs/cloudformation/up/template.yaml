@@ -702,10 +702,6 @@ Resources:
           Subnets: 
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
-      LoadBalancers:
-        - ContainerName: !Ref UsersFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref UsersTG
       DeploymentController:
         Type: EXTERNAL
       Tags:
