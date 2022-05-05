@@ -22,7 +22,6 @@ Hooks:
           ECSAttributes:
             TaskDefinitions:
               - BlueTaskDefinition
-              - GreenTaskDefinition
             TaskSets:
               - BlueTaskSet
               - GreenTaskSet
