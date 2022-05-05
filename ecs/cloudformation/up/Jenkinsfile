@@ -155,7 +155,8 @@ pipeline {
             }
             steps{
                     sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
-                            ParameterKey=TestBlueGreenChange,ParameterValue=hello \
+                            ParameterKey=TestBlueGreenChange,ParameterValue=Goodbye \
+                            ParameterKey=ExampleSecurityGroupPort,ParameterValue=22 \
                             ParameterKey=VpcId,ParameterValue=${VPC_ID} \
                             ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
                             ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
@@ -251,6 +252,7 @@ pipeline {
                 dir('ecs/cloudformation/up'){
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./template.yaml --parameter-overrides \
                         TestBlueGreenChange=Goodbye \
+                        ExampleSecurityGroupPort=22 \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
                         PublicSubnet2=${PUBLIC_SUBNET2} \

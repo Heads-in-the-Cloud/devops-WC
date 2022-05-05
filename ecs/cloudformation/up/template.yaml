@@ -39,6 +39,8 @@ Hooks:
 Parameters:
   TestBlueGreenChange:
     Type: String
+  ExampleSecurityGroupPort:
+    Type: Number
   EnvType:
     Description: Environment type.
     Default: test
@@ -211,8 +213,8 @@ Resources:
           ToPort: 5000
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
+          FromPort: !Ref ExampleSecurityGroupPort
+          ToPort: !Ref ExampleSecurityGroupPort
           CidrIp: 0.0.0.0/0
   BlueTaskSet:
     Type: 'AWS::ECS::TaskSet'
