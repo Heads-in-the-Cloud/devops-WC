@@ -253,56 +253,56 @@ pipeline {
             }
             steps{
                 dir('ecs/cloudformation/up'){
-                    sh "aws cloudformation deploy --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./template.yaml --parameter-overrides \
-                        TestBlueGreenChange=Goodbye \
-                        ExampleSecurityGroupPort=22 \
-                        VpcId=${VPC_ID} \
-                        PublicSubnet1=${PUBLIC_SUBNET1} \
-                        PublicSubnet2=${PUBLIC_SUBNET2} \
-                        PrivateSubnet1=${PRIVATE_SUBNET1} \
-                        PrivateSubnet2=${PRIVATE_SUBNET2} \
-                        AccountId=${ORG_ACCOUNT_NUM} \
-                        HostedZoneId=${HOSTED_ZONE} \
-                        RecordName=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
-                        ClusterName=${CLUSTER_NAME_WC} \
-                        EnvType=${params.environment} \
-                        ContainerPort=${WC_CONTAINER_PORT} \
-                        Region=${REGION_WC} \
-                        UsersRepo=${USER_REPO_WC} \
-                        FlightsRepo=${FLIGHT_REPO_WC} \
-                        BookingsRepo=${BOOKING_REPO_WC} \
-                        FrontendRepo=${FRONTEND_REPO_WC} \
-                        IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
-                        UsersFamily=${USER_REPO_WC}-${params.environment}\
-                        FlightsFamily=${FLIGHT_REPO_WC}-${params.environment} \
-                        BookingsFamily=${BOOKING_REPO_WC}-${params.environment} \
-                        FrontendFamily=${FRONTEND_REPO_WC}-${params.environment} \
-                        LogGroupName=${WC_ECS_LOGS} \
-                        UsersPath=${WC_USERS_PREFIX} \
-                        FlightsPath=${WC_FLIGHTS_PREFIX} \
-                        BookingsPath=${WC_BOOKINGS_PREFIX} \
-                        FrontendPath=${WC_FRONTEND_PREFIX} \
-                        SSMSecretString=${WC_SECRETS_PATH_DEV} \
-                        UsersHealthCheck=${WC_HEALTH_USERS} \
-                        FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
-                        BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
-                        FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
-                        CertificateArn=${CERTIFICATE_ARN} \
-                        ElasticSearchHost=${ELK_URL} \
-                        ElasticPort=443 \
-                        ElasticUser=${ELK_LOGIN_USR} \
-                        ElasticPassword=${ELK_LOGIN_PSW} \
-                        LogstashPrefix=wc-logstash- \
-                        ElasticPath=/elasticsearch \
-                        DbHost=db_host \
-                        DbUser=db_user \
-                        DbPassword=db_password \
-                        SecretKey=secret_key"          
-                    // sh "aws cloudformation deploy --stack-name blue-green --capabilities CAPABILITY_IAM --template-file ./green-blue.yaml --parameter-overrides \
-                    //     Vpc=${VPC_ID} \
-                    //     Subnet1=${PUBLIC_SUBNET1} \
-                    //     Subnet2=${PUBLIC_SUBNET2} \
-                    //     TestBlueGreenChange=hello"      
+                    // sh "aws cloudformation deploy --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./template.yaml --parameter-overrides \
+                    //     TestBlueGreenChange=Goodbye \
+                    //     ExampleSecurityGroupPort=22 \
+                    //     VpcId=${VPC_ID} \
+                    //     PublicSubnet1=${PUBLIC_SUBNET1} \
+                    //     PublicSubnet2=${PUBLIC_SUBNET2} \
+                    //     PrivateSubnet1=${PRIVATE_SUBNET1} \
+                    //     PrivateSubnet2=${PRIVATE_SUBNET2} \
+                    //     AccountId=${ORG_ACCOUNT_NUM} \
+                    //     HostedZoneId=${HOSTED_ZONE} \
+                    //     RecordName=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
+                    //     ClusterName=${CLUSTER_NAME_WC} \
+                    //     EnvType=${params.environment} \
+                    //     ContainerPort=${WC_CONTAINER_PORT} \
+                    //     Region=${REGION_WC} \
+                    //     UsersRepo=${USER_REPO_WC} \
+                    //     FlightsRepo=${FLIGHT_REPO_WC} \
+                    //     BookingsRepo=${BOOKING_REPO_WC} \
+                    //     FrontendRepo=${FRONTEND_REPO_WC} \
+                    //     IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                    //     UsersFamily=${USER_REPO_WC}-${params.environment}\
+                    //     FlightsFamily=${FLIGHT_REPO_WC}-${params.environment} \
+                    //     BookingsFamily=${BOOKING_REPO_WC}-${params.environment} \
+                    //     FrontendFamily=${FRONTEND_REPO_WC}-${params.environment} \
+                    //     LogGroupName=${WC_ECS_LOGS} \
+                    //     UsersPath=${WC_USERS_PREFIX} \
+                    //     FlightsPath=${WC_FLIGHTS_PREFIX} \
+                    //     BookingsPath=${WC_BOOKINGS_PREFIX} \
+                    //     FrontendPath=${WC_FRONTEND_PREFIX} \
+                    //     SSMSecretString=${WC_SECRETS_PATH_DEV} \
+                    //     UsersHealthCheck=${WC_HEALTH_USERS} \
+                    //     FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
+                    //     BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
+                    //     FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
+                    //     CertificateArn=${CERTIFICATE_ARN} \
+                    //     ElasticSearchHost=${ELK_URL} \
+                    //     ElasticPort=443 \
+                    //     ElasticUser=${ELK_LOGIN_USR} \
+                    //     ElasticPassword=${ELK_LOGIN_PSW} \
+                    //     LogstashPrefix=wc-logstash- \
+                    //     ElasticPath=/elasticsearch \
+                    //     DbHost=db_host \
+                    //     DbUser=db_user \
+                    //     DbPassword=db_password \
+                    //     SecretKey=secret_key"          
+                    sh "aws cloudformation deploy --stack-name blue-green --capabilities CAPABILITY_IAM --template-file ./green-blue.yaml --parameter-overrides \
+                        Vpc=${VPC_ID} \
+                        Subnet1=${PUBLIC_SUBNET1} \
+                        Subnet2=${PUBLIC_SUBNET2} \
+                        TestBlueGreenChange=hello"      
                 }
             }
         }
