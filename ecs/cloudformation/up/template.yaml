@@ -236,7 +236,7 @@ Resources:
       Service: !Ref UsersService
       TaskDefinition: !Ref BlueTaskDefinition
       LoadBalancers:
-        - ContainerName: !Ref UsersFamily
+        - ContainerName: users-api
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref ALBTargetGroupBlue
   PrimaryTaskSet:
@@ -299,7 +299,7 @@ Resources:
     Properties:
       Family: !Ref UsersFamily
       ContainerDefinitions:
-        - Name: !Ref UsersFamily
+        - Name: users-api
           Essential: 'true'
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
           PortMappings:
