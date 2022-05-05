@@ -371,8 +371,8 @@ Resources:
         - ECSTaskExecutionRole
         - Arn      
       NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
+      RequiresCompatibilities:
+        - FARGATE
       TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   GreenTaskDefinition:
     Type: 'AWS::ECS::TaskDefinition'

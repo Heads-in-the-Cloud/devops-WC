@@ -5,6 +5,8 @@ Parameters:
     Type: 'AWS::EC2::Subnet::Id'
   Subnet2:
     Type: 'AWS::EC2::Subnet::Id'
+  TestBlueGreenChange:
+    Type: String
 Transform:
   - 'AWS::CodeDeployBlueGreen'
 Hooks:
@@ -156,6 +158,9 @@ Resources:
       ContainerDefinitions:
         - Name: DemoApp
           Image: 'nginxdemos/hello:latest'
+          Environment: 
+            - Name: Test
+              Value: !Ref TestBlueGreenChange
           Essential: true
           PortMappings:
             - HostPort: 80
