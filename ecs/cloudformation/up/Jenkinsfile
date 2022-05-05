@@ -170,57 +170,57 @@ pipeline {
         //         }
         //     }
         // }
-        stage('blue/green'){
-            steps{
+        // stage('blue/green'){
+        //     steps{
  
-                    // sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
-                    // ParameterKey=TestBlueGreenChange,UsePreviousValue=true \
-                    // ParameterKey=ExampleSecurityGroupPort,ParameterValue=21 \
-                    // ParameterKey=VpcId,UsePreviousValue=true \
-                    // ParameterKey=PublicSubnet1,UsePreviousValue=true \
-                    // ParameterKey=PublicSubnet2,UsePreviousValue=true \
-                    // ParameterKey=PrivateSubnet1,UsePreviousValue=true \
-                    // ParameterKey=PrivateSubnet2,UsePreviousValue=true \
-                    // ParameterKey=AccountId,UsePreviousValue=true \
-                    // ParameterKey=HostedZoneId,UsePreviousValue=true \
-                    // ParameterKey=RecordName,UsePreviousValue=true \
-                    // ParameterKey=ClusterName,UsePreviousValue=true \
-                    // ParameterKey=EnvType,UsePreviousValue=true \
-                    // ParameterKey=ContainerPort,UsePreviousValue=true \
-                    // ParameterKey=Region,UsePreviousValue=true \
-                    // ParameterKey=UsersRepo,UsePreviousValue=true \
-                    // ParameterKey=FlightsRepo,UsePreviousValue=true \
-                    // ParameterKey=BookingsRepo,UsePreviousValue=true \
-                    // ParameterKey=FrontendRepo,UsePreviousValue=true \
-                    // ParameterKey=IamRole,UsePreviousValue=true \
-                    // ParameterKey=UsersFamily,UsePreviousValue=true \
-                    // ParameterKey=FlightsFamily,UsePreviousValue=true \
-                    // ParameterKey=BookingsFamily,UsePreviousValue=true \
-                    // ParameterKey=FrontendFamily,UsePreviousValue=true \
-                    // ParameterKey=LogGroupName,UsePreviousValue=true \
-                    // ParameterKey=UsersPath,UsePreviousValue=true \
-                    // ParameterKey=FlightsPath,UsePreviousValue=true \
-                    // ParameterKey=BookingsPath,UsePreviousValue=true \
-                    // ParameterKey=FrontendPath,UsePreviousValue=true \
-                    // ParameterKey=SSMSecretString,UsePreviousValue=true \
-                    // ParameterKey=UsersHealthCheck,UsePreviousValue=true \
-                    // ParameterKey=FlightsHealthCheck,UsePreviousValue=true \
-                    // ParameterKey=BookingsHealthCheck,UsePreviousValue=true \
-                    // ParameterKey=FrontendHealthCheck,UsePreviousValue=true \
-                    // ParameterKey=CertificateArn,UsePreviousValue=true \
-                    // ParameterKey=ElasticSearchHost,UsePreviousValue=true \
-                    // ParameterKey=ElasticPort,UsePreviousValue=true \
-                    // ParameterKey=ElasticUser,UsePreviousValue=true \
-                    // ParameterKey=ElasticPassword,UsePreviousValue=true \
-                    // ParameterKey=LogstashPrefix,UsePreviousValue=true \
-                    // ParameterKey=ElasticPath,UsePreviousValue=true \
-                    // ParameterKey=DbHost,UsePreviousValue=true \
-                    // ParameterKey=DbUser,UsePreviousValue=true \
-                    // ParameterKey=DbPassword,UsePreviousValue=true \
-                    // ParameterKey=SecretKey,UsePreviousValue=true"
+        //             // sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
+        //             // ParameterKey=TestBlueGreenChange,UsePreviousValue=true \
+        //             // ParameterKey=ExampleSecurityGroupPort,ParameterValue=21 \
+        //             // ParameterKey=VpcId,UsePreviousValue=true \
+        //             // ParameterKey=PublicSubnet1,UsePreviousValue=true \
+        //             // ParameterKey=PublicSubnet2,UsePreviousValue=true \
+        //             // ParameterKey=PrivateSubnet1,UsePreviousValue=true \
+        //             // ParameterKey=PrivateSubnet2,UsePreviousValue=true \
+        //             // ParameterKey=AccountId,UsePreviousValue=true \
+        //             // ParameterKey=HostedZoneId,UsePreviousValue=true \
+        //             // ParameterKey=RecordName,UsePreviousValue=true \
+        //             // ParameterKey=ClusterName,UsePreviousValue=true \
+        //             // ParameterKey=EnvType,UsePreviousValue=true \
+        //             // ParameterKey=ContainerPort,UsePreviousValue=true \
+        //             // ParameterKey=Region,UsePreviousValue=true \
+        //             // ParameterKey=UsersRepo,UsePreviousValue=true \
+        //             // ParameterKey=FlightsRepo,UsePreviousValue=true \
+        //             // ParameterKey=BookingsRepo,UsePreviousValue=true \
+        //             // ParameterKey=FrontendRepo,UsePreviousValue=true \
+        //             // ParameterKey=IamRole,UsePreviousValue=true \
+        //             // ParameterKey=UsersFamily,UsePreviousValue=true \
+        //             // ParameterKey=FlightsFamily,UsePreviousValue=true \
+        //             // ParameterKey=BookingsFamily,UsePreviousValue=true \
+        //             // ParameterKey=FrontendFamily,UsePreviousValue=true \
+        //             // ParameterKey=LogGroupName,UsePreviousValue=true \
+        //             // ParameterKey=UsersPath,UsePreviousValue=true \
+        //             // ParameterKey=FlightsPath,UsePreviousValue=true \
+        //             // ParameterKey=BookingsPath,UsePreviousValue=true \
+        //             // ParameterKey=FrontendPath,UsePreviousValue=true \
+        //             // ParameterKey=SSMSecretString,UsePreviousValue=true \
+        //             // ParameterKey=UsersHealthCheck,UsePreviousValue=true \
+        //             // ParameterKey=FlightsHealthCheck,UsePreviousValue=true \
+        //             // ParameterKey=BookingsHealthCheck,UsePreviousValue=true \
+        //             // ParameterKey=FrontendHealthCheck,UsePreviousValue=true \
+        //             // ParameterKey=CertificateArn,UsePreviousValue=true \
+        //             // ParameterKey=ElasticSearchHost,UsePreviousValue=true \
+        //             // ParameterKey=ElasticPort,UsePreviousValue=true \
+        //             // ParameterKey=ElasticUser,UsePreviousValue=true \
+        //             // ParameterKey=ElasticPassword,UsePreviousValue=true \
+        //             // ParameterKey=LogstashPrefix,UsePreviousValue=true \
+        //             // ParameterKey=ElasticPath,UsePreviousValue=true \
+        //             // ParameterKey=DbHost,UsePreviousValue=true \
+        //             // ParameterKey=DbUser,UsePreviousValue=true \
+        //             // ParameterKey=DbPassword,UsePreviousValue=true \
+        //             // ParameterKey=SecretKey,UsePreviousValue=true"
                 
-            }
-        }
+        //     }
+        // }
         stage('example'){
             when{
                 environment name: 'example', value: 'yes'
