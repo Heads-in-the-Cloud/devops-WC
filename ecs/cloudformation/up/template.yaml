@@ -253,7 +253,7 @@ Resources:
         Unit: PERCENT
         Value: 100
       Service: !Ref UsersService
-      TaskDefinition: !Ref GreenTaskDefinition
+      TaskDefinition: !Ref BlueTaskDefinition
       LoadBalancers:
         - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
@@ -368,63 +368,63 @@ Resources:
       RequiresCompatibilities: 
         - "FARGATE"
       TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
-  GreenTaskDefinition:
-    Type: 'AWS::ECS::TaskDefinition'
-    Properties:
-      Family: !Ref UsersFamily
-      ContainerDefinitions:
-        - Name: !Ref UsersFamily
-          Essential: 'true'
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
-          Environment: 
-            - Name: USERS_PORT
-              Value: !Ref ContainerPort
-            - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-            - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-            - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-            - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awsfirelens
-            Options:
-              Name: es
-              Host: !Ref ElasticSearchHost
-              Port: !Ref ElasticPort
-              Path: !Ref ElasticPath
-              HTTP_User: !Ref ElasticUser
-              HTTP_Passwd: !Ref ElasticPassword
-              Logstash_Format: On
-              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
-              Replace_Dots: On
-              Retry_Limit: False
-              tls: On
-              Match: "*"
-        - Name: log_router
-          Essential: 'true'
-          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-          FirelensConfiguration:
-            Type: fluentbit
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "true"
-              awslogs-group: /ecs/wc-logs/dev
-              awslogs-region: !Ref Region
-              awslogs-stream-prefix: !Ref UsersFamily
-      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-      ExecutionRoleArn: !GetAtt 
-        - ECSTaskExecutionRole
-        - Arn      
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
-      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+  # GreenTaskDefinition:
+  #   Type: 'AWS::ECS::TaskDefinition'
+  #   Properties:
+  #     Family: !Ref UsersFamily
+  #     ContainerDefinitions:
+  #       - Name: !Ref UsersFamily
+  #         Essential: 'true'
+  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
+  #         PortMappings: 
+  #           - ContainerPort: !Ref ContainerPort
+  #         Environment: 
+  #           - Name: USERS_PORT
+  #             Value: !Ref ContainerPort
+  #           - Name: DB_HOST
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+  #           - Name: DB_USER
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+  #           - Name: DB_USER_PASSWORD
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+  #           - Name: SECRET_KEY
+  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+  #         LogConfiguration:
+  #           LogDriver: awsfirelens
+  #           Options:
+  #             Name: es
+  #             Host: !Ref ElasticSearchHost
+  #             Port: !Ref ElasticPort
+  #             Path: !Ref ElasticPath
+  #             HTTP_User: !Ref ElasticUser
+  #             HTTP_Passwd: !Ref ElasticPassword
+  #             Logstash_Format: On
+  #             Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
+  #             Replace_Dots: On
+  #             Retry_Limit: False
+  #             tls: On
+  #             Match: "*"
+  #       - Name: log_router
+  #         Essential: 'true'
+  #         Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+  #         FirelensConfiguration:
+  #           Type: fluentbit
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-create-group: "true"
+  #             awslogs-group: /ecs/wc-logs/dev
+  #             awslogs-region: !Ref Region
+  #             awslogs-stream-prefix: !Ref UsersFamily
+  #     Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+  #     Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+  #     ExecutionRoleArn: !GetAtt 
+  #       - ECSTaskExecutionRole
+  #       - Arn      
+  #     NetworkMode: "awsvpc"
+  #     RequiresCompatibilities: 
+  #       - "FARGATE"
+  #     TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   # FlightsTaskDef:
   #   Type: 'AWS::ECS::TaskDefinition'
   #   Condition: CreateResources
