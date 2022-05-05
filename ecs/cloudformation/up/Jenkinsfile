@@ -154,93 +154,96 @@ pipeline {
 
             }
             steps{
+                    // sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
+                    //         ParameterKey=TestBlueGreenChange,ParameterValue=Goodbye \
+                    //         ParameterKey=ExampleSecurityGroupPort,ParameterValue=22 \
+                    //         ParameterKey=VpcId,ParameterValue=${VPC_ID} \
+                    //         ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
+                    //         ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
+                    //         ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
+                    //         ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
+                    //         ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
+                    //         ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
+                    //         ParameterKey=RecordName,ParameterValue=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
+                    //         ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
+                    //         ParameterKey=EnvType,ParameterValue=${params.environment} \
+                    //         ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
+                    //         ParameterKey=Region,ParameterValue=${REGION_WC} \
+                    //         ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
+                    //         ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
+                    //         ParameterKey=BookingsRepo,ParameterValue=${BOOKING_REPO_WC} \
+                    //         ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
+                    //         ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                    //         ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment} \
+                    //         ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
+                    //         ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
+                    //         ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
+                    //         ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
+                    //         ParameterKey=UsersPath,ParameterValue=${WC_USERS_PREFIX} \
+                    //         ParameterKey=FlightsPath,ParameterValue=${WC_FLIGHTS_PREFIX} \
+                    //         ParameterKey=BookingsPath,ParameterValue=${WC_BOOKINGS_PREFIX} \
+                    //         ParameterKey=FrontendPath,ParameterValue=${WC_FRONTEND_PREFIX} \
+                    //         ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
+                    //         ParameterKey=UsersHealthCheck,ParameterValue=${WC_HEALTH_USERS} \
+                    //         ParameterKey=FlightsHealthCheck,ParameterValue=${WC_HEALTH_FLIGHTS} \
+                    //         ParameterKey=BookingsHealthCheck,ParameterValue=${WC_HEALTH_BOOKINGS} \
+                    //         ParameterKey=FrontendHealthCheck,ParameterValue=${WC_HEALTH_FRONTEND} \
+                    //         ParameterKey=CertificateArn,ParameterValue=${CERTIFICATE_ARN} \
+                    //         ParameterKey=ElasticSearchHost,ParameterValue=${ELK_URL} \
+                    //         ParameterKey=ElasticPort,ParameterValue=443 \
+                    //         ParameterKey=ElasticUser,ParameterValue=${ELK_LOGIN_USR} \
+                    //         ParameterKey=ElasticPassword,ParameterValue=${ELK_LOGIN_PSW} \
+                    //         ParameterKey=LogstashPrefix,ParameterValue=wc-logstash- \
+                    //         ParameterKey=ElasticPath,ParameterValue=/elasticsearch \
+                    //         ParameterKey=DbHost,ParameterValue=db_host \
+                    //         ParameterKey=DbUser,ParameterValue=db_user \
+                    //         ParameterKey=DbPassword,ParameterValue=db_password \
+                    //         ParameterKey=SecretKey,ParameterValue=secret_key"   
                     sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
-                            ParameterKey=TestBlueGreenChange,ParameterValue=Goodbye \
-                            ParameterKey=ExampleSecurityGroupPort,ParameterValue=22 \
-                            ParameterKey=VpcId,ParameterValue=${VPC_ID} \
-                            ParameterKey=PublicSubnet1,ParameterValue=${PUBLIC_SUBNET1} \
-                            ParameterKey=PublicSubnet2,ParameterValue=${PUBLIC_SUBNET2} \
-                            ParameterKey=PrivateSubnet1,ParameterValue=${PRIVATE_SUBNET1} \
-                            ParameterKey=PrivateSubnet2,ParameterValue=${PRIVATE_SUBNET2} \
-                            ParameterKey=AccountId,ParameterValue=${ORG_ACCOUNT_NUM} \
-                            ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE} \
-                            ParameterKey=RecordName,ParameterValue=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
-                            ParameterKey=ClusterName,ParameterValue=${CLUSTER_NAME_WC} \
-                            ParameterKey=EnvType,ParameterValue=${params.environment} \
-                            ParameterKey=ContainerPort,ParameterValue=${WC_CONTAINER_PORT} \
-                            ParameterKey=Region,ParameterValue=${REGION_WC} \
-                            ParameterKey=UsersRepo,ParameterValue=${USER_REPO_WC} \
-                            ParameterKey=FlightsRepo,ParameterValue=${FLIGHT_REPO_WC} \
-                            ParameterKey=BookingsRepo,ParameterValue=${BOOKING_REPO_WC} \
-                            ParameterKey=FrontendRepo,ParameterValue=${FRONTEND_REPO_WC} \
-                            ParameterKey=IamRole,ParameterValue=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
-                            ParameterKey=UsersFamily,ParameterValue=${USER_REPO_WC}-${params.environment} \
-                            ParameterKey=FlightsFamily,ParameterValue=${FLIGHT_REPO_WC}-${params.environment} \
-                            ParameterKey=BookingsFamily,ParameterValue=${BOOKING_REPO_WC}-${params.environment} \
-                            ParameterKey=FrontendFamily,ParameterValue=${FRONTEND_REPO_WC}-${params.environment} \
-                            ParameterKey=LogGroupName,ParameterValue=${WC_ECS_LOGS} \
-                            ParameterKey=UsersPath,ParameterValue=${WC_USERS_PREFIX} \
-                            ParameterKey=FlightsPath,ParameterValue=${WC_FLIGHTS_PREFIX} \
-                            ParameterKey=BookingsPath,ParameterValue=${WC_BOOKINGS_PREFIX} \
-                            ParameterKey=FrontendPath,ParameterValue=${WC_FRONTEND_PREFIX} \
-                            ParameterKey=SSMSecretString,ParameterValue=${WC_SECRETS_PATH_DEV} \
-                            ParameterKey=UsersHealthCheck,ParameterValue=${WC_HEALTH_USERS} \
-                            ParameterKey=FlightsHealthCheck,ParameterValue=${WC_HEALTH_FLIGHTS} \
-                            ParameterKey=BookingsHealthCheck,ParameterValue=${WC_HEALTH_BOOKINGS} \
-                            ParameterKey=FrontendHealthCheck,ParameterValue=${WC_HEALTH_FRONTEND} \
-                            ParameterKey=CertificateArn,ParameterValue=${CERTIFICATE_ARN} \
-                            ParameterKey=ElasticSearchHost,ParameterValue=${ELK_URL} \
-                            ParameterKey=ElasticPort,ParameterValue=443 \
-                            ParameterKey=ElasticUser,ParameterValue=${ELK_LOGIN_USR} \
-                            ParameterKey=ElasticPassword,ParameterValue=${ELK_LOGIN_PSW} \
-                            ParameterKey=LogstashPrefix,ParameterValue=wc-logstash- \
-                            ParameterKey=ElasticPath,ParameterValue=/elasticsearch \
-                            ParameterKey=DbHost,ParameterValue=db_host \
-                            ParameterKey=DbUser,ParameterValue=db_user \
-                            ParameterKey=DbPassword,ParameterValue=db_password \
-                            ParameterKey=SecretKey,ParameterValue=secret_key"               
-                    // ParameterKey=VpcId,UsePreviousValue=True \
-                    // ParameterKey=PublicSubnet1,UsePreviousValue=True \
-                    // ParameterKey=PublicSubnet2,UsePreviousValue=True \
-                    // ParameterKey=PrivateSubnet1,UsePreviousValue=True \
-                    // ParameterKey=PrivateSubnet2,UsePreviousValue=True \
-                    // ParameterKey=AccountId,UsePreviousValue=True \
-                    // ParameterKey=HostedZoneId,UsePreviousValue=True \
-                    // ParameterKey=RecordName,UsePreviousValue=True \
-                    // ParameterKey=ClusterName,UsePreviousValue=True \
-                    // ParameterKey=EnvType,UsePreviousValue=True \
-                    // ParameterKey=ContainerPort,UsePreviousValue=True \
-                    // ParameterKey=Region,UsePreviousValue=True \
-                    // ParameterKey=UsersRepo,UsePreviousValue=True$ \
-                    // ParameterKey=FlightsRepo,UsePreviousValue=True \
-                    // ParameterKey=BookingsRepo,UsePreviousValue=True \
-                    // ParameterKey=FrontendRepo,UsePreviousValue=True \
-                    // ParameterKey=IamRole,UsePreviousValue=True \
-                    // ParameterKey=UsersFamily,UsePreviousValue=True \
-                    // ParameterKey=FlightsFamily,UsePreviousValue=True \
-                    // ParameterKey=BookingsFamily,UsePreviousValue=True \
-                    // ParameterKey=FrontendFamily,UsePreviousValue=True \
-                    // ParameterKey=LogGroupName,UsePreviousValue=True \
-                    // ParameterKey=UsersPath,UsePreviousValue=True \
-                    // ParameterKey=FlightsPath,UsePreviousValue=True \
-                    // ParameterKey=BookingsPath,UsePreviousValue=True \
-                    // ParameterKey=FrontendPath,UsePreviousValue=True \
-                    // ParameterKey=SSMSecretString,UsePreviousValue=True \
-                    // ParameterKey=UsersHealthCheck,UsePreviousValue=True \
-                    // ParameterKey=FlightsHealthCheck,UsePreviousValue=True \
-                    // ParameterKey=BookingsHealthCheck,UsePreviousValue=True \
-                    // ParameterKey=FrontendHealthCheck,UsePreviousValue=True \
-                    // ParameterKey=CertificateArn,UsePreviousValue=True \
-                    // ParameterKey=ElasticSearchHost,UsePreviousValue=True \
-                    // ParameterKey=ElasticPort,UsePreviousValue=True \
-                    // ParameterKey=ElasticUser,UsePreviousValue=True \
-                    // ParameterKey=ElasticPassword,UsePreviousValue=True \
-                    // ParameterKey=LogstashPrefix,UsePreviousValue=True \
-                    // ParameterKey=ElasticPath,UsePreviousValue=True \
-                    // ParameterKey=DbHost,UsePreviousValue=True \
-                    // ParameterKey=DbUser,UsePreviousValue=True \
-                    // ParameterKey=DbPassword,UsePreviousValue=True \
-                    // ParameterKey=SecretKey,UsePreviousValue=True
+                    ParameterKey=TestBlueGreenChange,UsePreviousValue=true \
+                    ParameterKey=ExampleSecurityGroupPort,UsePreviousValue=true \
+                    ParameterKey=VpcId,UsePreviousValue=true \
+                    ParameterKey=PublicSubnet1,UsePreviousValue=true \
+                    ParameterKey=PublicSubnet2,UsePreviousValue=true \
+                    ParameterKey=PrivateSubnet1,UsePreviousValue=true \
+                    ParameterKey=PrivateSubnet2,UsePreviousValue=true \
+                    ParameterKey=AccountId,UsePreviousValue=true \
+                    ParameterKey=HostedZoneId,UsePreviousValue=true \
+                    ParameterKey=RecordName,UsePreviousValue=true \
+                    ParameterKey=ClusterName,UsePreviousValue=true \
+                    ParameterKey=EnvType,UsePreviousValue=true \
+                    ParameterKey=ContainerPort,UsePreviousValue=true \
+                    ParameterKey=Region,UsePreviousValue=true \
+                    ParameterKey=UsersRepo,UsePreviousValue=true \
+                    ParameterKey=FlightsRepo,UsePreviousValue=true \
+                    ParameterKey=BookingsRepo,UsePreviousValue=true \
+                    ParameterKey=FrontendRepo,UsePreviousValue=true \
+                    ParameterKey=IamRole,UsePreviousValue=true \
+                    ParameterKey=UsersFamily,UsePreviousValue=true \
+                    ParameterKey=FlightsFamily,UsePreviousValue=true \
+                    ParameterKey=BookingsFamily,UsePreviousValue=true \
+                    ParameterKey=FrontendFamily,UsePreviousValue=true \
+                    ParameterKey=LogGroupName,UsePreviousValue=true \
+                    ParameterKey=UsersPath,UsePreviousValue=true \
+                    ParameterKey=FlightsPath,UsePreviousValue=true \
+                    ParameterKey=BookingsPath,UsePreviousValue=true \
+                    ParameterKey=FrontendPath,UsePreviousValue=true \
+                    ParameterKey=SSMSecretString,UsePreviousValue=true \
+                    ParameterKey=UsersHealthCheck,UsePreviousValue=true \
+                    ParameterKey=FlightsHealthCheck,UsePreviousValue=true \
+                    ParameterKey=BookingsHealthCheck,UsePreviousValue=true \
+                    ParameterKey=FrontendHealthCheck,UsePreviousValue=true \
+                    ParameterKey=CertificateArn,UsePreviousValue=true \
+                    ParameterKey=ElasticSearchHost,UsePreviousValue=true \
+                    ParameterKey=ElasticPort,UsePreviousValue=true \
+                    ParameterKey=ElasticUser,UsePreviousValue=true \
+                    ParameterKey=ElasticPassword,UsePreviousValue=true \
+                    ParameterKey=LogstashPrefix,UsePreviousValue=true \
+                    ParameterKey=ElasticPath,UsePreviousValue=true \
+                    ParameterKey=DbHost,UsePreviousValue=true \
+                    ParameterKey=DbUser,UsePreviousValue=true \
+                    ParameterKey=DbPassword,UsePreviousValue=true \
+                    ParameterKey=SecretKey,UsePreviousValue=true"
                 
             }
         }
