@@ -302,7 +302,6 @@ pipeline {
                         HostedZoneId=${HOSTED_ZONE} \
                         RecordName=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
                         ClusterName=${CLUSTER_NAME_WC} \
-                        EnvType=${params.environment} \
                         ContainerPort=${WC_CONTAINER_PORT} \
                         Region=${REGION_WC} \
                         UsersRepo=${USER_REPO_WC} \
@@ -310,7 +309,6 @@ pipeline {
                         UsersPath=${WC_USERS_PREFIX} \
                         SSMSecretString=${WC_SECRETS_PATH_DEV} \
                         UsersHealthCheck=${WC_HEALTH_USERS} \
-                        CertificateArn=${CERTIFICATE_ARN} \
                         DbHost=db_host \
                         DbUser=db_user \
                         DbPassword=db_password \

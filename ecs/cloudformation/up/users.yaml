@@ -1,9 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Conditions:
-  ProdEnv: !Equals [!Ref EnvType, "prod"]
-  NotProdEnv: !Not [Condition: ProdEnv]
-
 Transform:
   - 'AWS::CodeDeployBlueGreen'
 Hooks:
@@ -38,12 +34,6 @@ Hooks:
 Parameters:
   TestBlueGreenChange:
     Type: String
-  EnvType:
-    Description: Environment type.
-    Default: test
-    Type: String
-    AllowedValues: [prod, dev, test]
-    ConstraintDescription: must specify prod, dev, or test.
 
   AccountId:
     Type: String
@@ -75,28 +65,6 @@ Parameters:
   UsersFamily:
     Type: String
     Description: Users task definition family
-
-  CpuDev:
-    Type: String
-    Description: task definition cpu usage
-    Default: "1vCPU"
-  CpuProd:
-    Type: String
-    Default: "2vCPU"
-  MemDev:
-    Type: String
-    Description: task definition memory usage
-    Default: "2GB"
-  MemProd:
-    Type: String
-    Default: "4GB"
-  DevDesiredCount:
-    Type: Number
-    Description: desired count for the task definition
-    Default: 1
-  ProdDesiredCount:
-    Type: Number
-    Default: 2
   #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
   SSMSecretString:
     Type: String
@@ -127,9 +95,6 @@ Parameters:
   RecordName:
     Type: String
     Description: full DNS of our record
-  CertificateArn:
-    Type: String
-    Description: certificate arn for prod environment
 
 Resources:
   ExampleSecurityGroup:
@@ -170,7 +135,7 @@ Resources:
       Service: !Ref UsersService
       TaskDefinition: !Ref BlueTaskDefinition
       LoadBalancers:
-        - ContainerName: !Ref UsersFamily
+        - ContainerName: users-api
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref ALBTargetGroupBlue
   PrimaryTaskSet:
@@ -198,8 +163,8 @@ Resources:
     Properties:
       GroupId: !Ref AlbSecurityGroup
       IpProtocol: tcp
-      FromPort: !If [ ProdEnv, 443, 80 ]
-      ToPort: !If [ ProdEnv, 443, 80 ]
+      FromPort: 80
+      ToPort: 80
       CidrIp: 0.0.0.0/0
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -233,11 +198,13 @@ Resources:
     Properties:
       Family: !Ref UsersFamily
       ContainerDefinitions:
-        - Name: !Ref UsersFamily
+        - Name: users-api
           Essential: 'true'
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
+          PortMappings:
+            - HostPort: 5000
+              Protocol: tcp
+              ContainerPort: 5000
           Environment: 
             - Name: Test
               Value: !Ref TestBlueGreenChange
@@ -251,8 +218,8 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      Cpu: 1vCPU
+      Memory: 2GB
       ExecutionRoleArn: !GetAtt 
         - ECSTaskExecutionRole
         - Arn      
@@ -276,21 +243,8 @@ Resources:
         - !Ref ExampleSecurityGroup
       Type: application
       IpAddressType: ipv4
-  ALBListenerHTTPS:
-    Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    Condition: ProdEnv
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ALBTargetGroupBlue
-      Certificates: 
-        - CertificateArn: !Ref CertificateArn
-      LoadBalancerArn: !Ref ECSALB
-      Port: '443'
-      Protocol: HTTPS
   ALBListenerHTTP:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    Condition: NotProdEnv
     Properties:
       DefaultActions:
       - Type: forward
@@ -339,17 +293,12 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  ListenerRuleReady:
-    Type: AWS::CloudFormation::WaitConditionHandle
-    Metadata:
-      ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
   UsersService:
     Type: 'AWS::ECS::Service'
-    DependsOn: ListenerRuleReady
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      DesiredCount: 1
       DeploymentController:
         Type: EXTERNAL
       Tags:
