@@ -283,7 +283,10 @@ pipeline {
         }
         stage('create'){
             when{
-                environment name: 'STACK_EXISTS', value: 'false'
+                allOf{
+                    environment name: 'STACK_EXISTS', value: 'false'
+                    environment name: 'example', value: 'no'
+                }
             }
             steps{
                 dir('ecs/cloudformation/up'){
