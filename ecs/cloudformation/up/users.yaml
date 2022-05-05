@@ -292,9 +292,11 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Condition: NotProdEnv
     Properties:
-      DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref ALBTargetGroupBlue
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref ALBTargetGroupBlue
+                Weight: 1
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
