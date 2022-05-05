@@ -96,58 +96,58 @@ pipeline {
                 }
             }
         }
-        stage('update users'){
-            when {
-                allOf{ 
-                    expression { params.container == 'users' }
-                    environment name: "STACK_EXISTS", value: 'true'
-                }
-            }
-            steps{
-                script{
-                    sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
-                }
-            }
-        }
-        stage('update flights'){
-            when {
-                allOf{ 
-                    expression { params.container == 'flights' }
-                    environment name: "STACK_EXISTS", value: 'true'
-                }
-            }
-            steps{
-                script{
-                    sh "aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
-                }
-            }
-        }
-        stage('update bookings'){
-            when {
-                allOf{ 
-                    expression { params.container == 'bookings' }
-                    environment name: "STACK_EXISTS", value: 'true'
-                }
-            }
-            steps{
-                script{
-                    sh "aws ecs update-service --service ${BOOKING_REPO_WC} --task-definition ${BOOKING_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
-                }
-            }
-        }
-        stage('update frontend'){
-            when {
-                allOf{ 
-                    expression { params.container == 'frontend' }
-                    environment name: "STACK_EXISTS", value: 'true'
-                }
-            }
-            steps{
-                script{
-                    sh "aws ecs update-service --service ${FRONTEND_REPO_WC} --task-definition ${FRONTEND_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
-                }
-            }
-        }
+        // stage('update users'){
+        //     when {
+        //         allOf{ 
+        //             expression { params.container == 'users' }
+        //             environment name: "STACK_EXISTS", value: 'true'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+        //         }
+        //     }
+        // }
+        // stage('update flights'){
+        //     when {
+        //         allOf{ 
+        //             expression { params.container == 'flights' }
+        //             environment name: "STACK_EXISTS", value: 'true'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+        //         }
+        //     }
+        // }
+        // stage('update bookings'){
+        //     when {
+        //         allOf{ 
+        //             expression { params.container == 'bookings' }
+        //             environment name: "STACK_EXISTS", value: 'true'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "aws ecs update-service --service ${BOOKING_REPO_WC} --task-definition ${BOOKING_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+        //         }
+        //     }
+        // }
+        // stage('update frontend'){
+        //     when {
+        //         allOf{ 
+        //             expression { params.container == 'frontend' }
+        //             environment name: "STACK_EXISTS", value: 'true'
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             sh "aws ecs update-service --service ${FRONTEND_REPO_WC} --task-definition ${FRONTEND_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+        //         }
+        //     }
+        // }
         stage('blue/green'){
             when {
                 expression { params.action == 'update' }
