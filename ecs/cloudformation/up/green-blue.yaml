@@ -102,9 +102,6 @@ Resources:
       Subnets:
         - !Ref Subnet1
         - !Ref Subnet2
-      Tags:
-        - Key: Group
-          Value: Example
       Type: application
       IpAddressType: ipv4
   ALBListenerProdTraffic:
@@ -119,23 +116,6 @@ Resources:
       LoadBalancerArn: !Ref ExampleALB
       Port: 80
       Protocol: HTTP
-  ALBListenerProdRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Properties:
-      Actions:
-        - Type: forward
-          ForwardConfig:
-            TargetGroups:
-              - TargetGroupArn: !Ref ALBTargetGroupBlue
-                Weight: 1
-      Conditions:
-        - Field: http-header
-          HttpHeaderConfig:
-            HttpHeaderName: User-Agent
-            Values:
-              - Mozilla
-      ListenerArn: !Ref ALBListenerProdTraffic
-      Priority: 1
   ECSTaskExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
