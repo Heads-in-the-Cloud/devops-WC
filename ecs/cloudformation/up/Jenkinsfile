@@ -201,7 +201,7 @@ pipeline {
                     //         ParameterKey=SecretKey,ParameterValue=secret_key"   
                     sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
                     ParameterKey=TestBlueGreenChange,UsePreviousValue=true \
-                    ParameterKey=ExampleSecurityGroupPort,ParameterKey=21 \
+                    ParameterKey=ExampleSecurityGroupPort,ParameterValue=21 \
                     ParameterKey=VpcId,UsePreviousValue=true \
                     ParameterKey=PublicSubnet1,UsePreviousValue=true \
                     ParameterKey=PublicSubnet2,UsePreviousValue=true \
