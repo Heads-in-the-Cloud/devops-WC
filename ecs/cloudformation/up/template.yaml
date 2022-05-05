@@ -239,29 +239,6 @@ Resources:
         - ContainerName: !Ref UsersFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref ALBTargetGroupBlue
-  GreenTaskSet:
-    Type: 'AWS::ECS::TaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsVpcConfiguration:
-          AssignPublicIp: ENABLED
-          SecurityGroups:
-            - !Ref ExampleSecurityGroup
-          Subnets:
-            - !Ref PublicSubnet1
-            - !Ref PublicSubnet2
-      PlatformVersion: 1.4.0
-      Scale:
-        Unit: PERCENT
-        Value: 100
-      Service: !Ref UsersService
-      TaskDefinition: !Ref GreenTaskDefinition
-      LoadBalancers:
-        - ContainerName: !Ref UsersFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref ALBTargetGroupGreen
   PrimaryTaskSet:
     Type: 'AWS::ECS::PrimaryTaskSet'
     Properties:
@@ -373,44 +350,7 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - FARGATE
-      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
-  GreenTaskDefinition:
-    Type: 'AWS::ECS::TaskDefinition'
-    Properties:
-      Family: !Ref UsersFamily
-      ContainerDefinitions:
-        - Name: !Ref UsersFamily
-          Essential: 'true'
-          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
-          Environment: 
-            - Name: USERS_PORT
-              Value: !Ref ContainerPort
-            - Name: DB_HOST
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-            - Name: DB_USER
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-            - Name: DB_USER_PASSWORD
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-            - Name: SECRET_KEY
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "true"
-              awslogs-group: /ecs/wc-logs/dev
-              awslogs-region: !Ref Region
-              awslogs-stream-prefix: !Ref UsersFamily
-      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-      ExecutionRoleArn: !GetAtt 
-        - ECSTaskExecutionRole
-        - Arn      
-      NetworkMode: "awsvpc"
-      RequiresCompatibilities: 
-        - "FARGATE"
-      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+      # TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
   # FlightsTaskDef:
   #   Type: 'AWS::ECS::TaskDefinition'
   #   Condition: CreateResources
