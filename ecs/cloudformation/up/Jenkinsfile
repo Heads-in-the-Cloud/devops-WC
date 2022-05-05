@@ -149,6 +149,10 @@ pipeline {
             }
         }
         stage('blue/green'){
+            when {
+                expression { params.action == 'update' }
+
+            }
             steps{
                     sh "aws cloudformation update-stack --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --use-previous-template --parameters \
                             ParameterKey=TestBlueGreenChange,ParameterValue=hello \
