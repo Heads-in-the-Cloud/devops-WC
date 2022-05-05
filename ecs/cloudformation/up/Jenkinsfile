@@ -173,7 +173,7 @@ pipeline {
         stage('blue/green'){
             steps{
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
-                        VpcId=${VPC_ID} 
+                        VpcId=${VPC_ID} \
                         TestBlueGreenChange=hello \
                         ExampleSecurityGroupPort=22 \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
