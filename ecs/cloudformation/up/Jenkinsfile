@@ -274,11 +274,14 @@ pipeline {
                 environment name: 'example', value: 'yes'
             }
             steps{
+                dir('ecs/cloudformation/up'){
+
                 sh "aws cloudformation deploy --stack-name blue-green --capabilities CAPABILITY_IAM --template-file ./green-blue.yaml --parameter-overrides \
                     Vpc=${VPC_ID} \
                     Subnet1=${PUBLIC_SUBNET1} \
                     Subnet2=${PUBLIC_SUBNET2} \
                     TestBlueGreenChange=hello" 
+                }
             }
         }
         stage('create'){
