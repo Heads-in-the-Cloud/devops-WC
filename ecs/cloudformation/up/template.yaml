@@ -302,8 +302,10 @@ Resources:
         - Name: !Ref UsersFamily
           Essential: 'true'
           Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
-          PortMappings: 
-            - ContainerPort: !Ref ContainerPort
+          PortMappings:
+            - HostPort: !Ref ContainerPort
+              Protocol: tcp
+              ContainerPort: !Ref ContainerPort
           Environment: 
             - Name: Test
               Value: !Ref TestBlueGreenChange
