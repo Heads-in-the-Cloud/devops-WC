@@ -63,7 +63,7 @@ Parameters:
     Description: AWS region to deploy to
   CertificateArn:
     Type: String
-    Default: null
+    Default: nothing
 
   #Task definition parameters
   UsersRepo:
