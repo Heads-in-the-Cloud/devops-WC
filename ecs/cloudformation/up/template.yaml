@@ -703,7 +703,7 @@ Resources:
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      DesiredCount: 1
       DeploymentController:
         Type: EXTERNAL
       Tags:
