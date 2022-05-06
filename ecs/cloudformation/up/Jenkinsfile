@@ -238,10 +238,10 @@ pipeline {
         }
         stage('create'){
             when{
-                allOf{
+                // allOf{
                     environment name: 'STACK_EXISTS', value: 'false'
                     environment name: 'example', value: 'no'
-                }
+                // }
             }
             steps{
                 dir('ecs/cloudformation/up'){
@@ -290,7 +290,7 @@ pipeline {
                     //     DbUser=db_user \
                     //     DbPassword=db_password \
                     //     SecretKey=secret_key" 
-                    sh "aws cloudformation deploy --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./users.yaml --parameter-overrides \
+                    sh "aws cloudformation deploy --stack-name users-stack --capabilities CAPABILITY_IAM --template-file ./users.yaml --parameter-overrides \
                         TestBlueGreenChange=Goodbye \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
