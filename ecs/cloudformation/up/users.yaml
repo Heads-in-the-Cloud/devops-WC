@@ -1,4 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
+Conditions:
+  ProdEnv: !Equals [!Ref EnvType, "prod"]
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
@@ -35,6 +37,9 @@ Parameters:
   TestBlueGreenChange:
     Type: String
 
+  EnvType:
+    Type: String
+    Default: dev
   AccountId:
     Type: String
     Description: Team Account Id
@@ -56,6 +61,9 @@ Parameters:
   Region:
     Type: String
     Description: AWS region to deploy to
+  CertificateArn:
+    Type: String
+    Default: null
 
   #Task definition parameters
   UsersRepo:
@@ -115,6 +123,22 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
+  ALBListenerHTTPS:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: ProdEnv
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroupBlue
+      Certificates: 
+        - CertificateArn: !Ref CertificateArn
+      LoadBalancerArn: !Ref ECSALB
+      Port: '443'
+      Protocol: HTTPS
+  ListenerRuleReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
   BlueTaskSet:
     Type: 'AWS::ECS::TaskSet'
     Properties:
@@ -243,6 +267,7 @@ Resources:
         - !Ref ExampleSecurityGroup
       Type: application
       IpAddressType: ipv4
+
   ALBListenerHTTP:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
@@ -295,6 +320,7 @@ Resources:
         Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
+    DependsOn: ListenerRuleReady
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
