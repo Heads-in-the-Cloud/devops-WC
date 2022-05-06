@@ -239,7 +239,7 @@ pipeline {
         stage('create'){
             when{
                 // allOf{
-                    environment name: 'STACK_EXISTS', value: 'false'
+                    // environment name: 'STACK_EXISTS', value: 'false'
                     environment name: 'example', value: 'no'
                 // }
             }
