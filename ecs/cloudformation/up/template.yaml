@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Conditions:
   # CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
-  # NotProdEnv: !Not [Condition: ProdEnv]
+  NotProdEnv: !Not [Condition: ProdEnv]
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
