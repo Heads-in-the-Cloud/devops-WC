@@ -275,7 +275,7 @@ Resources:
       Service: !Ref FlightsService
       TaskDefinition: !Ref FlightsTaskDef
       LoadBalancers:
-        - ContainerName: FlightsFamily
+        - ContainerName: !Ref FlightsFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FlightsTG
   PrimaryTaskSet:
