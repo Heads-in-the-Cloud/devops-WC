@@ -8,7 +8,6 @@ Transform:
   - 'AWS::CodeDeployBlueGreen'
 Hooks:
   CodeDeployBlueGreenHook:
-    Type: 'AWS::CodeDeploy::BlueGreen'
     Properties:
       TrafficRoutingConfig:
         Type: TimeBasedCanary
@@ -33,6 +32,7 @@ Hooks:
               TargetGroups:
                 - ALBTargetGroupBlue
                 - ALBTargetGroupGreen
+    Type: 'AWS::CodeDeploy::BlueGreen'
   CodeDeployBlueGreenHookFlights:
     Properties:
       TrafficRoutingConfig:
