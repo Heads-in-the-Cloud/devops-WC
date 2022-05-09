@@ -6,8 +6,10 @@ Conditions:
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
+  # - 'AWS::CodeDeployBlueGreen'
 Hooks:
   CodeDeployBlueGreenHook:
+    Type: 'AWS::CodeDeploy::BlueGreen'
     Properties:
       TrafficRoutingConfig:
         Type: TimeBasedCanary
@@ -32,6 +34,15 @@ Hooks:
               TargetGroups:
                 - ALBTargetGroupBlue
                 - ALBTargetGroupGreen
+  CodeDeployBlueGreenHooke:
+    Type: 'AWS::CodeDeploy::BlueGreen'
+    Properties:
+      TrafficRoutingConfig:
+        Type: TimeBasedCanary
+        TimeBasedCanary:
+          StepPercentage: 15
+          BakeTimeMins: 5
+      Applications:     
         - Target:
             Type: 'AWS::ECS::Service'
             LogicalID: FlightsService
@@ -49,10 +60,7 @@ Hooks:
               TargetGroups:
                 - FlightsTG
                 - FlightsTGGreen
-    Type: 'AWS::CodeDeploy::BlueGreen'
-
-
-
+    
 Parameters:
   TestBlueGreenChange:
     Type: String
