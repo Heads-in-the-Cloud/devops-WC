@@ -32,6 +32,14 @@ Hooks:
               TargetGroups:
                 - ALBTargetGroupBlue
                 - ALBTargetGroupGreen
+  CodeDeployBlueGreenHookFlights:
+    Properties:
+      TrafficRoutingConfig:
+        Type: TimeBasedCanary
+        TimeBasedCanary:
+          StepPercentage: 15
+          BakeTimeMins: 5
+      Applications:         
         - Target:
             Type: 'AWS::ECS::Service'
             LogicalID: FlightsService
