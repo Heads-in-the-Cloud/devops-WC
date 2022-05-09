@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Conditions:
-  # CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
 
@@ -319,33 +318,33 @@ Resources:
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
             - Name: SECRET_KEY
               Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-        #   LogConfiguration:
-        #     LogDriver: awsfirelens
-        #     Options:
-        #       Name: es
-        #       Host: !Ref ElasticSearchHost
-        #       Port: !Ref ElasticPort
-        #       Path: !Ref ElasticPath
-        #       HTTP_User: !Ref ElasticUser
-        #       HTTP_Passwd: !Ref ElasticPassword
-        #       Logstash_Format: On
-        #       Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
-        #       Replace_Dots: On
-        #       Retry_Limit: False
-        #       tls: On
-        #       Match: "*"
-        # - Name: log_router
-        #   Essential: 'true'
-        #   Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-        #   FirelensConfiguration:
-        #     Type: fluentbit
-          # LogConfiguration:
-          #   LogDriver: awslogs
-          #   Options:
-          #     awslogs-create-group: "true"
-          #     awslogs-group: /ecs/wc-logs/dev
-          #     awslogs-region: !Ref Region
-          #     awslogs-stream-prefix: !Ref UsersFamily
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref UsersFamily
       Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
       Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
       ExecutionRoleArn: !GetAtt 
@@ -354,173 +353,173 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - FARGATE
-      # TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
-  # FlightsTaskDef:
-  #   Type: 'AWS::ECS::TaskDefinition'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Family: !Ref FlightsFamily
-  #     ContainerDefinitions: 
-  #       - Name: !Ref FlightsFamily
-  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
-  #         Essential: 'true'
-  #         PortMappings: 
-  #           - ContainerPort: !Ref ContainerPort
-  #         Environment: 
-  #           - Name: FLIGHTS_PORT
-  #             Value: !Ref ContainerPort
-  #           - Name: DB_HOST
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-  #           - Name: DB_USER
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-  #           - Name: DB_USER_PASSWORD
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-  #           - Name: SECRET_KEY
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-  #         LogConfiguration:
-  #           LogDriver: awsfirelens
-  #           Options:
-  #             Name: es
-  #             Host: !Ref ElasticSearchHost
-  #             Port: !Ref ElasticPort
-  #             Path: !Ref ElasticPath
-  #             HTTP_User: !Ref ElasticUser
-  #             HTTP_Passwd: !Ref ElasticPassword
-  #             Logstash_Format: On
-  #             Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'flights-']]
-  #             Replace_Dots: On
-  #             Retry_Limit: False
-  #             tls: On
-  #             Match: "*"
-  #       - Name: log_router
-  #         Essential: 'true'
-  #         Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-  #         FirelensConfiguration:
-  #           Type: fluentbit
-  #         LogConfiguration:
-  #           LogDriver: awslogs
-  #           Options:
-  #             awslogs-create-group: "true"
-  #             awslogs-group: /ecs/wc-logs/dev
-  #             awslogs-region: !Ref Region
-  #             awslogs-stream-prefix: !Ref FlightsFamily
-  #     Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-  #     ExecutionRoleArn: !Ref IamRole
-  #     Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-  #     NetworkMode: "awsvpc"
-  #     RequiresCompatibilities: 
-  #       - "FARGATE"
-  #     TaskRoleArn: !Ref IamRole
+      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+  FlightsTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Condition: CreateResources
+    Properties:
+      Family: !Ref FlightsFamily
+      ContainerDefinitions: 
+        - Name: !Ref FlightsFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: FLIGHTS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'flights-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref FlightsFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
 
-  # BookingsTaskDef:
-  #   Type: 'AWS::ECS::TaskDefinition'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Family: !Ref BookingsFamily
-  #     ContainerDefinitions: 
-  #       - Name: !Ref BookingsFamily
-  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
-  #         Essential: 'true'
-  #         PortMappings: 
-  #           - ContainerPort: !Ref ContainerPort
-  #         Environment: 
-  #           - Name: BOOKINGS_PORT
-  #             Value: !Ref ContainerPort
-  #           - Name: DB_HOST
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
-  #           - Name: DB_USER
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
-  #           - Name: DB_USER_PASSWORD
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
-  #           - Name: SECRET_KEY
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-  #         LogConfiguration:
-  #           LogDriver: awsfirelens
-  #           Options:
-  #             Name: es
-  #             Host: !Ref ElasticSearchHost
-  #             Port: !Ref ElasticPort
-  #             Path: !Ref ElasticPath
-  #             HTTP_User: !Ref ElasticUser
-  #             HTTP_Passwd: !Ref ElasticPassword
-  #             Logstash_Format: On
-  #             Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'bookings-']]
-  #             Replace_Dots: On
-  #             Retry_Limit: False
-  #             tls: On
-  #             Match: "*"
-  #       - Name: log_router
-  #         Essential: 'true'
-  #         Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-  #         FirelensConfiguration:
-  #           Type: fluentbit
-  #         LogConfiguration:
-  #           LogDriver: awslogs
-  #           Options:
-  #             awslogs-create-group: "true"
-  #             awslogs-group: /ecs/wc-logs/dev
-  #             awslogs-region: !Ref Region
-  #             awslogs-stream-prefix: !Ref BookingsFamily
-  #     Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-  #     ExecutionRoleArn: !Ref IamRole
-  #     Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-  #     NetworkMode: "awsvpc"
-  #     RequiresCompatibilities: 
-  #       - "FARGATE"
-  #     TaskRoleArn: !Ref IamRole
+  BookingsTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Condition: CreateResources
+    Properties:
+      Family: !Ref BookingsFamily
+      ContainerDefinitions: 
+        - Name: !Ref BookingsFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: BOOKINGS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'bookings-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref BookingsFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
 
-  # FrontendTaskDef:
-  #   Type: 'AWS::ECS::TaskDefinition'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Family: !Ref FrontendFamily
-  #     ContainerDefinitions: 
-  #       - Name: !Ref FrontendFamily
-  #         Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
-  #         Essential: 'true'
-  #         PortMappings: 
-  #           - ContainerPort: !Ref ContainerPort
-  #         Environment: 
-  #           - Name: FRONTEND_PORT
-  #             Value: !Ref ContainerPort
-  #           - Name: HOST_DOMAIN
-  #             Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
-  #           - Name: SECRET_KEY
-  #             Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
-  #         LogConfiguration:
-  #           LogDriver: awsfirelens
-  #           Options:
-  #             Name: es
-  #             Host: !Ref ElasticSearchHost
-  #             Port: !Ref ElasticPort
-  #             Path: !Ref ElasticPath
-  #             HTTP_User: !Ref ElasticUser
-  #             HTTP_Passwd: !Ref ElasticPassword
-  #             Logstash_Format: On
-  #             Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'frontend-']]
-  #             Replace_Dots: On
-  #             Retry_Limit: False
-  #             tls: On
-  #             Match: "*"
-  #       - Name: log_router
-  #         Essential: 'true'
-  #         Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
-  #         FirelensConfiguration:
-  #           Type: fluentbit
-  #         LogConfiguration:
-  #           LogDriver: awslogs
-  #           Options:
-  #             awslogs-create-group: "true"
-  #             awslogs-group: /ecs/wc-logs/dev
-  #             awslogs-region: !Ref Region
-  #             awslogs-stream-prefix: !Ref FrontendFamily
-  #     Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
-  #     ExecutionRoleArn: !Ref IamRole
-  #     Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
-  #     NetworkMode: "awsvpc"
-  #     RequiresCompatibilities: 
-  #       - "FARGATE"
-  #     TaskRoleArn: !Ref IamRole
+  FrontendTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Condition: CreateResources
+    Properties:
+      Family: !Ref FrontendFamily
+      ContainerDefinitions: 
+        - Name: !Ref FrontendFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: FRONTEND_PORT
+              Value: !Ref ContainerPort
+            - Name: HOST_DOMAIN
+              Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'frontend-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref FrontendFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
 
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
@@ -559,45 +558,45 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
-  # FlightsListenerRule:
-  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Actions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref FlightsTG
-  #     Conditions:
-  #       - Field: path-pattern
-  #         Values:
-  #           - !Ref FlightsPath
-  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-  #     Priority: 1
-  # BookingsListenerRule:
-  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Actions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref BookingsTG
-  #     Conditions:
-  #       - Field: path-pattern
-  #         Values:
-  #           - !Ref BookingsPath
-  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-  #     Priority: 2
-  # FrontendListenerRule:
-  #   Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-  #   Condition: CreateResources
-  #   Properties:
-  #     Actions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref FrontendTG
-  #     Conditions:
-  #       - Field: path-pattern
-  #         Values:
-  #           - !Ref FrontendPath
-  #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
-  #     Priority: 3
+  FlightsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Condition: CreateResources
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FlightsTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FlightsPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 1
+  BookingsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Condition: CreateResources
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BookingsTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref BookingsPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 2
+  FrontendListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Condition: CreateResources
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FrontendPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 3
   ALBTargetGroupGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
@@ -636,63 +635,63 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  # FlightsTG:
-  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-  #   Condition: CreateResources
-  #   DependsOn: ECSALB
-  #   Properties:
-  #     HealthCheckIntervalSeconds: 10
-  #     HealthCheckPath: !Ref FlightsHealthCheck
-  #     HealthCheckProtocol: HTTP
-  #     HealthCheckTimeoutSeconds: 5
-  #     HealthyThresholdCount: 2
-  #     Name: FlightsTG
-  #     Port: 80
-  #     Protocol: HTTP
-  #     UnhealthyThresholdCount: 2
-  #     VpcId: !Ref VpcId
-  #     TargetType: ip
-  #   CreationPolicy:
-  #     ResourceSignal:
-  #       Timeout: PT15M
-  # BookingsTG:
-  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-  #   Condition: CreateResources
-  #   DependsOn: ECSALB
-  #   Properties:
-  #     HealthCheckIntervalSeconds: 10
-  #     HealthCheckPath: !Ref BookingsHealthCheck
-  #     HealthCheckProtocol: HTTP
-  #     HealthCheckTimeoutSeconds: 5
-  #     HealthyThresholdCount: 2
-  #     Name: BookingsTG
-  #     Port: 80
-  #     Protocol: HTTP
-  #     UnhealthyThresholdCount: 2
-  #     VpcId: !Ref VpcId
-  #     TargetType: ip
-  #   CreationPolicy:
-  #     ResourceSignal:
-  #       Timeout: PT15M
-  # FrontendTG:
-  #   Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-  #   Condition: CreateResources
-  #   DependsOn: ECSALB
-  #   Properties:
-  #     HealthCheckIntervalSeconds: 10
-  #     HealthCheckPath: !Ref FrontendHealthCheck
-  #     HealthCheckProtocol: HTTP
-  #     HealthCheckTimeoutSeconds: 5
-  #     HealthyThresholdCount: 2
-  #     Name: FrontendTG
-  #     Port: 80
-  #     Protocol: HTTP
-  #     UnhealthyThresholdCount: 2
-  #     VpcId: !Ref VpcId
-  #     TargetType: ip
-  #   CreationPolicy:
-  #     ResourceSignal:
-  #       Timeout: PT15M
+  FlightsTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Condition: CreateResources
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FlightsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FlightsTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  BookingsTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Condition: CreateResources
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref BookingsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: BookingsTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FrontendTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Condition: CreateResources
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FrontendHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FrontendTG
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
   ListenerRuleReady:
     Type: AWS::CloudFormation::WaitConditionHandle
     Metadata:
@@ -709,81 +708,80 @@ Resources:
       Tags:
         - Key: Name
           Value: UsersService
-  # FlightsService:
-  #   Type: 'AWS::ECS::Service'
-  #   Condition: CreateResources
-  #   DependsOn: FlightsListenerRule
-  #   Properties:
-  #     ServiceName: !Ref FlightsRepo
-  #     Cluster: !Ref ECSCluster
-  #     DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
-  #     LaunchType: "FARGATE"
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: "ENABLED"
-  #         SecurityGroups: 
-  #           - !Ref EcsSecurityGroup
-  #         Subnets: 
-  #           - !Ref PrivateSubnet1
-  #           - !Ref PrivateSubnet2
-  #     LoadBalancers:
-  #       - ContainerName: !Ref FlightsFamily
-  #         ContainerPort: !Ref ContainerPort
-  #         TargetGroupArn: !Ref FlightsTG
-  #     TaskDefinition: !Ref FlightsTaskDef
-  #     Tags:
-  #       - Key: Name
-  #         Value: FlightsService
-  # BookingsService:
-  #   Type: 'AWS::ECS::Service'
-  #   Condition: CreateResources
-  #   DependsOn: BookingsListenerRule
-  #   Properties:
-  #     ServiceName: !Ref BookingsRepo
-  #     Cluster: !Ref ECSCluster
-  #     DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
-  #     LaunchType: "FARGATE"
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: "ENABLED"
-  #         SecurityGroups: 
-  #           - !Ref EcsSecurityGroup
-  #         Subnets: 
-  #           - !Ref PrivateSubnet1
-  #           - !Ref PrivateSubnet2
-  #     LoadBalancers:
-  #       - ContainerName: !Ref BookingsFamily
-  #         ContainerPort: !Ref ContainerPort
-  #         TargetGroupArn: !Ref BookingsTG
-  #     TaskDefinition: !Ref BookingsTaskDef
-  #     Tags:
-  #       - Key: Name
-  #         Value: BookingsService
-  # FrontendService:
-  #   Type: 'AWS::ECS::Service'
-  #   Condition: CreateResources
-  #   DependsOn: FrontendListenerRule
-  #   Properties:
-  #     ServiceName: !Ref FrontendRepo
-  #     Cluster: !Ref ECSCluster
-  #     DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
-  #     LaunchType: "FARGATE"
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: "ENABLED"
-  #         SecurityGroups: 
-  #           - !Ref EcsSecurityGroup
-  #         Subnets: 
-  #           - !Ref PrivateSubnet1
-  #           - !Ref PrivateSubnet2
-  #     LoadBalancers:
-  #       - ContainerName: !Ref FrontendFamily
-  #         ContainerPort: !Ref ContainerPort
-  #         TargetGroupArn: !Ref FrontendTG
-  #     TaskDefinition: !Ref FrontendTaskDef
-  #     Tags:
-  #       - Key: Name
-  #         Value: FrontendService
+  FlightsService:
+    Type: 'AWS::ECS::Service'
+    Condition: CreateResources
+    DependsOn: FlightsListenerRule
+    Properties:
+      ServiceName: !Ref FlightsRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref FlightsFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref FlightsTG
+      TaskDefinition: !Ref FlightsTaskDef
+      Tags:
+        - Key: Name
+          Value: FlightsService
+  BookingsService:
+    Type: 'AWS::ECS::Service'
+    Condition: CreateResources
+    DependsOn: BookingsListenerRule
+    Properties:
+      ServiceName: !Ref BookingsRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref BookingsFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref BookingsTG
+      TaskDefinition: !Ref BookingsTaskDef
+      Tags:
+        - Key: Name
+          Value: BookingsService
+  FrontendService:
+    Type: 'AWS::ECS::Service'
+    DependsOn: FrontendListenerRule
+    Properties:
+      ServiceName: !Ref FrontendRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref FrontendFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref FrontendTG
+      TaskDefinition: !Ref FrontendTaskDef
+      Tags:
+        - Key: Name
+          Value: FrontendService
   Route53:
     Type: AWS::Route53::RecordSet
     Properties: 
