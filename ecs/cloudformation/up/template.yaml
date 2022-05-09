@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Conditions:
   # CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
-  # NotProdEnv: !Not [Condition: ProdEnv]
+  NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
@@ -551,7 +551,7 @@ Resources:
       Protocol: HTTPS
   ALBListenerHTTP:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    # Condition: NotProdEnv
+    Condition: NotProdEnv
     Properties:
       DefaultActions:
         - Type: forward
