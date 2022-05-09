@@ -778,6 +778,8 @@ Resources:
       ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      DeploymentController:
+        Type: EXTERNAL
       Tags:
         - Key: Name
           Value: FlightsService
