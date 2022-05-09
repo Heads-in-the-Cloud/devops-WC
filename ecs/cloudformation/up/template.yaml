@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Conditions:
+  CreateResources: !Or [ !Equals [!Ref EnvType, "prod"], !Equals [!Ref EnvType, "dev"] ]
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
 
@@ -760,6 +761,7 @@ Resources:
           Value: BookingsService
   FrontendService:
     Type: 'AWS::ECS::Service'
+    Condition: CreateResources
     DependsOn: FrontendListenerRule
     Properties:
       ServiceName: !Ref FrontendRepo
