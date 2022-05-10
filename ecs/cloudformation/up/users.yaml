@@ -287,8 +287,6 @@ Resources:
         DeploymentReadyOption: 
             ActionOnTimeout: STOP_DEPLOYMENT
             WaitTimeInMinutes: 10
-        GreenFleetProvisioningOption: 
-            Action: DISCOVER_EXISTING
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
             TerminationWaitTimeInMinutes: 2
