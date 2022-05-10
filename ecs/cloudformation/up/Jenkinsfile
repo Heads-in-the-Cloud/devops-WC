@@ -252,7 +252,7 @@ pipeline {
                     //     DbPassword=db_password \
                     //     SecretKey=secret_key" 
                     sh "aws cloudformation deploy --stack-name users-stack --capabilities CAPABILITY_IAM --template-file ./users.yaml --parameter-overrides \
-                        TestBlueGreenChange=Goodbye \
+                        IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
                         PublicSubnet2=${PUBLIC_SUBNET2} \
