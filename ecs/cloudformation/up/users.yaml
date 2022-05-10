@@ -192,7 +192,7 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - FARGATE
-      # TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
 
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
@@ -253,7 +253,7 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: "ENABLED"
           SecurityGroups: 
-            - !Ref EcsSecurityGroup
+            - !Ref ExampleSecurityGroup
           Subnets: 
             - !Ref PublicSubnet1
             - !Ref PublicSubnet2
@@ -262,8 +262,8 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref ALBTargetGroupBlue
       TaskDefinition: !Ref BlueTaskDefinition
-      DeploymentController:
-        Type: CODE_DEPLOY
+      # DeploymentController:
+      #   Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: UsersService

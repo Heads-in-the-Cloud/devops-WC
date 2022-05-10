@@ -867,3 +867,41 @@ Resources:
   #   Properties: 
   #     LogGroupName: !Ref LogGroupName
   #     RetentionInDays: 1
+  ---
+
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Conditions:
+  ProdEnv: !Equals [!Ref EnvType, "prod"]
+  NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
+
+Transform:
+  - 'AWS::CodeDeployBlueGreen'
+Hooks:
+  CodeDeployBlueGreenHook:
+    Type: 'AWS::CodeDeploy::BlueGreen'
+    Properties:
+      TrafficRoutingConfig:
+        Type: TimeBasedCanary
+        TimeBasedCanary:
+          StepPercentage: 15
+          BakeTimeMins: 5
+      Applications:
+        - Target:
+            Type: 'AWS::ECS::Service'
+            LogicalID: UsersService
+          ECSAttributes:
+            TaskDefinitions:
+              - BlueTaskDefinition
+              - GreenTaskDefinition
+            TaskSets:
+              - BlueTaskSet
+              - GreenTaskSet
+            TrafficRouting:
+              ProdTrafficRoute:
+                Type: 'AWS::ElasticLoadBalancingV2::Listener'
+                LogicalID: ALBListenerHTTP
+              TargetGroups:
+                - ALBTargetGroupBlue
+                - ALBTargetGroupGreen
