@@ -244,8 +244,8 @@ Resources:
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref ALBTargetGroupBlue
       TaskDefinition: !Ref BlueTaskDefinition
-      # DeploymentController:
-      #   Type: CODE_DEPLOY
+      DeploymentController:
+        Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: UsersService
