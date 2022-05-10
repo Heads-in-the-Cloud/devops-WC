@@ -281,12 +281,23 @@ Resources:
       ApplicationName: !Ref UsersFamily
       DeploymentGroupName: users-deployment-group
       DeploymentStyle: 
-          DeploymentType: BLUE_GREEN
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
       ECSServices: 
         - ClusterName: !Ref ECSCluster
           ServiceName: !GetAtt UsersService.Name
-      # LoadBalancerInfo: 
-      #   LoadBalancerInfo
+      LoadBalancerInfo: 
+        ElbInfoList: 
+          - Name: !GetAtt ECSALB.LoadBalancerName
+        TargetGroupInfoList: 
+          - Name: !GetAtt ALBTargetGroupBlue.TargetGroupName
+        TargetGroupPairInfoList: 
+          ProdTrafficRoute: 
+            ListenerArns: 
+              - !Ref ALBListenerHTTP
+          TargetGroups: 
+          - Name: ALBTargetGroupBlue.TargetGroupName
+          - Name: ALBTargetGroupGreen.TargetGroupName
       ServiceRoleArn: arn:aws:iam::026390315914:role/CodeDeployServiceRole
 
 
