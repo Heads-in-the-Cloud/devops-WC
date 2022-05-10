@@ -6,7 +6,7 @@ Conditions:
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
-  # - 'AWS::CodeDeployBlueGreen'
+  - 'AWS::CodeDeployBlueGreen'
 Hooks:
   CodeDeployBlueGreenHook:
     Type: 'AWS::CodeDeploy::BlueGreen'
