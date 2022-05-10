@@ -4,35 +4,6 @@ Conditions:
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   # NotProdEnv: !Not [Condition: ProdEnv]
 
-Transform:
-  - 'AWS::CodeDeployBlueGreen'
-Hooks:
-  CodeDeployBlueGreenHook:
-    Properties:
-      TrafficRoutingConfig:
-        Type: TimeBasedCanary
-        TimeBasedCanary:
-          StepPercentage: 15
-          BakeTimeMins: 5
-      Applications:
-        - Target:
-            Type: 'AWS::ECS::Service'
-            LogicalID: UsersService
-          ECSAttributes:
-            TaskDefinitions:
-              - BlueTaskDefinition
-              - GreenTaskDefinition
-            TaskSets:
-              - BlueTaskSet
-              - GreenTaskSet
-            TrafficRouting:
-              ProdTrafficRoute:
-                Type: 'AWS::ElasticLoadBalancingV2::Listener'
-                LogicalID: ALBListenerHTTP
-              TargetGroups:
-                - ALBTargetGroupBlue
-                - ALBTargetGroupGreen
-    Type: 'AWS::CodeDeploy::BlueGreen'
 
 
 Parameters:
@@ -141,37 +112,7 @@ Resources:
     Type: AWS::CloudFormation::WaitConditionHandle
     Metadata:
       ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
-  BlueTaskSet:
-    Type: 'AWS::ECS::TaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsVpcConfiguration:
-          AssignPublicIp: ENABLED
-          SecurityGroups:
-            - !Ref ExampleSecurityGroup
-          Subnets:
-            - !Ref PublicSubnet1
-            - !Ref PublicSubnet2
-      PlatformVersion: 1.4.0
-      Scale:
-        Unit: PERCENT
-        Value: 100
-      Service: !Ref UsersService
-      TaskDefinition: !Ref BlueTaskDefinition
-      LoadBalancers:
-        - ContainerName: users-api
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref ALBTargetGroupBlue
-  PrimaryTaskSet:
-    Type: 'AWS::ECS::PrimaryTaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      Service: !Ref UsersService
-      TaskSetId: !GetAtt 
-        - BlueTaskSet
-        - Id
+
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
@@ -281,26 +222,7 @@ Resources:
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
-  ALBTargetGroupGreen:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Properties:
-      HealthCheckIntervalSeconds: 5
-      HealthCheckPath: '/health'
-      HealthCheckPort: '80'
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 2
-      HealthyThresholdCount: 2
-      Name: ALBTargetGroupGreen
-      Matcher:
-        HttpCode: '200'
-      Port: 80
-      Protocol: HTTP
-      Tags:
-        - Key: Group
-          Value: Example
-      TargetType: ip
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
+
   ALBTargetGroupBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
@@ -325,9 +247,23 @@ Resources:
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: 1
+      DesiredCount: 2
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PublicSubnet1
+            - !Ref PublicSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref UsersFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref ALBTargetGroupBlue
+      TaskDefinition: !Ref BlueTaskDefinition
       DeploymentController:
-        Type: EXTERNAL
+        Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: UsersService
