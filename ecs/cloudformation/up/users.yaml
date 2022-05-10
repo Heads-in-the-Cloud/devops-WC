@@ -283,6 +283,15 @@ Resources:
       DeploymentStyle: 
         DeploymentType: BLUE_GREEN
         DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: STOP_DEPLOYMENT
+            WaitTimeInMinutes: 10
+        GreenFleetProvisioningOption: 
+            Action: DISCOVER_EXISTING
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 2
       ECSServices: 
         - ClusterName: !Ref ECSCluster
           ServiceName: !GetAtt UsersService.Name
