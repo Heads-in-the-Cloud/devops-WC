@@ -192,7 +192,7 @@ Resources:
       NetworkMode: "awsvpc"
       RequiresCompatibilities:
         - FARGATE
-      TaskRoleArn: !Ref IamRole #arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
+      TaskRoleArn: arn:aws:iam::026390315914:role/WC-ecs-task-iam-role
 
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
