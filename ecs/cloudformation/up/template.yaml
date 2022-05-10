@@ -6,7 +6,6 @@ Conditions:
 
 Transform:
   - 'AWS::CodeDeployBlueGreen'
-  - 'AWS::CodeDeployBlueGreen'
 Hooks:
   CodeDeployBlueGreenHook:
     Type: 'AWS::CodeDeploy::BlueGreen'
@@ -24,9 +23,13 @@ Hooks:
             TaskDefinitions:
               - BlueTaskDefinition
               - GreenTaskDefinition
+              - FlightsTaskDef
+              - FLightsTaskDefGreen
             TaskSets:
               - BlueTaskSet
               - GreenTaskSet
+              - FlightsTaskSet
+              - FlightsTaskSetGreen
             TrafficRouting:
               ProdTrafficRoute:
                 Type: 'AWS::ElasticLoadBalancingV2::Listener'
@@ -34,32 +37,9 @@ Hooks:
               TargetGroups:
                 - ALBTargetGroupBlue
                 - ALBTargetGroupGreen
-  CodeDeployBlueGreenHooke:
-    Type: 'AWS::CodeDeploy::BlueGreen'
-    Properties:
-      TrafficRoutingConfig:
-        Type: TimeBasedCanary
-        TimeBasedCanary:
-          StepPercentage: 15
-          BakeTimeMins: 5
-      Applications:     
-        - Target:
-            Type: 'AWS::ECS::Service'
-            LogicalID: FlightsService
-          ECSAttributes:
-            TaskDefinitions:
-              - FlightsTaskDef
-              - FlightsTaskDefGreen
-            TaskSets:
-              - FlightsTaskSet
-              - FlighstTaskSetGreen
-            TrafficRouting:
-              ProdTrafficRoute:
-                Type: 'AWS::ElasticLoadBalancingV2::Listener'
-                LogicalID: ALBListenerHTTP
-              TargetGroups:
                 - FlightsTG
                 - FlightsTGGreen
+
     
 Parameters:
   TestBlueGreenChange:
