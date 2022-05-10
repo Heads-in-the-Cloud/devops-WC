@@ -223,6 +223,24 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
+  ALBTargetGroupGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref UsersHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: ALBTargetGroupGreen
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
   UsersService:
     Type: 'AWS::ECS::Service'
     DependsOn: ListenerRuleReady
@@ -249,6 +267,29 @@ Resources:
       Tags:
         - Key: Name
           Value: UsersService
+  UsersApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref UsersFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  UsersDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref UsersFamily
+      DeploymentGroupName: users-deployment-group
+      DeploymentStyle: 
+          DeploymentType: BLUE_GREEN
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !Ref UsersService
+      # LoadBalancerInfo: 
+      #   LoadBalancerInfo
+      ServiceRoleArn: arn:aws:iam::026390315914:role/CodeDeployServiceRole
+
+
 
   Route53:
     Type: AWS::Route53::RecordSet
