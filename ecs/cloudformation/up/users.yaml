@@ -283,7 +283,7 @@ Resources:
       DeploymentStyle: 
           DeploymentType: BLUE_GREEN
       ECSServices: 
-        - ClusterName: !GetAtt ECSCluster.Name
+        - ClusterName: !Ref ECSCluster
           ServiceName: !GetAtt UsersService.Name
       # LoadBalancerInfo: 
       #   LoadBalancerInfo
