@@ -747,7 +747,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: CONTINUE_DEPLOYMENT
+            ActionOnTimeout: STOP_DEPLOYMENT
             WaitTimeInMinutes: 5
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
@@ -782,7 +782,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: CONTINUE_DEPLOYMENT
+            ActionOnTimeout: STOP_DEPLOYMENT
             WaitTimeInMinutes: 5
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
