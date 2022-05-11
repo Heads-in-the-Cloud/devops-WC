@@ -513,24 +513,22 @@ Resources:
   #     Priority: 3
   UsersTGBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
     Properties:
-      HealthCheckIntervalSeconds: 5
+      HealthCheckIntervalSeconds: 10
       HealthCheckPath: !Ref UsersHealthCheck
-      HealthCheckPort: '80'
       HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 2
+      HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: UsersTGBlue
-      Matcher:
-        HttpCode: '200'
+      Name: UsersTGGreen
       Port: 80
       Protocol: HTTP
-      Tags:
-        - Key: Group
-          Value: Example
-      TargetType: ip
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
   UsersTGGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
