@@ -208,8 +208,6 @@ pipeline {
                 dir('ecs/cloudformation/up'){
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --template-file ./template.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
-                        TestBlueGreenChange=hello \
-                        ExampleSecurityGroupPort=22 \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
                         PublicSubnet2=${PUBLIC_SUBNET2} \
                         PrivateSubnet1=${PRIVATE_SUBNET1} \
