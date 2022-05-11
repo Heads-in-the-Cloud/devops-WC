@@ -286,10 +286,10 @@ Resources:
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
             ActionOnTimeout: STOP_DEPLOYMENT
-            WaitTimeInMinutes: 1
+            WaitTimeInMinutes: 5
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
-            TerminationWaitTimeInMinutes: 1
+            TerminationWaitTimeInMinutes: 5
       ECSServices: 
         - ClusterName: !Ref ECSCluster
           ServiceName: !GetAtt UsersService.Name
