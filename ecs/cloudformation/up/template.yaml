@@ -448,7 +448,7 @@ Resources:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
       SecurityGroups:
-        - !Ref ExampleSecurityGroup
+        - !Ref AlbSecurityGroup
       Type: application
       IpAddressType: ipv4
   ALBListenerHTTPS:
@@ -633,7 +633,21 @@ Resources:
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      DesiredCount: !If [ProdEnv, 4, 2]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref UsersFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref UsersTGBlue
+      TaskDefinition: !Ref UsersTaskDef
       DeploymentController:
         Type: CODE_DEPLOY
       Tags:
@@ -641,11 +655,24 @@ Resources:
           Value: UsersService
   FlightsService:
     Type: 'AWS::ECS::Service'
-    DependsOn: FlightsListenerRule
     Properties:
       ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      DesiredCount: !If [ProdEnv, 4, 2]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref FlightsFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref FlightsTGBlue
+      TaskDefinition: !Ref FlightsTaskDef
       DeploymentController:
         Type: CODE_DEPLOY
       Tags:
