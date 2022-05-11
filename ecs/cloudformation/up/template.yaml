@@ -655,6 +655,7 @@ Resources:
           Value: UsersService
   FlightsService:
     Type: 'AWS::ECS::Service'
+    DependsOn: FlightsListenerRule
     Properties:
       ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
