@@ -3,68 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Conditions:
   ProdEnv: !Equals [!Ref EnvType, "prod"]
   NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
-
-Transform:
-  - 'AWS::CodeDeployBlueGreen'
-Hooks:
-  CodeDeployBlueGreenHook:
-    Type: 'AWS::CodeDeploy::BlueGreen'
-    Properties:
-      TrafficRoutingConfig:
-        Type: TimeBasedCanary
-        TimeBasedCanary:
-          StepPercentage: 15
-          BakeTimeMins: 5
-      Applications:
-        - Target:
-            Type: 'AWS::ECS::Service'
-            LogicalID: UsersService
-          ECSAttributes:
-            TaskDefinitions:
-              - BlueTaskDefinition
-              - GreenTaskDefinition
-            TaskSets:
-              - BlueTaskSet
-              - GreenTaskSet
-            TrafficRouting:
-              ProdTrafficRoute:
-                Type: 'AWS::ElasticLoadBalancingV2::Listener'
-                LogicalID: ALBListenerHTTP
-              TargetGroups:
-                - ALBTargetGroupBlue
-                - ALBTargetGroupGreen
-  CodeDeployBlueGreenHooke:
-    Type: 'AWS::CodeDeploy::BlueGreen'
-    Properties:
-      TrafficRoutingConfig:
-        Type: TimeBasedCanary
-        TimeBasedCanary:
-          StepPercentage: 15
-          BakeTimeMins: 5
-      Applications:     
-        - Target:
-            Type: 'AWS::ECS::Service'
-            LogicalID: FlightsService
-          ECSAttributes:
-            TaskDefinitions:
-              - FlightsTaskDef
-              - FlightsTaskDefGreen
-            TaskSets:
-              - FlightsTaskSet
-              - FlighstTaskSetGreen
-            TrafficRouting:
-              ProdTrafficRoute:
-                Type: 'AWS::ElasticLoadBalancingV2::Listener'
-                LogicalID: ALBListenerHTTP
-              TargetGroups:
-                - FlightsTG
-                - FlightsTGGreen
     
 Parameters:
-  TestBlueGreenChange:
-    Type: String
-  ExampleSecurityGroupPort:
-    Type: Number
   EnvType:
     Description: Environment type.
     Default: test
@@ -115,6 +55,8 @@ Parameters:
   IamRole:
     Type: String
     Description: Task Defintion taskExecutionRoleArn
+  ServiceRole:
+    Type: String
   UsersFamily:
     Type: String
     Description: Users task definition family
@@ -222,86 +164,6 @@ Parameters:
     Description: certificate arn for prod environment
 
 Resources:
-  ExampleSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
-    Properties:
-      GroupDescription: Security group for ec2 access
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 5000
-          ToPort: 5000
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: !Ref ExampleSecurityGroupPort
-          ToPort: !Ref ExampleSecurityGroupPort
-          CidrIp: 0.0.0.0/0
-  BlueTaskSet:
-    Type: 'AWS::ECS::TaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsVpcConfiguration:
-          AssignPublicIp: ENABLED
-          SecurityGroups:
-            - !Ref ExampleSecurityGroup
-          Subnets:
-            - !Ref PublicSubnet1
-            - !Ref PublicSubnet2
-      PlatformVersion: 1.4.0
-      Scale:
-        Unit: PERCENT
-        Value: 100
-      Service: !Ref UsersService
-      TaskDefinition: !Ref BlueTaskDefinition
-      LoadBalancers:
-        - ContainerName: users-api
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref ALBTargetGroupBlue
-  FlightsTaskSet:
-    Type: 'AWS::ECS::TaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsVpcConfiguration:
-          AssignPublicIp: ENABLED
-          SecurityGroups:
-            - !Ref ExampleSecurityGroup
-          Subnets:
-            - !Ref PublicSubnet1
-            - !Ref PublicSubnet2
-      PlatformVersion: 1.4.0
-      Scale:
-        Unit: PERCENT
-        Value: 100
-      Service: !Ref FlightsService
-      TaskDefinition: !Ref FlightsTaskDef
-      LoadBalancers:
-        - ContainerName: !Ref FlightsFamily
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref FlightsTG
-  PrimaryTaskSet:
-    Type: 'AWS::ECS::PrimaryTaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      Service: !Ref UsersService
-      TaskSetId: !GetAtt 
-        - BlueTaskSet
-        - Id
-  FlightsPrimaryTaskSet:
-    Type: 'AWS::ECS::PrimaryTaskSet'
-    Properties:
-      Cluster: !Ref ECSCluster
-      Service: !Ref FlightsService
-      TaskSetId: !GetAtt 
-        - FlightsTaskSet
-        - Id
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
@@ -349,7 +211,7 @@ Resources:
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
-  BlueTaskDefinition:
+  UsersTaskDef:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
       Family: !Ref UsersFamily
@@ -362,8 +224,6 @@ Resources:
               Protocol: tcp
               ContainerPort: !Ref ContainerPort
           Environment: 
-            - Name: Test
-              Value: !Ref TestBlueGreenChange
             - Name: USERS_PORT
               Value: !Ref ContainerPort
             - Name: DB_HOST
@@ -597,7 +457,7 @@ Resources:
     Properties:
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref ALBTargetGroupBlue
+          TargetGroupArn: !Ref UsersTGBlue
       Certificates: 
         - CertificateArn: !Ref CertificateArn
       LoadBalancerArn: !Ref ECSALB
@@ -609,7 +469,7 @@ Resources:
     Properties:
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref ALBTargetGroupBlue
+          TargetGroupArn: !Ref UsersTGBlue
       LoadBalancerArn: !Ref ECSALB
       Port: '80'
       Protocol: HTTP
@@ -618,7 +478,7 @@ Resources:
     Properties:
       Actions:
         - Type: forward
-          TargetGroupArn: !Ref FlightsTG
+          TargetGroupArn: !Ref FlightsTGBlue
       Conditions:
         - Field: path-pattern
           Values:
@@ -651,7 +511,7 @@ Resources:
   #           - !Ref FrontendPath
   #     ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
   #     Priority: 3
-  ALBTargetGroupGreen:
+  UsersTGBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
       HealthCheckIntervalSeconds: 5
@@ -660,7 +520,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 2
       HealthyThresholdCount: 2
-      Name: ALBTargetGroupGreen
+      Name: UsersTGBlue
       Matcher:
         HttpCode: '200'
       Port: 80
@@ -671,7 +531,7 @@ Resources:
       TargetType: ip
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
-  ALBTargetGroupBlue:
+  UsersTGGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -680,7 +540,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: ALBTargetGroupBlue
+      Name: UsersTGGreen
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -689,7 +549,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  FlightsTG:
+  FlightsTGBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -698,7 +558,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FlightsTG
+      Name: FlightsTGBlue
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -716,7 +576,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FlightsTG-Green
+      Name: FlightsTGGreen
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -775,7 +635,7 @@ Resources:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       DeploymentController:
-        Type: EXTERNAL
+        Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: UsersService
@@ -787,7 +647,7 @@ Resources:
       Cluster: !Ref ECSCluster
       DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       DeploymentController:
-        Type: EXTERNAL
+        Type: CODE_DEPLOY
       Tags:
         - Key: Name
           Value: FlightsService
@@ -841,6 +701,76 @@ Resources:
   #     Tags:
   #       - Key: Name
   #         Value: FrontendService
+  UsersApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref UsersFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  UsersDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref UsersFamily
+      DeploymentGroupName: users-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+            WaitTimeInMinutes: 5
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt UsersService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt UsersTGBlue.TargetGroupName
+            - Name: !GetAtt UsersTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  FlightsApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref FlightsFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  FlightsDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref FlightsFamily
+      DeploymentGroupName: flights-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+            WaitTimeInMinutes: 5
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt FlightsService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt FlightsTGBlue.TargetGroupName
+            - Name: !GetAtt FlightsTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
   Route53:
     Type: AWS::Route53::RecordSet
     Properties: 
@@ -867,41 +797,3 @@ Resources:
   #   Properties: 
   #     LogGroupName: !Ref LogGroupName
   #     RetentionInDays: 1
-  ---
-
-
-AWSTemplateFormatVersion: 2010-09-09
-
-Conditions:
-  ProdEnv: !Equals [!Ref EnvType, "prod"]
-  NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
-
-Transform:
-  - 'AWS::CodeDeployBlueGreen'
-Hooks:
-  CodeDeployBlueGreenHook:
-    Type: 'AWS::CodeDeploy::BlueGreen'
-    Properties:
-      TrafficRoutingConfig:
-        Type: TimeBasedCanary
-        TimeBasedCanary:
-          StepPercentage: 15
-          BakeTimeMins: 5
-      Applications:
-        - Target:
-            Type: 'AWS::ECS::Service'
-            LogicalID: UsersService
-          ECSAttributes:
-            TaskDefinitions:
-              - BlueTaskDefinition
-              - GreenTaskDefinition
-            TaskSets:
-              - BlueTaskSet
-              - GreenTaskSet
-            TrafficRouting:
-              ProdTrafficRoute:
-                Type: 'AWS::ElasticLoadBalancingV2::Listener'
-                LogicalID: ALBListenerHTTP
-              TargetGroups:
-                - ALBTargetGroupBlue
-                - ALBTargetGroupGreen
