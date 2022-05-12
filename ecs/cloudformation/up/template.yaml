@@ -328,7 +328,6 @@ Resources:
 
   BookingsTaskDef:
     Type: 'AWS::ECS::TaskDefinition'
-    Condition: CreateResources
     Properties:
       Family: !Ref BookingsFamily
       ContainerDefinitions: 
@@ -385,7 +384,6 @@ Resources:
 
   FrontendTaskDef:
     Type: 'AWS::ECS::TaskDefinition'
-    Condition: CreateResources
     Properties:
       Family: !Ref FrontendFamily
       ContainerDefinitions: 
@@ -487,7 +485,6 @@ Resources:
       Priority: 1
   BookingsListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
     Properties:
       Actions:
         - Type: forward
@@ -500,7 +497,6 @@ Resources:
       Priority: 2
   FrontendListenerRule:
     Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    Condition: CreateResources
     Properties:
       Actions:
         - Type: forward
@@ -585,7 +581,6 @@ Resources:
         Timeout: PT15M
   BookingsTGBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
     DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 10
@@ -604,7 +599,6 @@ Resources:
         Timeout: PT15M
   BookingsTGGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
     DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 10
@@ -623,7 +617,6 @@ Resources:
         Timeout: PT15M
   FrontendTGBlue:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
     DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 10
@@ -642,7 +635,6 @@ Resources:
         Timeout: PT15M
   FrontendTGBlueGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    Condition: CreateResources
     DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 10
@@ -717,7 +709,6 @@ Resources:
           Value: FlightsService
   BookingsService:
     Type: 'AWS::ECS::Service'
-    Condition: CreateResources
     DependsOn: BookingsListenerRule
     Properties:
       ServiceName: !Ref BookingsRepo
@@ -742,7 +733,6 @@ Resources:
           Value: BookingsService
   FrontendService:
     Type: 'AWS::ECS::Service'
-    Condition: CreateResources
     DependsOn: FrontendListenerRule
     Properties:
       ServiceName: !Ref FrontendRepo
