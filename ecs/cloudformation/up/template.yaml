@@ -825,14 +825,6 @@ Resources:
             - Name: !GetAtt FlightsTGBlue.TargetGroupName
             - Name: !GetAtt FlightsTGGreen.TargetGroupName
       ServiceRoleArn: !Ref ServiceRole
-  FlightsApplication:
-    Type: AWS::CodeDeploy::Application
-    Properties: 
-      ApplicationName: !Ref FlightsFamily
-      ComputePlatform: ECS
-      Tags: 
-        - Key: Name
-          Value: !Ref UsersFamily
   BookingsApplication:
     Type: AWS::CodeDeploy::Application
     Properties: 
@@ -840,7 +832,7 @@ Resources:
       ComputePlatform: ECS
       Tags: 
         - Key: Name
-          Value: !Ref UsersFamily
+          Value: !Ref BookingsFamily
   BookingsDeploymentGroup:
     Type: AWS::CodeDeploy::DeploymentGroup
     Properties:
@@ -868,6 +860,14 @@ Resources:
             - Name: !GetAtt BookingsTGBlue.TargetGroupName
             - Name: !GetAtt BookingsTGGreen.TargetGroupName
       ServiceRoleArn: !Ref ServiceRole
+  FrontendApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref FrontendFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref FrontendFamily
   FrontendDeploymentGroup:
     Type: AWS::CodeDeploy::DeploymentGroup
     Properties:
