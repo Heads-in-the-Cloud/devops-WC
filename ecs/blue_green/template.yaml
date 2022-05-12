@@ -1,0 +1,923 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Conditions:
+  ProdEnv: !Equals [!Ref EnvType, "prod"]
+  NotProdEnv: !Not [ !Equals [!Ref EnvType, "prod"] ]
+    
+Parameters:
+  EnvType:
+    Description: Environment type.
+    Default: test
+    Type: String
+    AllowedValues: [prod, dev, test]
+    ConstraintDescription: must specify prod, dev, or test.
+
+  AccountId:
+    Type: String
+    Description: Team Account Id
+  VpcId:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: Select a VPC that allows instances to access the Internet.
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnets for the load balancer
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1:
+    Type: String
+    Description: Private subnets for the services
+  PrivateSubnet2:
+    Type: String
+  ContainerPort:
+    Type: Number
+    Default: 5000
+    Description: port to use for task def/target group/service
+  ClusterName:
+    Type: String
+    Description: ECS cluster name
+  Region:
+    Type: String
+    Description: AWS region to deploy to
+
+  #Task definition parameters
+  UsersRepo:
+    Type: String
+    Description: ECR image for users
+  FlightsRepo:
+    Type: String
+    Description: ECR image for flights
+  BookingsRepo:
+    Type: String
+    Description: ECR image for bookings
+  FrontendRepo:
+    Type: String
+    Description: ECR image for frontend
+  IamRole:
+    Type: String
+    Description: Task Defintion taskExecutionRoleArn
+  ServiceRole:
+    Type: String
+  UsersFamily:
+    Type: String
+    Description: Users task definition family
+  FlightsFamily:
+    Type: String
+    Description: Flights task definition family
+  BookingsFamily:
+    Type: String
+    Description: Bookings task definition family
+  FrontendFamily:
+    Type: String
+    Description: Frontend task definition family
+  LogGroupName:
+    Type: String
+    Description: name of log group
+  CpuDev:
+    Type: String
+    Description: task definition cpu usage
+    Default: "1vCPU"
+  CpuProd:
+    Type: String
+    Default: "2vCPU"
+  MemDev:
+    Type: String
+    Description: task definition memory usage
+    Default: "2GB"
+  MemProd:
+    Type: String
+    Default: "4GB"
+  DevDesiredCount:
+    Type: Number
+    Description: desired count for the task definition
+    Default: 1
+  ProdDesiredCount:
+    Type: Number
+    Default: 2
+  #https://stackoverflow.com/questions/57213974/aws-cloudformation-containerdefinitions-secrets-assigning-full-secretstring-for
+  SSMSecretString:
+    Type: String
+    Description: the secret string path to access SSM 
+  DbHost:
+    Type: String
+    Description: SSM db host path
+  DbUser:
+    Type: String
+    Description: SSM db username path
+  DbPassword:
+    Type: String
+    Description: SSM db password path
+  SecretKey:
+    Type: String
+    Description: SSM secret key path
+
+  #Elastic Search Parameters
+  LogstashPrefix:
+    Type: String
+    Description: logstash index to prepend
+  ElasticSearchHost:
+    Type: String
+    Description: URL of the elastic search server
+  ElasticUser:
+    Type: String
+    Description: user credential for elasticsearch
+  ElasticPassword:
+    Type: String
+    Description: password credential for elasticsearch
+  ElasticPath:
+    Type: String
+    Description: path for elasticsearch
+  ElasticPort:
+    Type: Number
+    Description: port that elasticsearch is running on
+
+  #Target Group Parameters
+  UsersHealthCheck:
+    Type: String
+    Description: health check path
+  FlightsHealthCheck:
+    Type: String
+  BookingsHealthCheck:
+    Type: String
+  FrontendHealthCheck:
+    Type: String
+
+  #ALB Listener Parameters
+  UsersPath:
+    Type: String
+    Description: Ingress path prefix rules
+  FlightsPath:
+    Type: String
+  BookingsPath:
+    Type: String
+  FrontendPath:
+    Type: String
+
+  #Route53 Parameters
+  HostedZoneId:
+    Type: String
+    Description: Hosted Zone ID for HITWC
+  RecordName:
+    Type: String
+    Description: full DNS of our record
+  CertificateArn:
+    Type: String
+    Description: certificate arn for prod environment
+
+Resources:
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Ref ClusterName
+      Tags:
+        - Key: Name
+          Value: !Ref ClusterName
+  AlbSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Alb Security Group
+      VpcId: !Ref VpcId
+  AlbSecurityGroupInbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: !If [ ProdEnv, 443, 80 ]
+      ToPort: !If [ ProdEnv, 443, 80 ]
+      CidrIp: 0.0.0.0/0
+  EcsSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: ECS Security Group
+      VpcId: !Ref VpcId
+  EcsSecurityGroupHTTPinbound:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref ContainerPort
+      ToPort: !Ref ContainerPort
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+
+  ECSTaskExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+  UsersTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: !Ref UsersFamily
+      ContainerDefinitions:
+        - Name: !Ref UsersFamily
+          Essential: 'true'
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.', !Ref Region, '.amazonaws.com/', !Ref UsersRepo ]]
+          PortMappings:
+            - HostPort: !Ref ContainerPort
+              Protocol: tcp
+              ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: USERS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'users-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref UsersFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      ExecutionRoleArn: !GetAtt 
+        - ECSTaskExecutionRole
+        - Arn      
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn: !Ref IamRole
+  FlightsTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: !Ref FlightsFamily
+      ContainerDefinitions: 
+        - Name: !Ref FlightsFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FlightsRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: FLIGHTS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'flights-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref FlightsFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
+
+  BookingsTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: !Ref BookingsFamily
+      ContainerDefinitions: 
+        - Name: !Ref BookingsFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref BookingsRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: BOOKINGS_PORT
+              Value: !Ref ContainerPort
+            - Name: DB_HOST
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbHost, '}}' ] ]
+            - Name: DB_USER
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbUser, '}}' ] ]
+            - Name: DB_USER_PASSWORD
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref DbPassword, '}}' ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'bookings-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref BookingsFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
+
+  FrontendTaskDef:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: !Ref FrontendFamily
+      ContainerDefinitions: 
+        - Name: !Ref FrontendFamily
+          Image: !Join [ '', [!Ref AccountId, '.dkr.ecr.us-west-2.amazonaws.com/', !Ref FrontendRepo ]]
+          Essential: 'true'
+          PortMappings: 
+            - ContainerPort: !Ref ContainerPort
+          Environment: 
+            - Name: FRONTEND_PORT
+              Value: !Ref ContainerPort
+            - Name: HOST_DOMAIN
+              Value: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
+            - Name: SECRET_KEY
+              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref SSMSecretString, ':SecretString:', !Ref SecretKey, '}}' ] ]
+          LogConfiguration:
+            LogDriver: awsfirelens
+            Options:
+              Name: es
+              Host: !Ref ElasticSearchHost
+              Port: !Ref ElasticPort
+              Path: !Ref ElasticPath
+              HTTP_User: !Ref ElasticUser
+              HTTP_Passwd: !Ref ElasticPassword
+              Logstash_Format: On
+              Logstash_Prefix: !Join [ '', [ !Ref LogstashPrefix, 'frontend-']]
+              Replace_Dots: On
+              Retry_Limit: False
+              tls: On
+              Match: "*"
+        - Name: log_router
+          Essential: 'true'
+          Image: 906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable
+          FirelensConfiguration:
+            Type: fluentbit
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "true"
+              awslogs-group: /ecs/wc-logs/dev
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: !Ref FrontendFamily
+      Cpu: !If [ProdEnv, !Ref CpuProd, !Ref CpuDev ]
+      ExecutionRoleArn: !Ref IamRole
+      Memory: !If [ProdEnv, !Ref MemProd, !Ref MemDev ]
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities: 
+        - "FARGATE"
+      TaskRoleArn: !Ref IamRole
+
+  ECSALB:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Properties:
+      Name: ECSALB
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '30'
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+      Type: application
+      IpAddressType: ipv4
+  ALBListenerHTTPS:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: ProdEnv
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTGBlue
+      Certificates: 
+        - CertificateArn: !Ref CertificateArn
+      LoadBalancerArn: !Ref ECSALB
+      Port: '443'
+      Protocol: HTTPS
+  ALBListenerHTTP:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: NotProdEnv
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref UsersTGBlue
+      LoadBalancerArn: !Ref ECSALB
+      Port: '80'
+      Protocol: HTTP
+  FlightsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FlightsTGBlue
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FlightsPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 1
+  BookingsListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BookingsTGBlue
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref BookingsPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 2
+  FrontendListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTGBlue
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - !Ref FrontendPath
+      ListenerArn: !If [ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP]
+      Priority: 3
+  UsersTGBlue:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref UsersHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: UsersTGBlue
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  UsersTGGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref UsersHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: UsersTGGreen
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FlightsTGBlue:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FlightsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FlightsTGBlue
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FlightsTGGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FlightsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FlightsTGGreen
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  BookingsTGBlue:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref BookingsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: BookingsTGBlue
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  BookingsTGGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref BookingsHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: BookingsTGGreen
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FrontendTGBlue:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FrontendHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FrontendTGBlue
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  FrontendTGGreen:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref FrontendHealthCheck
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: FrontendTGGreen
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetType: ip
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+  ListenerRuleReady:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Metadata:
+      ListenerReady: !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+  UsersService:
+    Type: 'AWS::ECS::Service'
+    DependsOn: ListenerRuleReady
+    Properties:
+      ServiceName: !Ref UsersRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, 4, 2]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref UsersFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref UsersTGBlue
+      TaskDefinition: !Ref UsersTaskDef
+      DeploymentController:
+        Type: CODE_DEPLOY
+      Tags:
+        - Key: Name
+          Value: UsersService
+  FlightsService:
+    Type: 'AWS::ECS::Service'
+    DependsOn: FlightsListenerRule
+    Properties:
+      ServiceName: !Ref FlightsRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, 4, 2]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref FlightsFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref FlightsTGBlue
+      TaskDefinition: !Ref FlightsTaskDef
+      DeploymentController:
+        Type: CODE_DEPLOY
+      Tags:
+        - Key: Name
+          Value: FlightsService
+  BookingsService:
+    Type: 'AWS::ECS::Service'
+    DependsOn: BookingsListenerRule
+    Properties:
+      ServiceName: !Ref BookingsRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref BookingsFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref BookingsTGBlue
+      DeploymentController:
+        Type: CODE_DEPLOY
+      TaskDefinition: !Ref BookingsTaskDef
+      Tags:
+        - Key: Name
+          Value: BookingsService
+  FrontendService:
+    Type: 'AWS::ECS::Service'
+    DependsOn: FrontendListenerRule
+    Properties:
+      ServiceName: !Ref FrontendRepo
+      Cluster: !Ref ECSCluster
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
+      LaunchType: "FARGATE"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "ENABLED"
+          SecurityGroups: 
+            - !Ref EcsSecurityGroup
+          Subnets: 
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+      LoadBalancers:
+        - ContainerName: !Ref FrontendFamily
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref FrontendTGBlue
+      DeploymentController:
+        Type: CODE_DEPLOY
+      TaskDefinition: !Ref FrontendTaskDef
+      Tags:
+        - Key: Name
+          Value: FrontendService
+  UsersApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref UsersFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  UsersDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref UsersFamily
+      DeploymentGroupName: users-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt UsersService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt UsersTGBlue.TargetGroupName
+            - Name: !GetAtt UsersTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  FlightsApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref FlightsFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  FlightsDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref FlightsFamily
+      DeploymentGroupName: flights-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt FlightsService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt FlightsTGBlue.TargetGroupName
+            - Name: !GetAtt FlightsTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  BookingsApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref BookingsFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref BookingsFamily
+  BookingsDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref BookingsFamily
+      DeploymentGroupName: bookings-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt BookingsService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt BookingsTGBlue.TargetGroupName
+            - Name: !GetAtt BookingsTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  FrontendApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref FrontendFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref FrontendFamily
+  FrontendDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref FrontendFamily
+      DeploymentGroupName: frontend-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt FrontendService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList:
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt FrontendTGBlue.TargetGroupName
+            - Name: !GetAtt FrontendTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  Route53:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      ResourceRecords:
+        - !GetAtt ECSALB.DNSName
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref RecordName
+      Type: 'CNAME'
+      TTL: '300'
+      # Weight: 1
+  # Route53HealthCheck: 
+  #   Type: 'AWS::Route53::HealthCheck'
+  #   Properties: 
+  #     HealthCheckConfig: 
+  #       # IPAddress: 192.0.2.44
+  #       Port: !If [ProdEnv, 443, 80 ]
+  #       Type: !If [ ProdEnv, HTTPS, HTTP ]
+  #       ResourcePath: !Ref UsersHealthCheck
+  #       FullyQualifiedDomainName: !If [ ProdEnv, !Join [ '', [ 'https://', !Ref RecordName ] ], !Join [ '', [ 'http://', !Ref RecordName ] ] ]
+  #       RequestInterval: 30
+  #       FailureThreshold: 3
+  # myLogGroup: 
+  #   Type: AWS::Logs::LogGroup
+  #   Properties: 
+  #     LogGroupName: !Ref LogGroupName
+  #     RetentionInDays: 1

@@ -1,0 +1,204 @@
+pipeline {
+    agent any 
+    environment {
+        ELK_LOGIN = credentials("NR_ELK_LOGIN")
+    }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['dev', 'prod', 'test'], 
+                                name: 'environment'
+                            ),
+                            [$class: 'ChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the action to perform', 
+                                filterLength: 1, 
+                                filterable: false, 
+                                name: 'action', 
+                                script: [
+                                    $class: 'GroovyScript', 
+                                    fallbackScript: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['Could not load actions']"
+                                    ], 
+                                    script: [
+                                        classpath: [], 
+                                        sandbox: false, 
+                                        script: 
+                                            "return['create','update']"
+                                    ]
+                                ]
+                            ],
+                            [$class: 'CascadeChoiceParameter', 
+                                choiceType: 'PT_SINGLE_SELECT', 
+                                description: 'Select the container to update',
+                                name: 'container', 
+                                referencedParameters: 'action', 
+                                script: 
+                                    [$class: 'GroovyScript', 
+                                    fallbackScript: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: "return['Could not get Environment from Env Param']"
+                                            ], 
+                                    script: [
+                                            classpath: [], 
+                                            sandbox: false, 
+                                            script: '''
+                                            if (action.equals("create")){
+                                                return[]
+                                            }
+                                            else{
+                                                return["users","flights","bookings","frontend"]
+                                            }
+                                            '''
+                                    ] 
+                                ]
+                            ]
+                        ])
+                    ])
+                }
+            }
+        }
+
+        stage('setup environment'){
+            steps{
+                script{
+                    env.AWS_DEFAULT_REGION  = "$REGION_WC"
+                    env.VPC_ID              = sh (script: "aws ec2 describe-vpcs --filter Name=tag:Name,Values=${WC_vpc_name}-dev | jq '.[] | .[].VpcId'", returnStdout: true).trim().replaceAll("\"", "")
+                    env.PRIVATE_SUBNET1     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PRIVATE_SUBNET2     = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/internal-elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET1      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[0]'", returnStdout: true).trim()
+                    env.PUBLIC_SUBNET2      = sh( script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=${VPC_ID} Name=tag:kubernetes.io/role/elb,Values=1 --query Subnets[].SubnetId | jq '.[1]'", returnStdout: true).trim()
+                    env.CERTIFICATE_ARN     = sh ( script: 'aws secretsmanager get-secret-value --secret-id ${WC_SECRETS_PATH_DEV} --region ${REGION_WC}  | jq --raw-output .SecretString | jq -r ."cert_manager_arn"', returnStdout: true).trim() 
+
+                    env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
+                    env.STACK_EXISTS        = true
+
+                }
+            }
+        }
+        stage('check if stack exists'){
+            steps{
+                script {
+                    try {
+                        sh "aws cloudformation describe-stacks --stack-name ${STACK_NAME}"
+                    }
+                    catch (Exception e){
+                        env.STACK_EXISTS        = false
+                    }
+                }
+            }
+        }
+        stage('update users'){
+            when {
+                allOf{ 
+                    expression { params.container == 'users' }
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
+            }
+            steps{
+                script{
+                    sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                }
+            }
+        }
+        stage('update flights'){
+            when {
+                allOf{ 
+                    expression { params.container == 'flights' }
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
+            }
+            steps{
+                script{
+                    sh "aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                }
+            }
+        }
+        stage('update bookings'){
+            when {
+                allOf{ 
+                    expression { params.container == 'bookings' }
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
+            }
+            steps{
+                script{
+                    sh "aws ecs update-service --service ${BOOKING_REPO_WC} --task-definition ${BOOKING_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                }
+            }
+        }
+        stage('update frontend'){
+            when {
+                allOf{ 
+                    expression { params.container == 'frontend' }
+                    environment name: "STACK_EXISTS", value: 'true'
+                }
+            }
+            steps{
+                script{
+                    sh "aws ecs update-service --service ${FRONTEND_REPO_WC} --task-definition ${FRONTEND_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                }
+            }
+        }
+        stage('create'){
+            when{
+                environment name: 'STACK_EXISTS', value: 'false'
+            }
+            steps{
+                dir('ecs/cloudformation/up'){
+                    sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
+                        VpcId=${VPC_ID} \
+                        PublicSubnet1=${PUBLIC_SUBNET1} \
+                        PublicSubnet2=${PUBLIC_SUBNET2} \
+                        PrivateSubnet1=${PRIVATE_SUBNET1} \
+                        PrivateSubnet2=${PRIVATE_SUBNET2} \
+                        AccountId=${ORG_ACCOUNT_NUM} \
+                        HostedZoneId=${HOSTED_ZONE} \
+                        RecordName=${params.environment}-ecs.wc-utopia.${ROUTE53_DOMAIN} \
+                        ClusterName=${CLUSTER_NAME_WC} \
+                        EnvType=${params.environment} \
+                        ContainerPort=${WC_CONTAINER_PORT} \
+                        Region=${REGION_WC} \
+                        UsersRepo=${USER_REPO_WC} \
+                        FlightsRepo=${FLIGHT_REPO_WC} \
+                        BookingsRepo=${BOOKING_REPO_WC} \
+                        FrontendRepo=${FRONTEND_REPO_WC} \
+                        IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                        UsersFamily=${USER_REPO_WC}-${params.environment}\
+                        FlightsFamily=${FLIGHT_REPO_WC}-${params.environment} \
+                        BookingsFamily=${BOOKING_REPO_WC}-${params.environment} \
+                        FrontendFamily=${FRONTEND_REPO_WC}-${params.environment} \
+                        LogGroupName=${WC_ECS_LOGS} \
+                        UsersPath=${WC_USERS_PREFIX} \
+                        FlightsPath=${WC_FLIGHTS_PREFIX} \
+                        BookingsPath=${WC_BOOKINGS_PREFIX} \
+                        FrontendPath=${WC_FRONTEND_PREFIX} \
+                        SSMSecretString=${WC_SECRETS_PATH_DEV} \
+                        UsersHealthCheck=${WC_HEALTH_USERS} \
+                        FlightsHealthCheck=${WC_HEALTH_FLIGHTS} \
+                        BookingsHealthCheck=${WC_HEALTH_BOOKINGS} \
+                        FrontendHealthCheck=${WC_HEALTH_FRONTEND} \
+                        CertificateArn=${CERTIFICATE_ARN} \
+                        ElasticSearchHost=${ELK_URL} \
+                        ElasticPort=443 \
+                        ElasticUser=${ELK_LOGIN_USR} \
+                        ElasticPassword=${ELK_LOGIN_PSW} \
+                        LogstashPrefix=wc-logstash- \
+                        ElasticPath=/elasticsearch \
+                        DbHost=db_host \
+                        DbUser=db_user \
+                        DbPassword=db_password \
+                        SecretKey=secret_key"                
+                }
+            }
+        }
+    }
+}
