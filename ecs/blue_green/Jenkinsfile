@@ -172,6 +172,7 @@ pipeline {
                         BookingsRepo=${BOOKING_REPO_WC} \
                         FrontendRepo=${FRONTEND_REPO_WC} \
                         IamRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/ecsTaskExecutionRole \
+                        ServiceRole=arn:aws:iam::${ORG_ACCOUNT_NUM}:role/CodeDeployServiceRole \
                         UsersFamily=${USER_REPO_WC}-${params.environment}\
                         FlightsFamily=${FLIGHT_REPO_WC}-${params.environment} \
                         BookingsFamily=${BOOKING_REPO_WC}-${params.environment} \
@@ -196,7 +197,7 @@ pipeline {
                         DbHost=db_host \
                         DbUser=db_user \
                         DbPassword=db_password \
-                        SecretKey=secret_key"                
+                        SecretKey=secret_key"              
                 }
             }
         }
