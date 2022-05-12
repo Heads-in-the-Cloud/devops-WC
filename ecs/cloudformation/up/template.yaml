@@ -727,6 +727,8 @@ Resources:
         - ContainerName: !Ref BookingsFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref BookingsTGBlue
+      DeploymentController:
+        Type: CODE_DEPLOY
       TaskDefinition: !Ref BookingsTaskDef
       Tags:
         - Key: Name
@@ -751,6 +753,8 @@ Resources:
         - ContainerName: !Ref FrontendFamily
           ContainerPort: !Ref ContainerPort
           TargetGroupArn: !Ref FrontendTGBlue
+      DeploymentController:
+        Type: CODE_DEPLOY
       TaskDefinition: !Ref FrontendTaskDef
       Tags:
         - Key: Name
