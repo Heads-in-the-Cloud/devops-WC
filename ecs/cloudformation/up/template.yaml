@@ -726,7 +726,7 @@ Resources:
       LoadBalancers:
         - ContainerName: !Ref BookingsFamily
           ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref BookingsTG
+          TargetGroupArn: !Ref BookingsTGBlue
       TaskDefinition: !Ref BookingsTaskDef
       Tags:
         - Key: Name
@@ -750,7 +750,7 @@ Resources:
       LoadBalancers:
         - ContainerName: !Ref FrontendFamily
           ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref FrontendTG
+          TargetGroupArn: !Ref FrontendTGBlue
       TaskDefinition: !Ref FrontendTaskDef
       Tags:
         - Key: Name
