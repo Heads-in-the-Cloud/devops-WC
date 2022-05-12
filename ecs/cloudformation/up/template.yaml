@@ -633,7 +633,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-  FrontendTGBlueGreen:
+  FrontendTGGreen:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
@@ -642,7 +642,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: FrontendTGBlueGreen
+      Name: FrontendTGGreen
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
