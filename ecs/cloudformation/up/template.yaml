@@ -727,76 +727,76 @@ Resources:
   #     Tags:
   #       - Key: Name
   #         Value: FrontendService
-  # UsersApplication:
-  #   Type: AWS::CodeDeploy::Application
-  #   Properties: 
-  #     ApplicationName: !Ref UsersFamily
-  #     ComputePlatform: ECS
-  #     Tags: 
-  #       - Key: Name
-  #         Value: !Ref UsersFamily
-  # UsersDeploymentGroup:
-  #   Type: AWS::CodeDeploy::DeploymentGroup
-  #   Properties:
-  #     ApplicationName: !Ref UsersFamily
-  #     DeploymentGroupName: users-deployment-group
-  #     DeploymentStyle: 
-  #       DeploymentType: BLUE_GREEN
-  #       DeploymentOption: WITH_TRAFFIC_CONTROL
-  #     BlueGreenDeploymentConfiguration:
-  #       DeploymentReadyOption: 
-  #           ActionOnTimeout: STOP_DEPLOYMENT
-  #           WaitTimeInMinutes: 5
-  #       TerminateBlueInstancesOnDeploymentSuccess: 
-  #           Action: TERMINATE
-  #           TerminationWaitTimeInMinutes: 5
-  #     ECSServices: 
-  #       - ClusterName: !Ref ECSCluster
-  #         ServiceName: !GetAtt UsersService.Name
-  #     LoadBalancerInfo: 
-  #       TargetGroupPairInfoList: 
-  #         - ProdTrafficRoute: 
-  #             ListenerArns: 
-  #               - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
-  #           TargetGroups: 
-  #           - Name: !GetAtt UsersTGBlue.TargetGroupName
-  #           - Name: !GetAtt UsersTGGreen.TargetGroupName
-  #     ServiceRoleArn: !Ref ServiceRole
-  # FlightsApplication:
-  #   Type: AWS::CodeDeploy::Application
-  #   Properties: 
-  #     ApplicationName: !Ref FlightsFamily
-  #     ComputePlatform: ECS
-  #     Tags: 
-  #       - Key: Name
-  #         Value: !Ref UsersFamily
-  # FlightsDeploymentGroup:
-  #   Type: AWS::CodeDeploy::DeploymentGroup
-  #   Properties:
-  #     ApplicationName: !Ref FlightsFamily
-  #     DeploymentGroupName: flights-deployment-group
-  #     DeploymentStyle: 
-  #       DeploymentType: BLUE_GREEN
-  #       DeploymentOption: WITH_TRAFFIC_CONTROL
-  #     BlueGreenDeploymentConfiguration:
-  #       DeploymentReadyOption: 
-  #           ActionOnTimeout: STOP_DEPLOYMENT
-  #           WaitTimeInMinutes: 5
-  #       TerminateBlueInstancesOnDeploymentSuccess: 
-  #           Action: TERMINATE
-  #           TerminationWaitTimeInMinutes: 5
-  #     ECSServices: 
-  #       - ClusterName: !Ref ECSCluster
-  #         ServiceName: !GetAtt FlightsService.Name
-  #     LoadBalancerInfo: 
-  #       TargetGroupPairInfoList: 
-  #         - ProdTrafficRoute: 
-  #             ListenerArns: 
-  #               - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
-  #           TargetGroups: 
-  #           - Name: !GetAtt FlightsTGBlue.TargetGroupName
-  #           - Name: !GetAtt FlightsTGGreen.TargetGroupName
-  #     ServiceRoleArn: !Ref ServiceRole
+  UsersApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref UsersFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  UsersDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref UsersFamily
+      DeploymentGroupName: users-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: STOP_DEPLOYMENT
+            WaitTimeInMinutes: 5
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt UsersService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt UsersTGBlue.TargetGroupName
+            - Name: !GetAtt UsersTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
+  FlightsApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Ref FlightsFamily
+      ComputePlatform: ECS
+      Tags: 
+        - Key: Name
+          Value: !Ref UsersFamily
+  FlightsDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref FlightsFamily
+      DeploymentGroupName: flights-deployment-group
+      DeploymentStyle: 
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        DeploymentReadyOption: 
+            ActionOnTimeout: STOP_DEPLOYMENT
+            WaitTimeInMinutes: 5
+        TerminateBlueInstancesOnDeploymentSuccess: 
+            Action: TERMINATE
+            TerminationWaitTimeInMinutes: 5
+      ECSServices: 
+        - ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt FlightsService.Name
+      LoadBalancerInfo: 
+        TargetGroupPairInfoList: 
+          - ProdTrafficRoute: 
+              ListenerArns: 
+                - !If [ ProdEnv, !Ref ALBListenerHTTPS, !Ref ALBListenerHTTP ]
+            TargetGroups: 
+            - Name: !GetAtt FlightsTGBlue.TargetGroupName
+            - Name: !GetAtt FlightsTGGreen.TargetGroupName
+      ServiceRoleArn: !Ref ServiceRole
   Route53:
     Type: AWS::Route53::RecordSet
     Properties: 
