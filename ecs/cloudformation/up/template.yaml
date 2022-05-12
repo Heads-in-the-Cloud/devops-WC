@@ -488,7 +488,7 @@ Resources:
     Properties:
       Actions:
         - Type: forward
-          TargetGroupArn: !Ref BookingsTG
+          TargetGroupArn: !Ref BookingsTGBlue
       Conditions:
         - Field: path-pattern
           Values:
@@ -500,7 +500,7 @@ Resources:
     Properties:
       Actions:
         - Type: forward
-          TargetGroupArn: !Ref FrontendTG
+          TargetGroupArn: !Ref FrontendTGBlue
       Conditions:
         - Field: path-pattern
           Values:
