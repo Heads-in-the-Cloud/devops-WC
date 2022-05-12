@@ -777,8 +777,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: STOP_DEPLOYMENT
-            WaitTimeInMinutes: 5
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
             TerminationWaitTimeInMinutes: 5
@@ -812,8 +811,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: STOP_DEPLOYMENT
-            WaitTimeInMinutes: 5
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
             TerminationWaitTimeInMinutes: 5
@@ -847,8 +845,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: STOP_DEPLOYMENT
-            WaitTimeInMinutes: 5
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
             TerminationWaitTimeInMinutes: 5
@@ -882,8 +879,7 @@ Resources:
         DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         DeploymentReadyOption: 
-            ActionOnTimeout: STOP_DEPLOYMENT
-            WaitTimeInMinutes: 5
+            ActionOnTimeout: CONTINUE_DEPLOYMENT
         TerminateBlueInstancesOnDeploymentSuccess: 
             Action: TERMINATE
             TerminationWaitTimeInMinutes: 5
