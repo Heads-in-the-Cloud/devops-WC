@@ -1,9 +1,0 @@
-version: 0.0
-Resources:
-  - TargetService:
-      Type: AWS::ECS::Service
-      Properties:
-        TaskDefinition: "arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev"
-        LoadBalancerInfo:
-          ContainerName: "wc-users-api-dev"
-          ContainerPort: 5000
