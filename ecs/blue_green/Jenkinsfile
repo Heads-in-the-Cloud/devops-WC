@@ -108,9 +108,12 @@ pipeline {
             steps{
                 script{
                     dir('ecs/blue_green'){
-                    sh "envsubst < appspec.yaml > temp"
                     env.FAMILY_NAME="${USER_REPO_WC}-${params.environment}"
                     env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
+
+                    sh "envsubst < appspec.yaml > temp"
+                    APP_SPEC_CONTENT=`cat appspec.yaml`
+                    echo "${APP_SPEC_CONTENT}"
                     sh "cat temp"
                     // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group"
                     sh "rm temp"
