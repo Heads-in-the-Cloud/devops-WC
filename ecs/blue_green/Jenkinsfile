@@ -111,8 +111,9 @@ pipeline {
                     env.FAMILY_NAME="${USER_REPO_WC}-${params.environment}"
                     env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
                     sh 'envsubst < appspec.yaml > temp'
+                    sh 'cat temp'
                     // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision "$REVISION"'
-                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=file://temp}'
+                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=temp}'
                     sh 'rm temp'
                     }
                 }
