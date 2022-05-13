@@ -109,7 +109,7 @@ pipeline {
                 script{
                     dir('ecs/blue_green'){
  
-                    APPSPEC = sh ( script: "echo '{version:1,Resources:[{TargetService:{Type:AWS::ECS::Service,Properties:{TaskDefinition:'${AWS_TASK_DEFINITION_ARN}',LoadBalancerInfo:{ContainerName:${USER_REPO_WC}-${params.environment},ContainerPort:${CONTAINER_PORT}}}}}]}' | jq -Rs .", returnStdout: true).trim()
+                    APPSPEC = sh ( script: "echo '{version:1,Resources:[{TargetService:{Type:AWS::ECS::Service,Properties:{TaskDefinition:'asdf',LoadBalancerInfo:{ContainerName:${USER_REPO_WC}-${params.environment},ContainerPort:${CONTAINER_PORT}}}}}]}' | jq -Rs .", returnStdout: true).trim()
 
                     echo "${APP_SPEC_CONTENT}"
                     // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=$APP_SPEC_CONTENT}'
