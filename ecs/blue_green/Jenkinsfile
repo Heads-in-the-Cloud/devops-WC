@@ -105,7 +105,10 @@ pipeline {
             }
             steps{
                 script{
-                    sh "aws ecs update-service --service ${USER_REPO_WC} --task-definition ${USER_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                    sh "envsubst < appspec.yaml > temp"
+                    sh "cat temp"
+                    // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group"
+                    sh "rm temp"
                 }
             }
         }

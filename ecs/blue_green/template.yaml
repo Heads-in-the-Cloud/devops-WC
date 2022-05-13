@@ -661,7 +661,7 @@ Resources:
     Properties:
       ServiceName: !Ref UsersRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -687,7 +687,7 @@ Resources:
     Properties:
       ServiceName: !Ref FlightsRepo
       Cluster: !Ref ECSCluster
-      DesiredCount: !If [ProdEnv, 4, 2]
+      DesiredCount: !If [ProdEnv, !Ref ProdDesiredCount, !Ref DevDesiredCount ]
       LaunchType: "FARGATE"
       NetworkConfiguration:
         AwsvpcConfiguration:
