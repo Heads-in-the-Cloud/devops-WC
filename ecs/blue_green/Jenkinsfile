@@ -105,10 +105,12 @@ pipeline {
             }
             steps{
                 script{
+                    dir('ecs/blue_green'){
                     sh "envsubst < appspec.yaml > temp"
                     sh "cat temp"
                     // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group"
                     sh "rm temp"
+                    }
                 }
             }
         }
