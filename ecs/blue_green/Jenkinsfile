@@ -115,7 +115,7 @@ pipeline {
                     env.APP_SPEC_CONTENT=sh ( script: 'cat temp', returnStdout: true).trim()
                     echo "${APP_SPEC_CONTENT}"
                     // sh "cat temp"
-                    // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group"
+                    sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={$APP_SPEC_CONTENT}"
                     sh "rm temp"
                     }
                 }
