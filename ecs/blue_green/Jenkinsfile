@@ -114,7 +114,7 @@ pipeline {
                     env.REVISION = sh (script: "echo '{revisionType:AppSpecContent,appSpecContent:{content:'${APP_SPEC_CONTENT}'}}'", returnStdout: true).trim()
                     sh "echo $REVISION"
                     // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision "$REVISION"'
-                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision {"revisionType":"AppSpecContent","appSpecContent":{"content":"${APP_SPEC_CONTENT}"}'
+                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision "{"revisionType":"AppSpecContent","appSpecContent":{"content":"${APP_SPEC_CONTENT}"}"'
 
                     }
                 }
