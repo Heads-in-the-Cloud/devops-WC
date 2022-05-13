@@ -112,8 +112,8 @@ pipeline {
                     env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
                     sh 'envsubst < appspec.yaml > temp'
                     sh 'cat temp'
-                    // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision "$REVISION"'
-                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content={"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}}'
+                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=file://appspec.yaml}'
+                    // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content={"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}}'
                     sh 'rm temp'
                     }
                 }

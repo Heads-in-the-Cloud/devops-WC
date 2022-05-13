@@ -3,7 +3,7 @@ Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${FAMILY_NAME}"
+        TaskDefinition: "arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev"
         LoadBalancerInfo:
-          ContainerName: "${CONTAINER_NAME}"
-          ContainerPort: ${CONTAINER_PORT}
+          ContainerName: "wc-users-api-dev"
+          ContainerPort: 5000
