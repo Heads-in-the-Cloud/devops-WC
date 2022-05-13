@@ -108,14 +108,11 @@ pipeline {
             steps{
                 script{
                     dir('ecs/blue_green'){
-                    env.FAMILY_NAME="${USER_REPO_WC}-${params.environment}"
-                    env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
+ 
+                    APPSPEC = sh ( script: echo '{"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"'${AWS_TASK_DEFINITION_ARN}'","LoadBalancerInfo":{"ContainerName":"${USER_REPO_WC}-${params.environment}","ContainerPort":3000}}}}]}' | jq -Rs ., returnStdout: true).trim()
 
-                    sh "envsubst < appspec.yaml > temp"
-                    env.APP_SPEC_CONTENT=sh ( script: 'cat temp', returnStdout: true).trim()
                     echo "${APP_SPEC_CONTENT}"
-                    // sh "cat temp"
-                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=$APP_SPEC_CONTENT}'
+                    // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=$APP_SPEC_CONTENT}'
                     sh "rm temp"
                     }
                 }
