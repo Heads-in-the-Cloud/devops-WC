@@ -108,14 +108,12 @@ pipeline {
             steps{
                 script{
                     dir('ecs/blue_green'){
- 
-                    APP_SPEC_CONTENT = sh ( script: "echo '{version:1,Resources:[{TargetService:{Type:AWS::ECS::Service,Properties:{TaskDefinition:'arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${USER_REPO_WC}-${params.environment}',LoadBalancerInfo:{ContainerName:${USER_REPO_WC}-${params.environment},ContainerPort:${CONTAINER_PORT}}}}}]}' | jq -Rs .", returnStdout: true).trim()
-
-                    env.REVISION = sh (script: "echo '{revisionType:AppSpecContent,appSpecContent:{content:'${APP_SPEC_CONTENT}'}}'", returnStdout: true).trim()
-                    sh "echo $REVISION"
+                    env.FAMILY_NAME="${USER_REPO_WC}-${params.environment}"
+                    env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
+                    sh 'envsubst < config.tf > temp'
                     // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision "$REVISION"'
-                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=file://appspec.yaml}'
-
+                    sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=file://temp}'
+                    sh 'rm temp'
                     }
                 }
             }
