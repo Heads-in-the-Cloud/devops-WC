@@ -153,7 +153,7 @@ pipeline {
                 environment name: 'STACK_EXISTS', value: 'false'
             }
             steps{
-                dir('ecs/cloudformation/up'){
+                dir('ecs/blue_green'){
                     sh "aws cloudformation deploy --stack-name ${STACK_NAME} --template-file ./template.yaml --parameter-overrides \
                         VpcId=${VPC_ID} \
                         PublicSubnet1=${PUBLIC_SUBNET1} \
