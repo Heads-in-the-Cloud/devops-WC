@@ -108,7 +108,7 @@ pipeline {
             steps{
                 script{
                     dir('ecs/blue_green'){
-                    sh """APPSPEC=$(echo '{"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}' | jq -Rs .)"""
+                    APPSPEC= sh (script: """echo '{"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}' | jq -Rs .""",returnStdout: true).trim()
                     sh "echo $APPSPEC"
                     // sh 'aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=file://appspec.yaml}'
                     }
