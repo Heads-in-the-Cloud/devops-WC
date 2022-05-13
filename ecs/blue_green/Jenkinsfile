@@ -80,6 +80,8 @@ pipeline {
 
                     env.STACK_NAME          = "${CF_STACK_WC}-${params.environment}"
                     env.STACK_EXISTS        = true
+                    env.CONTAINER_PORT      = "${WC_CONTAINER_PORT}"
+
 
                 }
             }
@@ -107,6 +109,7 @@ pipeline {
                 script{
                     dir('ecs/blue_green'){
                     sh "envsubst < appspec.yaml > temp"
+                    env.CONTAINER_NAME=${USER_REPO_WC}-${params.environment}
                     sh "cat temp"
                     // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group"
                     sh "rm temp"
