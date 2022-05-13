@@ -111,7 +111,7 @@ pipeline {
                     env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
                     env.TASK_DEFINITION_ARN="arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${CONTAINER_NAME}"
                     // APPSPEC= sh (script: """echo '{"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}' | jq -Rs .""",returnStdout: true)
-                    sh "chmod+x appspec.sh"
+                    sh "chmod +x appspec.sh"
                     sh "./appspec.sh"
                     // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=$APPSPEC}"
                     }
