@@ -110,10 +110,8 @@ pipeline {
                     dir('ecs/blue_green'){
                     env.CONTAINER_NAME="${USER_REPO_WC}-${params.environment}"
                     env.AWS_TASK_DEFINITION_ARN="arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${CONTAINER_NAME}"
-                    // APPSPEC= sh (script: """echo '{"version":1,"Resources":[{"TargetService":{"Type":"AWS::ECS::Service","Properties":{"TaskDefinition":"arn:aws:ecs:us-west-2:026390315914:task-definition/wc-users-api-dev","LoadBalancerInfo":{"ContainerName":"wc-users-api-dev","ContainerPort":5000}}}}]}' | jq -Rs .""",returnStdout: true)
                     sh "chmod +x appspec.sh"
                     sh "./appspec.sh"
-                    // sh "aws deploy create-deployment --application-name wc-users-api-dev --deployment-group-name users-deployment-group --revision revisionType=AppSpecContent,appSpecContent={content=$APPSPEC}"
                     }
                 }
             }
@@ -127,7 +125,12 @@ pipeline {
             }
             steps{
                 script{
-                    sh "aws ecs update-service --service ${FLIGHT_REPO_WC} --task-definition ${FLIGHT_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                    dir('ecs/blue_green'){
+                    env.CONTAINER_NAME="${FLIGHT_REPO_WC}-${params.environment}"
+                    env.AWS_TASK_DEFINITION_ARN="arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${CONTAINER_NAME}"
+                    sh "chmod +x appspec.sh"
+                    sh "./appspec.sh"
+                    }              
                 }
             }
         }
@@ -140,7 +143,12 @@ pipeline {
             }
             steps{
                 script{
-                    sh "aws ecs update-service --service ${BOOKING_REPO_WC} --task-definition ${BOOKING_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                    dir('ecs/blue_green'){
+                    env.CONTAINER_NAME="${BOOKING_REPO_WC}-${params.environment}"
+                    env.AWS_TASK_DEFINITION_ARN="arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${CONTAINER_NAME}"
+                    sh "chmod +x appspec.sh"
+                    sh "./appspec.sh"
+                    }
                 }
             }
         }
@@ -153,7 +161,12 @@ pipeline {
             }
             steps{
                 script{
-                    sh "aws ecs update-service --service ${FRONTEND_REPO_WC} --task-definition ${FRONTEND_REPO_WC}-${params.environment} --force-new-deployment --cluster ${CLUSTER_NAME_WC}"
+                    dir('ecs/blue_green'){
+                    env.CONTAINER_NAME="${FRONTEND_REPO_WC}-${params.environment}"
+                    env.AWS_TASK_DEFINITION_ARN="arn:aws:ecs:${AWS_DEFAULT_REGION}:${ORG_ACCOUNT_NUM}:task-definition/${CONTAINER_NAME}"
+                    sh "chmod +x appspec.sh"
+                    sh "./appspec.sh"
+                    }
                 }
             }
         }
